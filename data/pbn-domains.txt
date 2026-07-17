@@ -1,0 +1,44 @@
+# Danh sách domain PBN dùng cho content-webnovel (pbn).
+# Khi viết pbn kèm --site <domain>, đối chiếu domain với list này.
+# Ảnh bìa nằm CÙNG domain đăng bài (--site), ghép theo công thức:
+#   https://{site}/wp-content/uploads/{img-month}/{slug}.webp
+# (site = --site, img-month = --img dạng YYYY/MM, slug = slug truyện trong truyen-data.json)
+
+www.tntp.org.vn
+tonghoixaydungvn.org.vn
+www.rced.com.vn
+www.quehuong.org.vn
+www.dhxd.edu.vn
+www.dhyhp.edu.vn
+www.ecoeco.org.vn
+www.halong.org.vn
+fbu.vn
+www.halongbay.net.vn
+www.hcmc-cordbloodbank.org.vn
+www.hwru.edu.vn
+www.ioit-hcm.ac.vn
+www.megavnn.vn
+www.mxbank.com.vn
+www.nhahocotton.org.vn
+www.pedc.org.vn
+www.povertyandenvironment.vn
+www.quangbawebs.com
+www.vyic.org.vn
+www.vqh-bxd.org.vn
+www.vocw.edu.vn
+www.vnuitp.edu.vn
+www.vnrc.org.vn
+vnptyenbai.vn
+www.vngender.edu.vn
+www.vnfineartsmuseum.org.vn
+www.viwrr.ac.vn
+www.vietlex.com.vn
+viap.org.vn
+saomaimedia.com.vn
+www.thainguyentrade.com.vn
+www.binhduonghospital.org.vn
+www.bca.org.vn
+www.bvtttw1.com.vn
+clst.ac.vn
+www.dhnh.edu.vn
+www.thuvienluanvan.com

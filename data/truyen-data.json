@@ -1,0 +1,972 @@
+[
+  {
+    "tu_khoa": "Huyền Giám Tiên Tộc",
+    "slug": "huyen-giam-tien-toc",
+    "link_truyen": "https://webnovel.vn/huyen-giam-tien-toc/",
+    "anh_local": "hinh-anh-ten-truyen/huyen-giam-tien-toc.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/huyen-giam-tien-toc.webp?t=1766152056",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Quý Việt Nhân"
+  },
+  {
+    "tu_khoa": "Tiên Nghịch",
+    "slug": "tien-nghich",
+    "link_truyen": "https://webnovel.vn/tien-nghich/",
+    "anh_local": "hinh-anh-ten-truyen/tien-nghich.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/tien-nghich.webp?t=1779886626",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Nhĩ Căn"
+  },
+  {
+    "tu_khoa": "Ai Bảo Hắn Tu Tiên!",
+    "slug": "ai-bao-han-tu-tien",
+    "link_truyen": "https://webnovel.vn/ai-bao-han-tu-tien/",
+    "anh_local": "hinh-anh-ten-truyen/ai-bao-han-tu-tien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/ai-bao-han-tu-tien.webp?t=1768218030",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Tối Bạch Đích Ô Nha"
+  },
+  {
+    "tu_khoa": "Phàm Nhân Tu Tiên",
+    "slug": "pham-nhan-tu-tien",
+    "link_truyen": "https://webnovel.vn/pham-nhan-tu-tien/",
+    "anh_local": "hinh-anh-ten-truyen/pham-nhan-tu-tien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/pham-nhan-tu-tien.webp?t=1781281355",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Vong Ngữ"
+  },
+  {
+    "tu_khoa": "Vớt Thi Nhân",
+    "slug": "vot-thi-nhan",
+    "link_truyen": "https://webnovel.vn/vot-thi-nhan/",
+    "anh_local": "hinh-anh-ten-truyen/vot-thi-nhan.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/vot-thi-nhan.webp?t=1766731893",
+    "danh_muc": [
+      "Hiện Đại",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Thuần Khiết Tích Tiểu Long"
+  },
+  {
+    "tu_khoa": "Trận Vấn Trường Sinh",
+    "slug": "tran-van-truong-sinh",
+    "link_truyen": "https://webnovel.vn/tran-van-truong-sinh/",
+    "anh_local": "hinh-anh-ten-truyen/tran-van-truong-sinh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/tran-van-truong-sinh.webp?t=1773993360",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không"
+    ],
+    "tac_gia": "Quan Hư"
+  },
+  {
+    "tu_khoa": "Từ Hài Nhi Bắt Đầu Nhập Đạo",
+    "slug": "tu-hai-nhi-bat-dau-nhap-dao",
+    "link_truyen": "https://webnovel.vn/tu-hai-nhi-bat-dau-nhap-dao/",
+    "anh_local": "hinh-anh-ten-truyen/tu-hai-nhi-bat-dau-nhap-dao.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/tu-hai-nhi-bat-dau-nhap-dao.webp?t=1773131189",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Cổ Hi"
+  },
+  {
+    "tu_khoa": "Nguyên Thủy Pháp Tắc",
+    "slug": "nguyen-thuy-phap-tac",
+    "link_truyen": "https://webnovel.vn/nguyen-thuy-phap-tac/",
+    "anh_local": "hinh-anh-ten-truyen/nguyen-thuy-phap-tac.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/nguyen-thuy-phap-tac.webp?t=1766151299",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Phi Thiên Ngư"
+  },
+  {
+    "tu_khoa": "Thanh Sơn",
+    "slug": "thanh-son",
+    "link_truyen": "https://webnovel.vn/thanh-son/",
+    "anh_local": "hinh-anh-ten-truyen/thanh-son.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/thanh-son.webp?t=1766734454",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Hội Thuyết Thoại Đích Trửu Tử"
+  },
+  {
+    "tu_khoa": "Xích Tâm Tuần Thiên",
+    "slug": "xich-tam-tuan-thien",
+    "link_truyen": "https://webnovel.vn/xich-tam-tuan-thien/",
+    "anh_local": "hinh-anh-ten-truyen/xich-tam-tuan-thien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/xich-tam-tuan-thien.webp?t=1768388046",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Tinh Hà Dĩ Thậm"
+  },
+  {
+    "tu_khoa": "Vạn Cổ Thần Đế",
+    "slug": "van-co-than-de",
+    "link_truyen": "https://webnovel.vn/van-co-than-de/",
+    "anh_local": "hinh-anh-ten-truyen/van-co-than-de.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/van-co-than-de.webp?t=1762157285",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Phi Thiên Ngư"
+  },
+  {
+    "tu_khoa": "Không Có Tiền Tu Tiên Cái Gì?",
+    "slug": "khong-co-tien-tu-tien-cai-gi",
+    "link_truyen": "https://webnovel.vn/khong-co-tien-tu-tien-cai-gi/",
+    "anh_local": "hinh-anh-ten-truyen/khong-co-tien-tu-tien-cai-gi.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/khong-co-tien-tu-tien-cai-gi.webp?t=1769164494",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Hùng Lang Cẩu"
+  },
+  {
+    "tu_khoa": "Cẩu Thả Thành Thánh Nhân, Tiên Quan Triệu Ta Chăm Ngựa",
+    "slug": "cau-tha-thanh-thanh-nhan-tien-quan-trieu-ta-cham-ngua",
+    "link_truyen": "https://webnovel.vn/cau-tha-thanh-thanh-nhan-tien-quan-trieu-ta-cham-ngua/",
+    "anh_local": "hinh-anh-ten-truyen/cau-tha-thanh-thanh-nhan-tien-quan-trieu-ta-cham-ngua.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/cau-tha-thanh-thanh-nhan-tien-quan-trieu-ta-cham-ngua.webp?t=1766044392",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Nhâm Ngã Tiếu"
+  },
+  {
+    "tu_khoa": "Dạ Vô Cương",
+    "slug": "da-vo-cuong",
+    "link_truyen": "https://webnovel.vn/da-vo-cuong/",
+    "anh_local": "hinh-anh-ten-truyen/da-vo-cuong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/da-vo-cuong.webp?t=1769693194",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn",
+      "Dị Giới"
+    ],
+    "tac_gia": "Thần Đông"
+  },
+  {
+    "tu_khoa": "Bắt Đầu Đánh Dấu Hoang Cổ Thánh Thể",
+    "slug": "bat-dau-danh-dau-hoang-co-thanh-the",
+    "link_truyen": "https://webnovel.vn/bat-dau-danh-dau-hoang-co-thanh-the/",
+    "anh_local": "hinh-anh-ten-truyen/bat-dau-danh-dau-hoang-co-thanh-the.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/bat-dau-danh-dau-hoang-co-thanh-the.webp?t=1779871135",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "J Thần"
+  },
+  {
+    "tu_khoa": "Đại Đạo Chi Thượng",
+    "slug": "dai-dao-chi-thuong",
+    "link_truyen": "https://webnovel.vn/dai-dao-chi-thuong/",
+    "anh_local": "hinh-anh-ten-truyen/dai-dao-chi-thuong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/dai-dao-chi-thuong.webp?t=1773114253",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Trạch Trư"
+  },
+  {
+    "tu_khoa": "Cẩu Thả Tại Sơ Thánh Ma Môn Làm Nhân Tài",
+    "slug": "cau-tha-tai-so-thanh-ma-mon-lam-nhan-tai",
+    "link_truyen": "https://webnovel.vn/cau-tha-tai-so-thanh-ma-mon-lam-nhan-tai/",
+    "anh_local": "hinh-anh-ten-truyen/cau-tha-tai-so-thanh-ma-mon-lam-nhan-tai.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/cau-tha-tai-so-thanh-ma-mon-lam-nhan-tai.webp?t=1774357583",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Hạc Thủ Nguyệt Mãn Trì"
+  },
+  {
+    "tu_khoa": "Linh Cảnh Hành Giả",
+    "slug": "linh-canh-hanh-gia",
+    "link_truyen": "https://webnovel.vn/linh-canh-hanh-gia/",
+    "anh_local": "hinh-anh-ten-truyen/linh-canh-hanh-gia.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/linh-canh-hanh-gia.webp?t=1773996838",
+    "danh_muc": [
+      "Đô Thị",
+      "Dị Năng"
+    ],
+    "tac_gia": "Mại Báo Tiểu Lang Quân"
+  },
+  {
+    "tu_khoa": "Ta Mô Phỏng Con Đường Trường Sinh",
+    "slug": "ta-mo-phong-con-duong-truong-sinh",
+    "link_truyen": "https://webnovel.vn/ta-mo-phong-con-duong-truong-sinh/",
+    "anh_local": "hinh-anh-ten-truyen/ta-mo-phong-con-duong-truong-sinh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/ta-mo-phong-con-duong-truong-sinh.webp?t=1770993645",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Phẫn Nộ Đích Ô Tặc"
+  },
+  {
+    "tu_khoa": "Khấu Vấn Tiên Đạo",
+    "slug": "khau-van-tien-dao",
+    "link_truyen": "https://webnovel.vn/khau-van-tien-dao/",
+    "anh_local": "hinh-anh-ten-truyen/khau-van-tien-dao.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/042026/khau-van-tien-dao.webp?t=1777022459",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Vũ Đả Thanh Thạch"
+  },
+  {
+    "tu_khoa": "Ta Tại Tu Tiên Giới Vạn Cổ Trường Thanh",
+    "slug": "ta-tai-tu-tien-gioi-van-co-truong-thanh",
+    "link_truyen": "https://webnovel.vn/ta-tai-tu-tien-gioi-van-co-truong-thanh/",
+    "anh_local": "hinh-anh-ten-truyen/ta-tai-tu-tien-gioi-van-co-truong-thanh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/ta-tai-tu-tien-gioi-van-co-truong-thanh.webp?t=1773125555",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn",
+      "Trọng Sinh"
+    ],
+    "tac_gia": "Khoái Xan Điếm"
+  },
+  {
+    "tu_khoa": "Sơn Hải Đề Đăng",
+    "slug": "son-hai-de-dang",
+    "link_truyen": "https://webnovel.vn/son-hai-de-dang/",
+    "anh_local": "hinh-anh-ten-truyen/son-hai-de-dang.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/son-hai-de-dang.webp?t=1773113332",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Dược Thiên Sầu"
+  },
+  {
+    "tu_khoa": "Độc Bộ Thành Tiên",
+    "slug": "doc-bo-thanh-tien",
+    "link_truyen": "https://webnovel.vn/doc-bo-thanh-tien/",
+    "anh_local": "hinh-anh-ten-truyen/doc-bo-thanh-tien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/doc-bo-thanh-tien.webp?t=1768897613",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Cảo Cá Chùy Tử"
+  },
+  {
+    "tu_khoa": "Phàm Nhân Tu Tiên Chi Tiên Giới Thiên",
+    "slug": "pham-nhan-tu-tien-chi-tien-gioi-thien",
+    "link_truyen": "https://webnovel.vn/pham-nhan-tu-tien-chi-tien-gioi-thien/",
+    "anh_local": "hinh-anh-ten-truyen/pham-nhan-tu-tien-chi-tien-gioi-thien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/pham-nhan-tu-tien-chi-tien-gioi-thien.webp?t=1780480206",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Vong Ngữ"
+  },
+  {
+    "tu_khoa": "Trò Chơi Này Cũng Quá Chân Thật",
+    "slug": "tro-choi-nay-cung-qua-chan-that",
+    "link_truyen": "https://webnovel.vn/tro-choi-nay-cung-qua-chan-that/",
+    "anh_local": "hinh-anh-ten-truyen/tro-choi-nay-cung-qua-chan-that.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/tro-choi-nay-cung-qua-chan-that.webp?t=1769679392",
+    "danh_muc": [
+      "Võng Du"
+    ],
+    "tac_gia": "Thần Tinh Ll"
+  },
+  {
+    "tu_khoa": "Thần Kiếm Vô Địch",
+    "slug": "than-kiem-vo-dich",
+    "link_truyen": "https://webnovel.vn/than-kiem-vo-dich/",
+    "anh_local": "hinh-anh-ten-truyen/than-kiem-vo-dich.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/than-kiem-vo-dich.webp?t=1771066723",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Thần Kiến"
+  },
+  {
+    "tu_khoa": "Nhân Tộc Trấn Thủ Sứ",
+    "slug": "nhan-toc-tran-thu-su",
+    "link_truyen": "https://webnovel.vn/nhan-toc-tran-thu-su/",
+    "anh_local": "hinh-anh-ten-truyen/nhan-toc-tran-thu-su.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/nhan-toc-tran-thu-su.webp?t=1773997296",
+    "danh_muc": [
+      "Tiên Hiệp"
+    ],
+    "tac_gia": "Bạch Câu Dịch Thệ"
+  },
+  {
+    "tu_khoa": "Ta Có Một Thế Giới Tu Tiên",
+    "slug": "ta-co-mot-the-gioi-tu-tien",
+    "link_truyen": "https://webnovel.vn/ta-co-mot-the-gioi-tu-tien/",
+    "anh_local": "hinh-anh-ten-truyen/ta-co-mot-the-gioi-tu-tien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/ta-co-mot-the-gioi-tu-tien.webp?t=1769691280",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Thuần Cửu Liên Bảo Đăng"
+  },
+  {
+    "tu_khoa": "Thiên Đạo Thư Viện 2 Thiên Mệnh Vĩnh Hằng",
+    "slug": "thien-dao-thu-vien-2-thien-menh-vinh-hang",
+    "link_truyen": "https://webnovel.vn/thien-dao-thu-vien-2-thien-menh-vinh-hang/",
+    "anh_local": "hinh-anh-ten-truyen/thien-dao-thu-vien-2-thien-menh-vinh-hang.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/thien-dao-thu-vien-2-thien-menh-vinh-hang.webp?t=1769655085",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Hoành Tảo Thiên Nhai"
+  },
+  {
+    "tu_khoa": "Thập Niên 60: Làm Giàu Nuôi Con",
+    "slug": "thap-nien-60-lam-giau-nuoi-con",
+    "link_truyen": "https://webnovel.vn/thap-nien-60-lam-giau-nuoi-con/",
+    "anh_local": "hinh-anh-ten-truyen/thap-nien-60-lam-giau-nuoi-con.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/thap-nien-60-lam-giau-nuoi-con.webp?t=1770110556",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Hiện Đại",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Nam Phương Lệ Chi"
+  },
+  {
+    "tu_khoa": "Nhân Đạo Đại Thánh",
+    "slug": "nhan-dao-dai-thanh",
+    "link_truyen": "https://webnovel.vn/nhan-dao-dai-thanh/",
+    "anh_local": "hinh-anh-ten-truyen/nhan-dao-dai-thanh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/nhan-dao-dai-thanh.webp?t=1763088997",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Mạc Mặc"
+  },
+  {
+    "tu_khoa": "Trở Về Làng Chài Nhỏ 1982",
+    "slug": "tro-ve-lang-chai-nho-1982",
+    "link_truyen": "https://webnovel.vn/tro-ve-lang-chai-nho-1982/",
+    "anh_local": "hinh-anh-ten-truyen/tro-ve-lang-chai-nho-1982.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/tro-ve-lang-chai-nho-1982.webp?t=1764954353",
+    "danh_muc": [
+      "Điền Văn",
+      "Đô Thị",
+      "Trọng Sinh",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Mễ Phạn Đích Mễ"
+  },
+  {
+    "tu_khoa": "Đô Thị Siêu Cấp Y Thánh",
+    "slug": "do-thi-sieu-cap-y-thanh",
+    "link_truyen": "https://webnovel.vn/do-thi-sieu-cap-y-thanh/",
+    "anh_local": "hinh-anh-ten-truyen/do-thi-sieu-cap-y-thanh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/042026/do-thi-sieu-cap-y-thanh.webp?t=1777014298",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Đô Thị",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Đoạn Kiều Tàn Tuyết"
+  },
+  {
+    "tu_khoa": "Kiếm Khiếu Linh Tiêu",
+    "slug": "kiem-khieu-linh-tieu",
+    "link_truyen": "https://webnovel.vn/kiem-khieu-linh-tieu/",
+    "anh_local": "hinh-anh-ten-truyen/kiem-khieu-linh-tieu.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/kiem-khieu-linh-tieu.webp?t=1762156403",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Kiếm Hiệp"
+    ],
+    "tac_gia": "Lưu Lãng Đích Cáp Mô"
+  },
+  {
+    "tu_khoa": "Nhất Phẩm Tu Tiên",
+    "slug": "nhat-pham-tu-tien",
+    "link_truyen": "https://webnovel.vn/nhat-pham-tu-tien/",
+    "anh_local": "hinh-anh-ten-truyen/nhat-pham-tu-tien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/nhat-pham-tu-tien.webp?t=1771055603",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Trọng Sinh"
+    ],
+    "tac_gia": "Bất Phóng Tâm Du Điều"
+  },
+  {
+    "tu_khoa": "Minh Long",
+    "slug": "minh-long",
+    "link_truyen": "https://webnovel.vn/minh-long/",
+    "anh_local": "hinh-anh-ten-truyen/minh-long.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/minh-long.webp?t=1766734074",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Quan Quan Công Tử"
+  },
+  {
+    "tu_khoa": "Từ Lưu Dân Bắt Đầu Võ Đạo Thông Thần",
+    "slug": "tu-luu-dan-bat-dau-vo-dao-thong-than",
+    "link_truyen": "https://webnovel.vn/tu-luu-dan-bat-dau-vo-dao-thong-than/",
+    "anh_local": "hinh-anh-ten-truyen/tu-luu-dan-bat-dau-vo-dao-thong-than.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/tu-luu-dan-bat-dau-vo-dao-thong-than.webp?t=1768898411",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Phạn Bất Cật Nhục"
+  },
+  {
+    "tu_khoa": "Nữ Đặc Công Trùng Sinh Làm Ruộng",
+    "slug": "nu-dac-cong-trung-sinh-lam-ruong",
+    "link_truyen": "https://webnovel.vn/nu-dac-cong-trung-sinh-lam-ruong/",
+    "anh_local": "hinh-anh-ten-truyen/nu-dac-cong-trung-sinh-lam-ruong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/nu-dac-cong-trung-sinh-lam-ruong.webp?t=1765214415",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Cổ Đại"
+    ],
+    "tac_gia": "Chu Ký Đích Cửu Mệnh Bệnh Miêu"
+  },
+  {
+    "tu_khoa": "Sơn Hà Tế",
+    "slug": "son-ha-te",
+    "link_truyen": "https://webnovel.vn/son-ha-te/",
+    "anh_local": "hinh-anh-ten-truyen/son-ha-te.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/son-ha-te.webp?t=1777985143",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Cơ Xoa"
+  },
+  {
+    "tu_khoa": "Từ Thủy Hầu Tử Bắt Đầu Thành Thần",
+    "slug": "tu-thuy-hau-tu-bat-dau-thanh-than",
+    "link_truyen": "https://webnovel.vn/tu-thuy-hau-tu-bat-dau-thanh-than/",
+    "anh_local": "hinh-anh-ten-truyen/tu-thuy-hau-tu-bat-dau-thanh-than.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/tu-thuy-hau-tu-bat-dau-thanh-than.webp?t=1767685742",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Giáp Xác Nghĩ"
+  },
+  {
+    "tu_khoa": "Cẩu Thả Bên Người Nữ Ma Đầu Vụng Trộm Tu Luyện",
+    "slug": "cau-tha-ben-nguoi-nu-ma-dau-vung-trom-tu-luyen",
+    "link_truyen": "https://webnovel.vn/cau-tha-ben-nguoi-nu-ma-dau-vung-trom-tu-luyen/",
+    "anh_local": "hinh-anh-ten-truyen/cau-tha-ben-nguoi-nu-ma-dau-vung-trom-tu-luyen.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/cau-tha-ben-nguoi-nu-ma-dau-vung-trom-tu-luyen.webp?t=1774357098",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Pha Lạt Đích Hồng Tiêu"
+  },
+  {
+    "tu_khoa": "Ta Có Thể Nhìn Thấu Tin Tức Vạn Vật",
+    "slug": "ta-co-the-nhin-thau-tin-tuc-van-vat",
+    "link_truyen": "https://webnovel.vn/ta-co-the-nhin-thau-tin-tuc-van-vat/",
+    "anh_local": "hinh-anh-ten-truyen/ta-co-the-nhin-thau-tin-tuc-van-vat.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/ta-co-the-nhin-thau-tin-tuc-van-vat.webp?t=1777868985",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Hàm Ngư Vương Chi Chi"
+  },
+  {
+    "tu_khoa": "Hoàng Hôn Phân Giới",
+    "slug": "hoang-hon-phan-gioi",
+    "link_truyen": "https://webnovel.vn/hoang-hon-phan-gioi/",
+    "anh_local": "hinh-anh-ten-truyen/hoang-hon-phan-gioi.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/hoang-hon-phan-gioi.webp?t=1769678686",
+    "danh_muc": [
+      "Xuyên Không",
+      "Khoa Huyễn"
+    ],
+    "tac_gia": "Hắc Sơn Lão Quỷ"
+  },
+  {
+    "tu_khoa": "Mang Theo Siêu Thị Trở Về Thập Niên 80",
+    "slug": "mang-theo-sieu-thi-tro-ve-thap-nien-80",
+    "link_truyen": "https://webnovel.vn/mang-theo-sieu-thi-tro-ve-thap-nien-80/",
+    "anh_local": "hinh-anh-ten-truyen/mang-theo-sieu-thi-tro-ve-thap-nien-80.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/mang-theo-sieu-thi-tro-ve-thap-nien-80.webp?t=1774321487",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Trọng Sinh",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Yêu Bạch"
+  },
+  {
+    "tu_khoa": "Từ Người Gõ Chuông Trở Thành Lão Tổ Tông Môn Phái",
+    "slug": "tu-nguoi-go-chuong-tro-thanh-lao-to-tong-mon-phai",
+    "link_truyen": "https://webnovel.vn/tu-nguoi-go-chuong-tro-thanh-lao-to-tong-mon-phai/",
+    "anh_local": "hinh-anh-ten-truyen/tu-nguoi-go-chuong-tro-thanh-lao-to-tong-mon-phai.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/tu-nguoi-go-chuong-tro-thanh-lao-to-tong-mon-phai.webp?t=1771071735",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Hỏa Đáo Tinh Không Thâm Xử"
+  },
+  {
+    "tu_khoa": "Đại Huyền Đệ Nhất Hầu",
+    "slug": "dai-huyen-de-nhat-hau",
+    "link_truyen": "https://webnovel.vn/dai-huyen-de-nhat-hau/",
+    "anh_local": "hinh-anh-ten-truyen/dai-huyen-de-nhat-hau.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/dai-huyen-de-nhat-hau.webp?t=1773994094",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Đông Sàng Ngọa Hổ"
+  },
+  {
+    "tu_khoa": "Trọng Sinh Về Niên Đại, Kiều Thê Có Không Gian",
+    "slug": "trong-sinh-ve-nien-dai-kieu-the-co-khong-gian",
+    "link_truyen": "https://webnovel.vn/trong-sinh-ve-nien-dai-kieu-the-co-khong-gian/",
+    "anh_local": "hinh-anh-ten-truyen/trong-sinh-ve-nien-dai-kieu-the-co-khong-gian.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/trong-sinh-ve-nien-dai-kieu-the-co-khong-gian.webp?t=1770971477",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Xuân Quang Mãn Viên"
+  },
+  {
+    "tu_khoa": "Ta Thả Câu Trở Thành Thần Linh",
+    "slug": "ta-tha-cau-tro-thanh-than-linh",
+    "link_truyen": "https://webnovel.vn/ta-tha-cau-tro-thanh-than-linh/",
+    "anh_local": "hinh-anh-ten-truyen/ta-tha-cau-tro-thanh-than-linh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/042026/ta-tha-cau-tro-thanh-than-linh.webp?t=1777015352",
+    "danh_muc": [
+      "Xuyên Không",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Hội Lang Khiếu Đích Trư"
+  },
+  {
+    "tu_khoa": "Chạy Nạn Làm Ruộng: Ta Dùng Y Thuật Làm Giàu",
+    "slug": "chay-nan-lam-ruong-ta-dung-y-thuat-lam-giau",
+    "link_truyen": "https://webnovel.vn/chay-nan-lam-ruong-ta-dung-y-thuat-lam-giau/",
+    "anh_local": "hinh-anh-ten-truyen/chay-nan-lam-ruong-ta-dung-y-thuat-lam-giau.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/chay-nan-lam-ruong-ta-dung-y-thuat-lam-giau.webp?t=1762158377",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không"
+    ],
+    "tac_gia": "Thiên Ma Trùng Thảo Hoa"
+  },
+  {
+    "tu_khoa": "Bắt Đầu Đánh Dấu Từ Bộ Khoái",
+    "slug": "bat-dau-danh-dau-tu-bo-khoai",
+    "link_truyen": "https://webnovel.vn/bat-dau-danh-dau-tu-bo-khoai/",
+    "anh_local": "hinh-anh-ten-truyen/bat-dau-danh-dau-tu-bo-khoai.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/042026/bat-dau-danh-dau-tu-bo-khoai.webp?t=1777021867",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Cổ Đại"
+    ],
+    "tac_gia": "Thăng Đấu Yên Dân"
+  },
+  {
+    "tu_khoa": "Bắt Đầu Từ Lâu Chủ, Ta Có Một Đao Kinh Thiên Hạ",
+    "slug": "bat-dau-tu-lau-chu-ta-co-mot-dao-kinh-thien-ha",
+    "link_truyen": "https://webnovel.vn/bat-dau-tu-lau-chu-ta-co-mot-dao-kinh-thien-ha/",
+    "anh_local": "hinh-anh-ten-truyen/bat-dau-tu-lau-chu-ta-co-mot-dao-kinh-thien-ha.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/bat-dau-tu-lau-chu-ta-co-mot-dao-kinh-thien-ha.webp?t=1774356827",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Thăng Đấu Yên Dân"
+  },
+  {
+    "tu_khoa": "Chạy Nạn Không Hoảng Hốt, Cả Nhà Đại Lão Vội Làm Ruộng",
+    "slug": "chay-nan-khong-hoang-hot-ca-nha-dai-lao-voi-lam-ruong",
+    "link_truyen": "https://webnovel.vn/chay-nan-khong-hoang-hot-ca-nha-dai-lao-voi-lam-ruong/",
+    "anh_local": "hinh-anh-ten-truyen/chay-nan-khong-hoang-hot-ca-nha-dai-lao-voi-lam-ruong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/chay-nan-khong-hoang-hot-ca-nha-dai-lao-voi-lam-ruong.webp?t=1763525532",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Cổ Đại"
+    ],
+    "tac_gia": "Du Nhàn Tiểu Thần"
+  },
+  {
+    "tu_khoa": "Vạn Cổ Đế Tế",
+    "slug": "van-co-de-te",
+    "link_truyen": "https://webnovel.vn/van-co-de-te/",
+    "anh_local": "hinh-anh-ten-truyen/van-co-de-te.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/van-co-de-te.webp?t=1779870420",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Lão Quỷ"
+  },
+  {
+    "tu_khoa": "Thập Niên 70: Cuộc Sống Điền Viên Của Nữ Phụ",
+    "slug": "thap-nien-70-cuoc-song-dien-vien-cua-nu-phu",
+    "link_truyen": "https://webnovel.vn/thap-nien-70-cuoc-song-dien-vien-cua-nu-phu/",
+    "anh_local": "hinh-anh-ten-truyen/thap-nien-70-cuoc-song-dien-vien-cua-nu-phu.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/thap-nien-70-cuoc-song-dien-vien-cua-nu-phu.webp?t=1780649979",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Hiện Đại",
+      "Trọng Sinh"
+    ],
+    "tac_gia": "Tùy Niệm"
+  },
+  {
+    "tu_khoa": "Thái Bình Lệnh",
+    "slug": "thai-binh-lenh",
+    "link_truyen": "https://webnovel.vn/thai-binh-lenh/",
+    "anh_local": "hinh-anh-ten-truyen/thai-binh-lenh.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/thai-binh-lenh.webp?t=1770994606",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn",
+      "Quân Sự"
+    ],
+    "tac_gia": "Diêm Zk"
+  },
+  {
+    "tu_khoa": "Kiếm Xuất Đại Đường",
+    "slug": "kiem-xuat-dai-duong",
+    "link_truyen": "https://webnovel.vn/kiem-xuat-dai-duong/",
+    "anh_local": "hinh-anh-ten-truyen/kiem-xuat-dai-duong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/kiem-xuat-dai-duong.webp?t=1770990314",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Trọng Sinh",
+      "Quan Trường"
+    ],
+    "tac_gia": "Nhất Phiến Tô Diệp"
+  },
+  {
+    "tu_khoa": "Vạn Giới Thủ Môn Nhân",
+    "slug": "van-gioi-thu-mon-nhan",
+    "link_truyen": "https://webnovel.vn/van-gioi-thu-mon-nhan/",
+    "anh_local": "hinh-anh-ten-truyen/van-gioi-thu-mon-nhan.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/van-gioi-thu-mon-nhan.webp?t=1779872923",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Khoa Huyễn"
+    ],
+    "tac_gia": "Yên Hỏa Thành Thành"
+  },
+  {
+    "tu_khoa": "Phổ La Chi Chủ",
+    "slug": "pho-la-chi-chu",
+    "link_truyen": "https://webnovel.vn/pho-la-chi-chu/",
+    "anh_local": "hinh-anh-ten-truyen/pho-la-chi-chu.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/pho-la-chi-chu.webp?t=1779869926",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Sa Lạp Cổ Tư"
+  },
+  {
+    "tu_khoa": "Tam Thốn Nhân Gian",
+    "slug": "tam-thon-nhan-gian",
+    "link_truyen": "https://webnovel.vn/tam-thon-nhan-gian/",
+    "anh_local": "hinh-anh-ten-truyen/tam-thon-nhan-gian.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/tam-thon-nhan-gian.webp?t=1781267400",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Nhĩ Căn"
+  },
+  {
+    "tu_khoa": "Tiểu Nha Hoàn Phú Quý",
+    "slug": "tieu-nha-hoan-phu-quy",
+    "link_truyen": "https://webnovel.vn/tieu-nha-hoan-phu-quy/",
+    "anh_local": "hinh-anh-ten-truyen/tieu-nha-hoan-phu-quy.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/tieu-nha-hoan-phu-quy.webp?t=1770122885",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Cổ Đại"
+    ],
+    "tac_gia": "Hoa Thanh Tuyết"
+  },
+  {
+    "tu_khoa": "Thập Niên 70: Cuộc Sống Náo Nhiệt Ở Khu Đại Viện",
+    "slug": "thap-nien-70-cuoc-song-nao-nhiet-o-khu-dai-vien",
+    "link_truyen": "https://webnovel.vn/thap-nien-70-cuoc-song-nao-nhiet-o-khu-dai-vien/",
+    "anh_local": "hinh-anh-ten-truyen/thap-nien-70-cuoc-song-nao-nhiet-o-khu-dai-vien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/thap-nien-70-cuoc-song-nao-nhiet-o-khu-dai-vien.webp?t=1780651224",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Hiện Đại",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Ba Ba Ngốc Mao"
+  },
+  {
+    "tu_khoa": "Thần Nông Đạo Quân",
+    "slug": "than-nong-dao-quan",
+    "link_truyen": "https://webnovel.vn/than-nong-dao-quan/",
+    "anh_local": "hinh-anh-ten-truyen/than-nong-dao-quan.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/032026/than-nong-dao-quan.webp?t=1773995809",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Thần Uy Giáo Úy"
+  },
+  {
+    "tu_khoa": "Thập Niên 80: Một Cuộc Đời Tươi Sáng",
+    "slug": "thap-nien-80-mot-cuoc-doi-tuoi-sang",
+    "link_truyen": "https://webnovel.vn/thap-nien-80-mot-cuoc-doi-tuoi-sang/",
+    "anh_local": "hinh-anh-ten-truyen/thap-nien-80-mot-cuoc-doi-tuoi-sang.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/thap-nien-80-mot-cuoc-doi-tuoi-sang.webp?t=1767684786",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Hiện Đại",
+      "Trọng Sinh",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Trình Gia Hỉ"
+  },
+  {
+    "tu_khoa": "Ở Niên Đại Văn, Tôi Là Cực Phẩm!",
+    "slug": "o-nien-dai-van-toi-la-cuc-pham",
+    "link_truyen": "https://webnovel.vn/o-nien-dai-van-toi-la-cuc-pham/",
+    "anh_local": "hinh-anh-ten-truyen/o-nien-dai-van-toi-la-cuc-pham.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/o-nien-dai-van-toi-la-cuc-pham.webp?t=1764954961",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Trọng Sinh",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Xúc Lan"
+  },
+  {
+    "tu_khoa": "Chuyện Lạ Bắc Tề",
+    "slug": "chuyen-la-bac-te",
+    "link_truyen": "https://webnovel.vn/chuyen-la-bac-te/",
+    "anh_local": "hinh-anh-ten-truyen/chuyen-la-bac-te.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/022026/chuyen-la-bac-te.webp?t=1771037886",
+    "danh_muc": [
+      "Quan Trường",
+      "Lịch Sử",
+      "Quân Sự"
+    ],
+    "tac_gia": "Lịch Sử Hệ Chi Lang"
+  },
+  {
+    "tu_khoa": "Điểm Quyến Rũ Đạt Mức Tối Đa, Thừa Kế Tài Sản Trò Chơi",
+    "slug": "diem-quyen-ru-dat-muc-toi-da-thua-ke-tai-san-tro-choi",
+    "link_truyen": "https://webnovel.vn/diem-quyen-ru-dat-muc-toi-da-thua-ke-tai-san-tro-choi/",
+    "anh_local": "hinh-anh-ten-truyen/diem-quyen-ru-dat-muc-toi-da-thua-ke-tai-san-tro-choi.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/042026/diem-quyen-ru-dat-muc-toi-da-thua-ke-tai-san-tro-choi.webp?t=1777024662",
+    "danh_muc": [
+      "Đô Thị",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Túng Phạt"
+  },
+  {
+    "tu_khoa": "Mạnh Lên Từ Huyện Lệnh Bắt Đầu",
+    "slug": "manh-len-tu-huyen-lenh-bat-dau",
+    "link_truyen": "https://webnovel.vn/manh-len-tu-huyen-lenh-bat-dau/",
+    "anh_local": "hinh-anh-ten-truyen/manh-len-tu-huyen-lenh-bat-dau.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/manh-len-tu-huyen-lenh-bat-dau.webp?t=1777981236",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn",
+      "Hệ Thống"
+    ],
+    "tac_gia": "Dã Hỏa Đông Vọng 1"
+  },
+  {
+    "tu_khoa": "Luân Hồi Nhạc Viên",
+    "slug": "luan-hoi-nhac-vien",
+    "link_truyen": "https://webnovel.vn/luan-hoi-nhac-vien/",
+    "anh_local": "hinh-anh-ten-truyen/luan-hoi-nhac-vien.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/luan-hoi-nhac-vien.webp?t=1782816296",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Na Nhất Chỉ Văn Tử"
+  },
+  {
+    "tu_khoa": "Văn Minh Chi Vạn Tượng Vương Tọa",
+    "slug": "van-minh-chi-van-tuong-vuong-toa",
+    "link_truyen": "https://webnovel.vn/van-minh-chi-van-tuong-vuong-toa/",
+    "anh_local": "hinh-anh-ten-truyen/van-minh-chi-van-tuong-vuong-toa.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/van-minh-chi-van-tuong-vuong-toa.webp?t=1768220637",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Huyền Huyễn"
+    ],
+    "tac_gia": "Phi Tường De Lại Miêu"
+  },
+  {
+    "tu_khoa": "Ta Thành Tâm Ma Của Nữ Ma Đầu",
+    "slug": "ta-thanh-tam-ma-cua-nu-ma-dau",
+    "link_truyen": "https://webnovel.vn/ta-thanh-tam-ma-cua-nu-ma-dau/",
+    "anh_local": "hinh-anh-ten-truyen/ta-thanh-tam-ma-cua-nu-ma-dau.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/052026/ta-thanh-tam-ma-cua-nu-ma-dau.webp?t=1779868503",
+    "danh_muc": [
+      "Tiên Hiệp",
+      "Xuyên Không",
+      "Dị Giới"
+    ],
+    "tac_gia": "Kim Thu Vũ Lạc"
+  },
+  {
+    "tu_khoa": "Tiểu Kiều Thê Trọng Sinh Niên Đại Có Không Gian",
+    "slug": "tieu-kieu-the-trong-sinh-nien-dai-co-khong-gian",
+    "link_truyen": "https://webnovel.vn/tieu-kieu-the-trong-sinh-nien-dai-co-khong-gian/",
+    "anh_local": "hinh-anh-ten-truyen/tieu-kieu-the-trong-sinh-nien-dai-co-khong-gian.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/tieu-kieu-the-trong-sinh-nien-dai-co-khong-gian.webp?t=1780466964",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Hiện Đại",
+      "Trọng Sinh"
+    ],
+    "tac_gia": "Nhĩ Đích Nhãn Thần Y"
+  },
+  {
+    "tu_khoa": "Ở Niên Đại Văn Nghĩ Cách Làm Giàu",
+    "slug": "o-nien-dai-van-nghi-cach-lam-giau",
+    "link_truyen": "https://webnovel.vn/o-nien-dai-van-nghi-cach-lam-giau/",
+    "anh_local": "hinh-anh-ten-truyen/o-nien-dai-van-nghi-cach-lam-giau.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/122025/o-nien-dai-van-nghi-cach-lam-giau.webp?t=1767062258",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Hiện Đại",
+      "Trọng Sinh",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Phạm Kinh Sinh"
+  },
+  {
+    "tu_khoa": "Ta Ở Biên Quan Bận Làm Ruộng",
+    "slug": "ta-o-bien-quan-ban-lam-ruong",
+    "link_truyen": "https://webnovel.vn/ta-o-bien-quan-ban-lam-ruong/",
+    "anh_local": "hinh-anh-ten-truyen/ta-o-bien-quan-ban-lam-ruong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/012026/ta-o-bien-quan-ban-lam-ruong.webp?t=1767684372",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Cổ Đại"
+    ],
+    "tac_gia": "Ngã Nhược Vi Thư"
+  },
+  {
+    "tu_khoa": "Niên Đại: Tri Thanh Xuyên Về Quê, Được Đại Lão Cưng Chiều",
+    "slug": "nien-dai-tri-thanh-xuyen-ve-que-duoc-dai-lao-cung-chieu",
+    "link_truyen": "https://webnovel.vn/nien-dai-tri-thanh-xuyen-ve-que-duoc-dai-lao-cung-chieu/",
+    "anh_local": "hinh-anh-ten-truyen/nien-dai-tri-thanh-xuyen-ve-que-duoc-dai-lao-cung-chieu.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/062026/nien-dai-tri-thanh-xuyen-ve-que-duoc-dai-lao-cung-chieu.webp?t=1782831013",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Trọng Sinh"
+    ],
+    "tac_gia": "Tô Lạc Nhi"
+  },
+  {
+    "tu_khoa": "Trọng Sinh Về Thập Niên 90: Tôi Tẩn Gã Chồng Bạo Lực",
+    "slug": "trong-sinh-ve-thap-nien-90-toi-tan-ga-chong-bao-luc",
+    "link_truyen": "https://webnovel.vn/trong-sinh-ve-thap-nien-90-toi-tan-ga-chong-bao-luc/",
+    "anh_local": "hinh-anh-ten-truyen/trong-sinh-ve-thap-nien-90-toi-tan-ga-chong-bao-luc.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/trong-sinh-ve-thap-nien-90-toi-tan-ga-chong-bao-luc.webp?t=1762144638",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Hiện Đại",
+      "Trọng Sinh",
+      "Tổng Tài",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Dịch An Cư Cư"
+  },
+  {
+    "tu_khoa": "Trọng Sinh Về Niên Đại May Mắn Ngồi Ăn Dưa Xem Kịch Ở Khu Công Xưởng",
+    "slug": "trong-sinh-ve-nien-dai-may-man-ngoi-an-dua-xem-kich-o-khu-cong-xuong",
+    "link_truyen": "https://webnovel.vn/trong-sinh-ve-nien-dai-may-man-ngoi-an-dua-xem-kich-o-khu-cong-xuong/",
+    "anh_local": "hinh-anh-ten-truyen/trong-sinh-ve-nien-dai-may-man-ngoi-an-dua-xem-kich-o-khu-cong-xuong.webp",
+    "anh_url": "https://cdn.webnovel.vn/img/112025/trong-sinh-ve-nien-dai-may-man-ngoi-an-dua-xem-kich-o-khu-cong-xuong.webp?t=1762486255",
+    "danh_muc": [
+      "Ngôn Tình",
+      "Điền Văn",
+      "Xuyên Không",
+      "Thập Niên 60 70 80"
+    ],
+    "tac_gia": "Ái Sát"
+  }
+]
