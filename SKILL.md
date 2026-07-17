@@ -20,7 +20,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 ## Usage
 
 ```
-/content-webnovel <type> [subtype] <url> [--site <domain>] [--img <YYYY/MM>]
+/content-webnovel <type> [subtype] <url> [--site <domain>] [--img <YYYY/MM>] [--lo <nhãn>]
 ```
 
 | type | subtype | input | output |
@@ -32,6 +32,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 **Tham số cho pbn (chỉ pbn dùng ảnh):**
 - `--site <domain>` — domain sẽ đăng bài PBN (1 trong list `data/pbn-domains.txt`). Quyết định origin của ảnh + CTA.
 - `--img <YYYY/MM>` — tháng đã upload ảnh lên WordPress (vd `2026/07`). Ghép vào URL ảnh. **Thiếu tham số này ở `pbn review`/`pbn toplist` → HỎI LẠI user tháng, KHÔNG tự đoán tháng hiện tại.**
+- `--lo <nhãn>` — lô truyện đang dùng (vd `01`, `02`, `2026-08`). Chỉ bốc truyện có `lo` khớp từ `data/truyen-data.json`. **Thiếu ở `pbn review`/`pbn toplist` → HỎI LẠI user lô, KHÔNG tự đoán.** `bio`/`forum`/`pbn faq` không cần (scrape live, không đụng pool JSON).
 
 Ví dụ:
 ```
@@ -59,8 +60,9 @@ data/truyen-data.json
 ```
 
 - File này **đồng bộ tự động** từ skill `/crawl-data-webnovel`: mỗi lần user chạy crawl, `crawl.py` ghi bản chính vào `~/Downloads/webnovel/truyen-data.json` **và copy 1 bản** vào `data/truyen-data.json` của skill này. Không cần sync tay.
-- Mỗi record: `tu_khoa` (tên truyện), `slug`, `link_truyen`, `anh_local`, `anh_url` (ảnh CDN webnovel), `danh_muc` (mảng thể loại tiếng Việt chuẩn), `tac_gia` (tên tác giả).
+- Mỗi record: `tu_khoa` (tên truyện), `slug`, `link_truyen`, `anh_local`, `anh_url` (ảnh CDN webnovel), `danh_muc` (mảng thể loại tiếng Việt chuẩn), `tac_gia` (tên tác giả), `lo` (nhãn lô crawl, vd `01`, `02`).
 - **Tên file ảnh trên WordPress = `<slug>.webp`** (khớp `anh_local`). Đây là cơ sở để ghép URL ảnh PBN.
+- **Lọc theo lô:** file gom nhiều lô truyện. `pbn toplist`/`pbn review` chỉ bốc truyện của lô đang active (tham số `--lo`) — lọc `lo == <--lo>` TRƯỚC khi lọc `danh_muc`/`tac_gia`. Thiếu `--lo` ở review/toplist → hỏi lại, KHÔNG bốc chung tất cả lô.
 
 Nếu file không tồn tại (máy chưa chạy crawl) hoặc thiếu truyện cho tiêu chí yêu cầu → **fallback scrape live** URL danh mục như luồng cũ.
 
@@ -191,15 +193,16 @@ Toplist có 2 kiểu lọc — xác định từ input user:
 **Nguồn truyện (BẮT BUỘC theo thứ tự ưu tiên):**
 
 1. **Đọc `data/truyen-data.json`** rồi lọc pool:
-   - Kiểu **thể loại** → lọc record có `danh_muc` chứa thể loại target (match không phân biệt hoa thường, so khớp tên thể loại chuẩn: "Tiên Hiệp", "Xuyên Không", "Ngôn Tình"...).
-   - Kiểu **tác giả** → lọc record có `tac_gia` khớp tên tác giả target (không phân biệt hoa thường; chấp nhận khớp gần đúng vì tên tác giả dài).
+   - **Lọc lô trước tiên:** chỉ giữ record có `lo` == `--lo` (lô đang active user truyền vào). Thiếu `--lo` → hỏi lại, KHÔNG bốc toàn bộ JSON.
+   - Kiểu **thể loại** → trong pool lô đó, lọc record có `danh_muc` chứa thể loại target (match không phân biệt hoa thường, so khớp tên thể loại chuẩn: "Tiên Hiệp", "Xuyên Không", "Ngôn Tình"...).
+   - Kiểu **tác giả** → trong pool lô đó, lọc record có `tac_gia` khớp tên tác giả target (không phân biệt hoa thường; chấp nhận khớp gần đúng vì tên tác giả dài).
 2. **Xác định target:**
    - Thể loại từ URL danh mục → scrape live lấy `CAT_TITLE`, bỏ tiền tố "Truyện " nếu có (vd "Truyện Tiên Hiệp" → "Tiên Hiệp").
    - Thể loại / tác giả gõ tay → dùng đúng tên đó (chuẩn hoá hoa/thường).
 3. **Chọn N truyện** từ pool đã lọc (mặc định 5–10, lấy theo thứ tự trong JSON).
-4. **Fallback khi pool có dưới 3 truyện (hoặc JSON không tồn tại/rỗng):**
-   - Kiểu **thể loại**: scrape live URL danh mục như cũ (`STORY` lines), KHÔNG có ảnh PBN (báo user biết và gợi ý crawl thêm).
-   - Kiểu **tác giả**: KHÔNG có trang tác giả để scrape → báo user "chưa đủ truyện của tác giả này trong dữ liệu, hãy crawl thêm URL truyện của họ rồi chạy lại", DỪNG (không bịa).
+4. **Fallback khi pool (đã lọc lô) có dưới 3 truyện (hoặc JSON không tồn tại/rỗng):**
+   - Kiểu **thể loại**: scrape live URL danh mục như cũ (`STORY` lines), KHÔNG có ảnh PBN (báo user biết và gợi ý crawl thêm truyện vào lô này).
+   - Kiểu **tác giả**: KHÔNG có trang tác giả để scrape → báo user "chưa đủ truyện của tác giả này trong lô `<--lo>`, hãy crawl thêm URL truyện của họ vào lô này rồi chạy lại", DỪNG (không bịa).
 
 **Ảnh bìa mỗi truyện:** ghép theo công thức URL ảnh ở mục "Ghép URL ảnh cho bài PBN" (cần `--site` + `--img`).
 
@@ -243,7 +246,8 @@ JSON-LD: `Article` + `FAQPage`.
 
 - **Luôn scrape trước khi viết** (trừ `pbn toplist` lấy pool từ `data/truyen-data.json` — scrape chỉ khi fallback hoặc cần CAT_TITLE từ URL danh mục). Không đoán nội dung từ slug.
 - **Không bịa.** Scrape fail (rc≠0) → báo lỗi rõ theo mã lỗi, DỪNG. (Ngoại lệ bio truyện thiếu summary như mô tả trên.)
-- **Toplist chọn truyện đúng tiêu chí** từ JSON: theo thể loại (`danh_muc`) hoặc theo tác giả (`tac_gia`). Không tin list site nếu đã có JSON.
+- **Toplist chọn truyện đúng tiêu chí** từ JSON: lọc theo `lo` (lô active từ `--lo`) trước, rồi theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`). Không tin list site nếu đã có JSON.
+- **Lô truyện (`--lo`):** `pbn toplist`/`pbn review` cần `--lo` để chỉ bốc truyện của lô đang dùng. Thiếu → hỏi lại, KHÔNG bốc toàn bộ JSON.
 - **Ảnh PBN:** chỉ ghép URL theo công thức `--site` + `--img` + `slug`. Thiếu tham số → hỏi lại. Không hotlink `cdn.webnovel.vn` trong bài PBN.
 - Toàn bộ content **tiếng Việt**.
 - Type do user khai báo; subtype của bio auto-detect, subtype của pbn do user khai báo.
