@@ -3,8 +3,8 @@ name: content-webnovel
 description: >-
   Tạo content marketing tiếng Việt cho website đọc truyện Webnovel.vn (https://webnovel.vn/) từ URL bài truyện/danh mục/homepage.
   Live-scrape trang bằng curl (browser UA) để lấy dữ liệu thật (tên truyện, tác giả, thể loại, tóm tắt, tình trạng, list truyện), rồi sinh 3 nhóm content theo yêu cầu:
-  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/toplist/faq, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (10 cặp Q&A FAQ gây tò mò).
-  Trigger: "/content-webnovel", "content webnovel", "viết bio truyện webnovel", "viết pbn webnovel", "faq forum webnovel", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
+  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/toplist/faq, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (3 post plain text hỏi đáp dài 500-1000 chữ, tiêu đề = câu hỏi hook + body + CTA URL trần).
+  Trigger: "/content-webnovel", "content webnovel", "viết bio truyện webnovel", "viết pbn webnovel", "forum webnovel", "bài hỏi đáp forum webnovel", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
 ---
 
 # Skill: content-webnovel
@@ -29,12 +29,12 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 |---|---|---|---|
 | `bio` | (auto-detect từ URL) | 1 URL (homepage / danh mục / truyện) | plain text, 10 biến thể, 120-150 ký tự |
 | `pbn` | `review` \| `toplist` \| `faq` | review→1 URL truyện; toplist→URL danh mục / tên thể loại / tên tác giả (+ optional keyword); faq→1 URL | HTML thuần (không JSON-LD) + block URL/Slug, 1000-1500 chữ |
-| `forum` | (không có) | 1 URL (truyện hoặc danh mục) | plain text, 10 cặp Q&A |
+| `forum` | (không có) | 1 URL (truyện hoặc danh mục) (+ optional keyword) | plain text, **3 post** biến thể; mỗi post = câu hỏi hook + body 500–1000 chữ + CTA URL trần |
 
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn → HỎI LẠI, KHÔNG đoán.**
 - `--lo <nhãn>` — lô truyện trong `data/truyen-data.json` (vd `01`, `02`). **Bắt buộc** với `pbn review` / `pbn toplist`. Thiếu → hỏi lại. `bio` / `forum` / `pbn faq` không cần.
-- `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary SEO keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Không có → skill auto-resolve (xem **"Resolve SEO keyword"**).
+- `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
 
 > **Đã bỏ `--img`.** Ảnh không host trên WordPress domain. Ảnh bìa lấy từ ImgBB (field `anh_imgbb` hoặc upload qua `scripts/imgbb-upload.sh`).
 
@@ -50,9 +50,11 @@ Ví dụ:
 /content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site fbu.vn --lo 01
 /content-webnovel pbn faq https://webnovel.vn/tien-hiep/ --site fbu.vn
 /content-webnovel forum https://webnovel.vn/ngon-tinh/
+/content-webnovel forum https://webnovel.vn/ai-bao-han-tu-tien/
+/content-webnovel forum https://webnovel.vn/dien-van/ keyword="truyện điền văn full"
 ```
 
-Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện này", "làm bài review", "top truyện xuyên không cho fbu.vn", "top truyện của Tối Bạch Đích Ô Nha", "faq forum", "keyword điền văn full") → tự map sang type/subtype + tham số tương ứng.
+Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện này", "làm bài review", "top truyện xuyên không cho fbu.vn", "top truyện của Tối Bạch Đích Ô Nha", "bài hỏi đáp forum", "forum webnovel", "keyword điền văn full") → tự map sang type/subtype + tham số tương ứng.
 
 **Pattern chuẩn pbn toplist danh mục + keyword (khuyến nghị):**
 ```
@@ -113,7 +115,7 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
 3. **pbn subtype** do user khai báo (`review` / `toplist` / `faq`). Không có → hỏi lại.
    - `review` + `faq` yêu cầu đúng loại trang phù hợp; `toplist` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay.
    - Mọi subtype pbn cần `--site`. `review`/`toplist` cần thêm `--lo`. Thiếu → hỏi lại (không đoán).
-4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → FAQ về truyện; category → FAQ về thể loại).
+4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → post hỏi đáp về truyện; category → post hỏi đáp về thể loại). Keyword tuỳ chọn (xem **LOẠI forum**).
 
 ---
 
@@ -348,14 +350,57 @@ Cấu trúc:
 
 ---
 
-## LOẠI forum — plain text, 10 cặp Q&A
+## LOẠI forum — plain text, 3 post hỏi đáp dài (500–1000 chữ/post)
 
-- Bám URL: truyện → FAQ quanh truyện đó; danh mục → FAQ quanh thể loại.
-- **10 cặp Q&A.** Câu hỏi kiểu **gây tò mò, tự nhiên như người dùng forum thật hỏi** (không phải câu hỏi SEO khô khan). Câu trả lời **2-4 câu**, giải đáp thỏa đáng.
+**Không còn** format 10 cặp Q&A ngắn. Mỗi lần chạy sinh **3 post biến thể** — mỗi post là **1 bài hỏi đáp liền mạch** (gần PBN về độ sâu nhưng ngắn hơn, plain text, thiên chủ đề câu hỏi).
+
+### Input
+- **URL bắt buộc** (truyện hoặc danh mục). Homepage → hỏi lại / gợi ý URL truyện hoặc danh mục.
+- **`keyword="..."` / `--kw` / freeform** — tuỳ chọn. Có → hook + body bám keyword; **không** đổi dữ liệu scrape. Không có → auto primary từ scrape:
+  - story → tên truyện (+ thể loại chính nếu hợp)
+  - category → `truyện {tên danh mục}` sau strip tiền tố "Truyện " (vd `Truyện Điền Văn` → `truyện điền văn`)
+- **Không** cần `--site` / `--lo`. **Không** HTML, **không** meta URL/Slug, **không** ảnh.
+
+### Cấu trúc mỗi post (BẮT BUỘC)
+1. **Dòng tiêu đề = câu hỏi hook** — như title thread forum, gây tò mò, tự nhiên (không khô kiểu SEO “X là gì 2026”). Có thể neo keyword/tên truyện/thể loại.
+2. **Body 500–1000 chữ**, **3–5 đoạn** tự do:
+   - mở / định nghĩa–giải đáp trực tiếp câu hỏi
+   - mở rộng (góc đáng chú ý, gợi ý đọc, so sánh nhẹ nếu hợp — **không bịa** plot/điểm số)
+   - lưu ý / chốt cảm nhận
+3. **CTA cuối + đúng 1 URL trần** (không thẻ `<a>`):
+   - story → URL truyện đã scrape
+   - category → URL danh mục user đưa
+   - Ví dụ wording: *“Đọc thêm chi tiết truyện trên Webnovel.vn: https://webnovel.vn/…”* / *“Xem thêm truyện [thể loại] tại: https://webnovel.vn/…”*
+   - Mỗi post **1** URL; không dán thêm URL webnovel khác.
+
+### Quy tắc viết
+- **3 post khác nhau rõ:** đổi hook (góc hỏi), cách mở, trọng tâm body — tránh chỉ paraphrase 1–2 câu.
 - **KHÔNG hashtag.**
-- **Nhắc "Webnovel.vn" tự nhiên** trong một số câu trả lời (dẫn dắt nhẹ về việc đọc truyện ở đó), KHÔNG lộ liễu, không nhồi vào mọi câu.
-- Tone: **giọng sạch, dễ đọc, đúng chính tả** — KHÔNG viết tắt kiểu seeding (`e`, `mn`, `k`...). Thân thiện nhưng chuẩn.
-- Xuất dạng đánh số 1-10 trong chat, mỗi cặp: **Q:** ... / **A:** ...
+- **KHÔNG** bảng / list SEO dài / khung mini-PBN cứng / JSON-LD / HTML.
+- Brand: nhắc “Webnovel.vn” tự nhiên (chủ yếu CTA); không nhồi quảng cáo.
+- Tone: **giọng sạch, dễ đọc, đúng chính tả** — KHÔNG viết tắt kiểu seeding (`e`, `mn`, `k`...). Thân thiện như người đọc forum thật, vẫn chuẩn.
+- Bám dữ liệu scrape (`TITLE`/`SUMMARY`/`GENRES` hoặc `CAT_TITLE`/`CAT_DESC`/`STORY`). **Không bịa** cốt/spoiler kết/đánh giá số liệu không có.
+- Đếm “chữ” theo đơn vị từ tiếng Việt (cùng convention pbn 1000–1500 chữ), **không** đếm ký tự như bio.
+
+### Output trong chat
+```
+### Post 1
+[Câu hỏi hook?]
+
+[đoạn 1]
+
+[đoạn 2]
+...
+
+Đọc thêm chi tiết truyện trên Webnovel.vn: https://webnovel.vn/...
+
+### Post 2
+...
+
+### Post 3
+...
+```
+Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 
 ---
 
@@ -364,7 +409,7 @@ Cấu trúc:
 - **Luôn scrape trước khi viết** (trừ `pbn toplist` lấy pool từ JSON — scrape chỉ khi fallback `pool=0`, cần `CAT_TITLE` từ URL danh mục, hoặc auto-switch review 1 truyện). Không đoán nội dung từ slug.
 - **Không bịa.** Scrape fail (rc≠0) → báo lỗi rõ theo mã lỗi, DỪNG. (Ngoại lệ bio truyện thiếu summary như mô tả trên.)
 - **Toplist chọn truyện đúng tiêu chí** từ JSON: lọc theo `lo` trước, rồi theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`).
-- **Tách pool vs keyword:** list truyện bám URL danh mục / filter JSON; SEO keyword (`keyword=` / `--kw` / freeform / auto) chỉ để viết. **Không** dùng keyword để lọc pool.
+- **Tách pool vs keyword:** list truyện bám URL danh mục / filter JSON; keyword (`keyword=` / `--kw` / freeform / auto) chỉ để viết (pbn + forum). **Không** dùng keyword để lọc pool.
 - **Pool size (sau lọc lô + tiêu chí):** `>= 2` → toplist; `== 1` → **auto-switch review** (announce + dual-entity nếu từ danh mục; author → link truyện + 1 danh mục chính); `== 0` → fallback scrape (thể loại) hoặc dừng (tác giả).
 - **Lô truyện (`--lo`):** bắt buộc với `pbn review`/`pbn toplist`. Thiếu → hỏi lại.
 - **PBN bắt buộc `--site`.** Thiếu → hỏi lại. **Không còn `--img`.**
@@ -373,7 +418,7 @@ Cấu trúc:
 - **Không schema/JSON-LD** trong output pbn.
 - Toàn bộ content **tiếng Việt**.
 - Type do user khai báo; subtype bio auto-detect; subtype pbn do user khai báo — **ngoại lệ:** `pbn toplist` pool=1 được phép tự chuyển review (phải announce).
-- bio + forum: plain text trong chat. pbn: HTML thuần + meta URL/Slug trong chat.
+- bio: plain text 10 biến thể trong chat. **forum: plain text 3 post** (hook Q + body 500–1000 chữ + CTA URL trần). pbn: HTML thuần + meta URL/Slug trong chat.
 - Sau khi tạo content xong: hỏi user có muốn push skill lên repo không (nếu vừa sửa skill).
 
 ## Scripts & Data

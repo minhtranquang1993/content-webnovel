@@ -25,7 +25,7 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 |---|---|---|---|
 | `--site <domain>` | **Có** với mọi `pbn` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
 | `--lo <nhãn>` | **Có** với `pbn review` / `pbn toplist` | PBN | Lô trong `data/truyen-data.json` (vd `01`) |
-| `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | Chủ yếu `pbn toplist` danh mục | Primary SEO keyword. **Chỉ để viết**, không đổi list truyện |
+| `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | `pbn toplist` (chủ yếu) + `forum` | Primary keyword. **Chỉ để viết**, không đổi list truyện |
 
 **Không còn `--img`.** Ảnh = ImgBB (`anh_imgbb` trong JSON / `scripts/imgbb-upload.sh`).
 
@@ -60,8 +60,9 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 # PBN FAQ
 /content-webnovel pbn faq https://webnovel.vn/<slug>/ --site <domain>
 
-# FORUM
+# FORUM — 3 post hỏi đáp dài (plain text)
 /content-webnovel forum https://webnovel.vn/<slug>/
+/content-webnovel forum https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …"
 ```
 
 ---
@@ -134,12 +135,22 @@ Cùng pattern với tên thể loại / tác giả:
 
 Cần `--site`, không cần `--lo`.
 
-### `forum` — 10 cặp Q&A plain text
+### `forum` — 3 post plain text (hỏi đáp dài 500–1000 chữ)
+
+Mỗi post: **câu hỏi hook** (title) → body 3–5 đoạn → CTA + **1 URL trần** (truyện → link truyện; danh mục → link danh mục). Không HTML, không hashtag, không `--site`/`--lo`.
 
 ```
 /content-webnovel forum https://webnovel.vn/ngon-tinh/
 /content-webnovel forum https://webnovel.vn/ai-bao-han-tu-tien/
+/content-webnovel forum https://webnovel.vn/dien-van/ keyword="truyện điền văn full"
 ```
+
+| Thành phần | Vai trò |
+|---|---|
+| URL | Scrape + URL CTA |
+| `keyword="..."` | Tuỳ chọn — bám hook/body; không có → auto từ tên truyện/thể loại |
+
+Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viết).
 
 ---
 
@@ -163,7 +174,8 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 2. `pbn` cần subtype: `review` | `toplist` | `faq`.
 3. Mọi `pbn` cần `--site`. `review`/`toplist` cần thêm `--lo`.
 4. **Không** truyền `--img` (đã bỏ).
-5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform.
+5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `forum`.
 6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.
-7. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
-8. Chỉ URL thuộc `webnovel.vn`.
+7. Output forum: plain text **3 post** (hook Q + body 500–1000 chữ + CTA URL trần) — **không** còn 10 cặp Q&A.
+8. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
+9. Chỉ URL thuộc `webnovel.vn`.
