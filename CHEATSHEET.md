@@ -12,25 +12,25 @@ Cách input nhanh cho skill content marketing Webnovel.vn.
 ## Cú pháp chuẩn
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [--site <domain>] [--img <YYYY/MM>] [--lo <nhãn>] [--kw "<keyword>"]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--lo <nhãn>]
 ```
 
-Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map type/subtype/tham số.
+Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 
 ---
 
 ## Tham số
 
-| Flag | Bắt buộc? | Dùng cho | Ý nghĩa |
+| Flag / form | Bắt buộc? | Dùng cho | Ý nghĩa |
 |---|---|---|---|
-| `--site <domain>` | **Có** với `pbn review` / `pbn toplist` | PBN | Domain đăng bài (trong `data/pbn-domains.txt`) → origin ảnh + CTA |
-| `--img <YYYY/MM>` | **Có** với `pbn review` / `pbn toplist` | PBN | Tháng upload ảnh WP (vd `2026/07`). Thiếu → hỏi lại, không đoán |
-| `--lo <nhãn>` | **Có** với `pbn review` / `pbn toplist` | PBN | Lô trong `data/truyen-data.json` (vd `01`). Thiếu → hỏi lại |
-| `--kw "<keyword>"` | Tuỳ chọn | Chủ yếu `pbn toplist` danh mục | Primary SEO keyword ép tay. **Chỉ ảnh hưởng cách viết**, không đổi list truyện |
+| `--site <domain>` | **Có** với mọi `pbn` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
+| `--lo <nhãn>` | **Có** với `pbn review` / `pbn toplist` | PBN | Lô trong `data/truyen-data.json` (vd `01`) |
+| `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | Chủ yếu `pbn toplist` danh mục | Primary SEO keyword. **Chỉ để viết**, không đổi list truyện |
 
-**Không cần** `--site` / `--img` / `--lo`: `bio`, `forum`, `pbn faq`.
+**Không còn `--img`.** Ảnh = ImgBB (`anh_imgbb` trong JSON / `scripts/imgbb-upload.sh`).
 
-Freeform keyword cũng được: `keyword là …`, `viết cho kw …`.
+**Không cần** `--site` / `--lo`: `bio`, `forum`.  
+**`pbn faq`:** cần `--site`, không cần `--lo`.
 
 ---
 
@@ -43,19 +43,19 @@ Freeform keyword cũng được: `keyword là …`, `viết cho kw …`.
 /content-webnovel bio https://webnovel.vn/
 
 # PBN REVIEW
-/content-webnovel pbn review https://webnovel.vn/<slug-truyen>/ --site <domain> --img 2026/07 --lo 01
+/content-webnovel pbn review https://webnovel.vn/<slug-truyen>/ --site <domain> --lo 01
 
-# PBN TOPLIST (thể loại URL)
-/content-webnovel pbn toplist https://webnovel.vn/<slug-danh-muc>/ --site <domain> --img 2026/07 --lo 01
+# PBN TOPLIST — URL danh mục (list bám URL)
+/content-webnovel pbn toplist https://webnovel.vn/<slug-danh-muc>/ --site <domain> --lo 01
 
-# PBN TOPLIST (thể loại + ép keyword)
-/content-webnovel pbn toplist https://webnovel.vn/dien-van/ --site <domain> --img 2026/07 --lo 01 --kw "truyện điền văn hoàn"
+# PBN TOPLIST — URL + keyword cùng lúc (khuyến nghị khi muốn SEO chính xác)
+/content-webnovel pbn toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --site tonghoixaydungvn.org.vn --lo 01
 
-# PBN TOPLIST (tên thể loại)
-/content-webnovel pbn toplist "Tiên Hiệp" --site <domain> --img 2026/07 --lo 01
+# PBN TOPLIST — tên thể loại
+/content-webnovel pbn toplist "Tiên Hiệp" --site <domain> --lo 01
 
-# PBN TOPLIST (tác giả)
-/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site <domain> --img 2026/07 --lo 01
+# PBN TOPLIST — tác giả
+/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site <domain> --lo 01
 
 # PBN FAQ
 /content-webnovel pbn faq https://webnovel.vn/<slug>/ --site <domain>
@@ -84,22 +84,33 @@ Subtype **auto** theo URL.
 /content-webnovel bio https://webnovel.vn/
 ```
 
-### `pbn review` — HTML + JSON-LD
+### `pbn review` — HTML thuần + meta URL/Slug
 
 ```
-/content-webnovel pbn review https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn --img 2026/07 --lo 01
+/content-webnovel pbn review https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn --lo 01
 ```
 
-### `pbn toplist` — HTML + JSON-LD
+### `pbn toplist` — HTML thuần + meta URL/Slug
 
-**Target thể loại:** URL danh mục hoặc tên gõ tay.  
-**Target tác giả:** tên tác giả gõ tay / freeform.
+**Pattern chuẩn (URL + keyword):**
 
 ```
-/content-webnovel pbn toplist https://webnovel.vn/tien-hiep/ --site tonghoixaydungvn.org.vn --img 2026/07 --lo 01
-/content-webnovel pbn toplist "Tiên Hiệp" --site fbu.vn --img 2026/07 --lo 01
-/content-webnovel pbn toplist https://webnovel.vn/dien-van/ --site fbu.vn --img 2026/07 --lo 01 --kw "truyện điền văn hoàn"
-/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site fbu.vn --img 2026/07 --lo 01
+/content-webnovel pbn toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --site tonghoixaydungvn.org.vn --lo 01
+```
+
+| Thành phần | Vai trò |
+|---|---|
+| URL danh mục | **Pool list truyện** (filter `danh_muc` sau `--lo`) |
+| `keyword="..."` | **Cách viết SEO** (H1/body) — không đổi list |
+| `--site` | Domain bài PBN |
+| `--lo` | Lô JSON |
+
+Cùng pattern với tên thể loại / tác giả:
+
+```
+/content-webnovel pbn toplist https://webnovel.vn/tien-hiep/ --site tonghoixaydungvn.org.vn --lo 01
+/content-webnovel pbn toplist "Tiên Hiệp" --site fbu.vn --lo 01
+/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site fbu.vn --lo 01
 ```
 
 #### Pool sau lọc `--lo` + thể loại/tác giả
@@ -107,21 +118,21 @@ Subtype **auto** theo URL.
 | Pool | Hành vi |
 |---|---|
 | `>= 2` | Toplist (Top N, kể cả Top 2) |
-| `== 1` | Tự chuyển **review** (announce). Danh mục: dual-entity + link truyện + link danh mục. Tác giả: link truyện + 1 danh mục chính, không bịa URL author |
+| `== 1` | Tự chuyển **review** (announce). Danh mục: dual-entity + link truyện + link danh mục. Tác giả: link truyện + 1 danh mục chính |
 | `== 0` | Thể loại → fallback scrape live (không ảnh). Tác giả → dừng, báo crawl thêm |
 
 #### Keyword vs list
 
-- **List truyện** bám URL danh mục / filter JSON.
-- **Keyword** chỉ để viết: có `--kw`/freeform → dùng đó; không có → auto `truyện {tên danh mục}` + biến thể nhẹ (`full`/`hoàn`/…).
+- Không có keyword → auto `truyện {tên danh mục}` (vd URL `/dien-van/` → `truyện điền văn`) + biến thể nhẹ.
+- Có `keyword="truyện điền văn hoàn"` → primary đúng chuỗi đó; list vẫn truyện **Điền Văn**.
 
-### `pbn faq` — HTML + JSON-LD
+### `pbn faq` — HTML thuần + meta URL/Slug
 
 ```
 /content-webnovel pbn faq https://webnovel.vn/tien-hiep/ --site fbu.vn
 ```
 
-Không bắt buộc `--img` / `--lo`.
+Cần `--site`, không cần `--lo`.
 
 ### `forum` — 10 cặp Q&A plain text
 
@@ -132,11 +143,27 @@ Không bắt buộc `--img` / `--lo`.
 
 ---
 
+## Ảnh (ImgBB) — không nhập tháng
+
+1. Ưu tiên field `anh_imgbb` trong `data/truyen-data.json`.
+2. Thiếu → upload:
+
+```bash
+bash "C:\Users\Admin\.claude\skills\content-webnovel\scripts\imgbb-upload.sh" \
+  "$HOME/Downloads/webnovel/{anh_local}" "{slug}"
+```
+
+Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
+
+---
+
 ## Lưu ý nhanh
 
 1. Type: `bio` | `pbn` | `forum`. Thiếu → skill hỏi lại.
 2. `pbn` cần subtype: `review` | `toplist` | `faq`.
-3. `pbn review` / `pbn toplist` thiếu `--site` / `--img` / `--lo` → hỏi, không đoán.
-4. Ảnh PBN: `https://{site}/wp-content/uploads/{img}/{slug}.webp`
-5. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`)
-6. Chỉ URL thuộc `webnovel.vn`
+3. Mọi `pbn` cần `--site`. `review`/`toplist` cần thêm `--lo`.
+4. **Không** truyền `--img` (đã bỏ).
+5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform.
+6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.
+7. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
+8. Chỉ URL thuộc `webnovel.vn`.
