@@ -19,6 +19,8 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 
 ## Usage
 
+> **Cheat sheet input nhanh:** [`CHEATSHEET.md`](CHEATSHEET.md) — copy lệnh + bảng tham số. Đổi cú pháp/tham số skill → update cả file đó.
+
 ```
 /content-webnovel <type> [subtype] <url|tên> [--site <domain>] [--img <YYYY/MM>] [--lo <nhãn>] [--kw "<keyword>"]
 ```
