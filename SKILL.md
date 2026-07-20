@@ -2,9 +2,9 @@
 name: content-webnovel
 description: >-
   Tạo content marketing tiếng Việt cho website đọc truyện Webnovel.vn (https://webnovel.vn/) từ URL bài truyện/danh mục/homepage.
-  Live-scrape trang bằng curl (browser UA) để lấy dữ liệu thật (tên truyện, tác giả, thể loại, tóm tắt, tình trạng, list truyện), rồi sinh 3 nhóm content theo yêu cầu:
-  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/toplist/faq, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (3 post plain text hỏi đáp dài 500-1000 chữ, tiêu đề = câu hỏi hook + body + CTA URL trần).
-  Trigger: "/content-webnovel", "content webnovel", "viết bio truyện webnovel", "viết pbn webnovel", "forum webnovel", "bài hỏi đáp forum webnovel", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
+  Live-scrape trang bằng curl (browser UA) để lấy dữ liệu thật (tên truyện, tác giả, thể loại, tóm tắt, tình trạng, list truyện), rồi sinh 4 nhóm content theo yêu cầu:
+  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/toplist/faq, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (3 post plain text hỏi đáp dài 500-1000 chữ, tiêu đề = câu hỏi hook + body + CTA URL trần), blog20 (HTML 1000-1500 chữ dạng review/toplist, không cần domain, không URL/Slug hay self-link, ảnh host ImgBB).
+  Trigger: "/content-webnovel", "content webnovel", "viết bio truyện webnovel", "viết pbn webnovel", "forum webnovel", "blog20 webnovel", "viết blog20", "bài hỏi đáp forum webnovel", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
 ---
 
 # Skill: content-webnovel
@@ -30,11 +30,12 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 | `bio` | (auto-detect từ URL) | 1 URL (homepage / danh mục / truyện) | plain text, 10 biến thể, 120-150 ký tự |
 | `pbn` | `review` \| `toplist` \| `faq` | review→1 URL truyện; toplist→URL danh mục / tên thể loại / tên tác giả (+ optional keyword); faq→1 URL | HTML thuần (không JSON-LD) + block URL/Slug, 1000-1500 chữ |
 | `forum` | (không có) | 1 URL (truyện hoặc danh mục) (+ optional keyword) | plain text, **3 post** biến thể; mỗi post = câu hỏi hook + body 500–1000 chữ + CTA URL trần |
+| `blog20` | `review` \| `toplist` | review→1 URL truyện; toplist→URL danh mục / tên thể loại / tên tác giả (+ optional keyword) | HTML thuần (không JSON-LD), **KHÔNG** block URL/Slug, **KHÔNG** self-link, 1000-1500 chữ |
 
 **Tham số:**
-- `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn → HỎI LẠI, KHÔNG đoán.**
-- `--lo <nhãn>` — lô truyện trong `data/truyen-data.json` (vd `01`, `02`). **Bắt buộc** với `pbn review` / `pbn toplist`. Thiếu → hỏi lại. `bio` / `forum` / `pbn faq` không cần.
-- `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
+- `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
+- `--lo <nhãn>` — lô truyện trong `data/truyen-data.json` (vd `01`, `02`). **Bắt buộc** với `pbn review` / `pbn toplist` / `blog20 review` / `blog20 toplist`. Thiếu → hỏi lại. `bio` / `forum` / `pbn faq` không cần.
+- `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` / `blog20` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn/blog20: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
 
 > **Đã bỏ `--img`.** Ảnh không host trên WordPress domain. Ảnh bìa lấy từ ImgBB (field `anh_imgbb` hoặc upload qua `scripts/imgbb-upload.sh`).
 
@@ -52,9 +53,12 @@ Ví dụ:
 /content-webnovel forum https://webnovel.vn/ngon-tinh/
 /content-webnovel forum https://webnovel.vn/ai-bao-han-tu-tien/
 /content-webnovel forum https://webnovel.vn/dien-van/ keyword="truyện điền văn full"
+/content-webnovel blog20 review https://webnovel.vn/ai-bao-han-tu-tien/ --lo 01
+/content-webnovel blog20 toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --lo 01
+/content-webnovel blog20 toplist "Tối Bạch Đích Ô Nha" --lo 01
 ```
 
-Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện này", "làm bài review", "top truyện xuyên không cho fbu.vn", "top truyện của Tối Bạch Đích Ô Nha", "bài hỏi đáp forum", "forum webnovel", "keyword điền văn full") → tự map sang type/subtype + tham số tương ứng.
+Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện này", "làm bài review", "top truyện xuyên không cho fbu.vn", "top truyện của Tối Bạch Đích Ô Nha", "bài hỏi đáp forum", "forum webnovel", "viết blog20 review", "blog20 toplist", "keyword điền văn full") → tự map sang type/subtype + tham số tương ứng.
 
 **Pattern chuẩn pbn toplist danh mục + keyword (khuyến nghị):**
 ```
@@ -64,7 +68,7 @@ Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện nà
 
 ---
 
-## Nguồn dữ liệu truyện (dùng cho pbn toplist + ảnh)
+## Nguồn dữ liệu truyện (dùng cho pbn/blog20 toplist + ảnh)
 
 Skill đọc file JSON đã cào sẵn để chọn đúng truyện theo thể loại/tác giả và lấy ảnh:
 
@@ -83,7 +87,7 @@ Nếu file không tồn tại hoặc **pool = 0** sau lọc lô + tiêu chí →
 
 ## BƯỚC 1 — Scrape dữ liệu (BẮT BUỘC trước khi viết)
 
-Với `pbn toplist` lấy pool từ JSON: scrape chỉ khi cần `CAT_TITLE` từ URL danh mục, khi fallback `pool=0`, hoặc khi auto-switch review 1 truyện. Các type khác: luôn scrape trước, KHÔNG tự đoán nội dung từ slug URL.
+Với `pbn toplist` / `blog20 toplist` lấy pool từ JSON: scrape chỉ khi cần `CAT_TITLE` từ URL danh mục, khi fallback `pool=0`, hoặc khi auto-switch review 1 truyện. Các type khác: luôn scrape trước, KHÔNG tự đoán nội dung từ slug URL.
 
 ```bash
 bash "C:\Users\Admin\.claude\skills\content-webnovel\scripts\scrape.sh" "<url>"
@@ -107,7 +111,7 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
 
 ## BƯỚC 2 — Xác định type + subtype
 
-1. **type** do user khai báo (`bio` / `pbn` / `forum`). Không có → hỏi lại, KHÔNG đoán.
+1. **type** do user khai báo (`bio` / `pbn` / `forum` / `blog20`). Không có → hỏi lại, KHÔNG đoán.
 2. **bio subtype** = suy từ `PAGE_TYPE` của scrape:
    - `homepage` → **bio homepage**
    - `category` → **bio danhmuc**
@@ -116,6 +120,10 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
    - `review` + `faq` yêu cầu đúng loại trang phù hợp; `toplist` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay.
    - Mọi subtype pbn cần `--site`. `review`/`toplist` cần thêm `--lo`. Thiếu → hỏi lại (không đoán).
 4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → post hỏi đáp về truyện; category → post hỏi đáp về thể loại). Keyword tuỳ chọn (xem **LOẠI forum**).
+5. **blog20 subtype** do user khai báo (`review` / `toplist`). Không có → hỏi lại.
+   - `review` nhận 1 URL truyện; `toplist` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay.
+   - Cả hai subtype bắt buộc `--lo`; thiếu → hỏi lại.
+   - **KHÔNG** yêu cầu, hỏi hoặc suy luận `--site` hay domain đăng bài ở bất kỳ nhánh nào.
 
 ---
 
@@ -350,6 +358,38 @@ Cấu trúc:
 
 ---
 
+## LOẠI blog20 — HTML thuần, 1000-1500 chữ (review hoặc toplist)
+
+`blog20` là **tên type thuần**. Số `20` **KHÔNG** quyết định số truyện, heading hoặc độ dài danh sách; tuyệt đối không thêm/bịa truyện để đủ 20. `blog20 toplist` dùng đúng quy tắc N và pool của `pbn toplist` (pool `>= 2`, khuyến nghị 5–10 truyện).
+
+### Contract kế thừa
+
+`blog20 review` và `blog20 toplist` kế thừa toàn bộ contract tương ứng của `pbn review` / `pbn toplist`, gồm:
+- HTML thuần 1000–1500 chữ, SEO/GEO/AEO, freshness, tone, bảng/list, mục giải đáp và không JSON-LD.
+- Cách scrape, resolve keyword, lọc `--lo`, chọn pool, fallback và auto-switch khi pool = 1.
+- Backlink unique về `webnovel.vn` và CTA theo đúng subtype.
+- Ảnh ImgBB: ưu tiên `anh_imgbb`, thiếu thì upload từ file local; không hotlink CDN, không ghép path WordPress.
+
+**CHỈ có 3 khác biệt bắt buộc so với PBN:**
+1. **Không domain:** không nhận, không yêu cầu, không hỏi và không suy luận `--site` hay domain đăng bài ở bất kỳ nhánh nào.
+2. **Không meta bài đích:** không sinh/in block `URL:` + `Slug:` và không gợi ý slug.
+3. **Không self-link:** đoạn mở không chèn link nội bộ về bài đang viết. Việc bỏ self-link **không** loại bỏ backlink về `webnovel.vn`.
+
+### blog20 review
+
+Dùng cấu trúc `pbn review` từ H1 đến CTA, nhưng bỏ bước block meta và thay đoạn mở bằng câu định nghĩa entity + TL;DR **không self-link**. URL truyện xuất hiện đúng **1 lần** dưới dạng backlink ở CTA cuối.
+
+### blog20 toplist
+
+Dùng toàn bộ logic pool và cấu trúc `pbn toplist`, nhưng bỏ block meta và intro **không self-link**. Khi pool `>= 2`, mỗi truyện giữ đúng 1 backlink `link_truyen`; CTA danh mục chỉ link khi URL đó chưa dùng.
+
+Khi pool `== 1`, announce và tự chuyển thành **`blog20 review`** (không chuyển thành PBN):
+- Từ danh mục: URL truyện đúng 1 lần tại CTA cuối + URL danh mục đúng 1 lần trong intro/đoạn thể loại. Không có URL `webnovel.vn` thứ ba.
+- Từ tác giả: URL truyện đúng 1 lần tại CTA; chỉ link danh mục chính khi map được URL chắc chắn, không bịa URL.
+- Mọi trường hợp vẫn không domain, không block URL/Slug và không self-link.
+
+---
+
 ## LOẠI forum — plain text, 3 post hỏi đáp dài (500–1000 chữ/post)
 
 **Không còn** format 10 cặp Q&A ngắn. Mỗi lần chạy sinh **3 post biến thể** — mỗi post là **1 bài hỏi đáp liền mạch** (gần PBN về độ sâu nhưng ngắn hơn, plain text, thiên chủ đề câu hỏi).
@@ -406,19 +446,20 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 
 ## Rules
 
-- **Luôn scrape trước khi viết** (trừ `pbn toplist` lấy pool từ JSON — scrape chỉ khi fallback `pool=0`, cần `CAT_TITLE` từ URL danh mục, hoặc auto-switch review 1 truyện). Không đoán nội dung từ slug.
+- **Luôn scrape trước khi viết** (trừ `pbn toplist` / `blog20 toplist` lấy pool từ JSON — scrape chỉ khi fallback `pool=0`, cần `CAT_TITLE` từ URL danh mục, hoặc auto-switch review 1 truyện). Không đoán nội dung từ slug.
 - **Không bịa.** Scrape fail (rc≠0) → báo lỗi rõ theo mã lỗi, DỪNG. (Ngoại lệ bio truyện thiếu summary như mô tả trên.)
 - **Toplist chọn truyện đúng tiêu chí** từ JSON: lọc theo `lo` trước, rồi theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`).
-- **Tách pool vs keyword:** list truyện bám URL danh mục / filter JSON; keyword (`keyword=` / `--kw` / freeform / auto) chỉ để viết (pbn + forum). **Không** dùng keyword để lọc pool.
-- **Pool size (sau lọc lô + tiêu chí):** `>= 2` → toplist; `== 1` → **auto-switch review** (announce + dual-entity nếu từ danh mục; author → link truyện + 1 danh mục chính); `== 0` → fallback scrape (thể loại) hoặc dừng (tác giả).
-- **Lô truyện (`--lo`):** bắt buộc với `pbn review`/`pbn toplist`. Thiếu → hỏi lại.
-- **PBN bắt buộc `--site`.** Thiếu → hỏi lại. **Không còn `--img`.**
-- **Ảnh PBN:** ưu tiên `anh_imgbb`; thiếu thì upload ImgBB từ file local. Không hotlink CDN webnovel, không ghép path WP.
-- **URL bài:** sinh slug từ title, in `URL` + `Slug` trước HTML; 1 self-link internal trong đoạn mở.
-- **Không schema/JSON-LD** trong output pbn.
+- **Tách pool vs keyword:** list truyện bám URL danh mục / filter JSON; keyword (`keyword=` / `--kw` / freeform / auto) chỉ để viết (pbn + blog20 + forum). **Không** dùng keyword để lọc pool.
+- **Pool size (sau lọc lô + tiêu chí):** `>= 2` → toplist; `== 1` → **auto-switch review cùng type** (announce + dual-entity nếu từ danh mục; author → link truyện + 1 danh mục chính); `== 0` → fallback scrape (thể loại) hoặc dừng (tác giả).
+- **Lô truyện (`--lo`):** bắt buộc với `pbn review`/`pbn toplist`/`blog20 review`/`blog20 toplist`. Thiếu → hỏi lại.
+- **PBN bắt buộc `--site`.** Thiếu → hỏi lại. **Blog20 không nhận, hỏi hoặc suy luận `--site`/domain.** Không còn `--img`.
+- **Ảnh PBN/blog20:** ưu tiên `anh_imgbb`; thiếu thì upload ImgBB từ file local. Không hotlink CDN webnovel, không ghép path WP.
+- **URL bài PBN:** sinh slug từ title, in `URL` + `Slug` trước HTML; 1 self-link internal trong đoạn mở. **Blog20 không có URL/Slug hoặc self-link.**
+- **Không schema/JSON-LD** trong output pbn/blog20.
+- **`blog20` là tên type, không phải số lượng:** không ép đủ 20 truyện; dùng N theo pool như PBN toplist.
 - Toàn bộ content **tiếng Việt**.
-- Type do user khai báo; subtype bio auto-detect; subtype pbn do user khai báo — **ngoại lệ:** `pbn toplist` pool=1 được phép tự chuyển review (phải announce).
-- bio: plain text 10 biến thể trong chat. **forum: plain text 3 post** (hook Q + body 500–1000 chữ + CTA URL trần). pbn: HTML thuần + meta URL/Slug trong chat.
+- Type do user khai báo; subtype bio auto-detect; subtype pbn/blog20 do user khai báo — **ngoại lệ:** toplist pool=1 được phép tự chuyển review cùng type (phải announce).
+- bio: plain text 10 biến thể trong chat. **forum: plain text 3 post** (hook Q + body 500–1000 chữ + CTA URL trần). pbn: HTML thuần + meta URL/Slug. blog20: HTML thuần, không meta URL/Slug/self-link.
 - Sau khi tạo content xong: hỏi user có muốn push skill lên repo không (nếu vừa sửa skill).
 
 ## Scripts & Data

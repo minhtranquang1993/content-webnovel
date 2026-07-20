@@ -23,14 +23,15 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 
 | Flag / form | Bắt buộc? | Dùng cho | Ý nghĩa |
 |---|---|---|---|
-| `--site <domain>` | **Có** với mọi `pbn` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
-| `--lo <nhãn>` | **Có** với `pbn review` / `pbn toplist` | PBN | Lô trong `data/truyen-data.json` (vd `01`) |
-| `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | `pbn toplist` (chủ yếu) + `forum` | Primary keyword. **Chỉ để viết**, không đổi list truyện |
+| `--site <domain>` | **Có** với mọi `pbn`; **không dùng** cho `blog20` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
+| `--lo <nhãn>` | **Có** với `pbn review` / `pbn toplist` / `blog20 review` / `blog20 toplist` | PBN + blog20 | Lô trong `data/truyen-data.json` (vd `01`) |
+| `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | `pbn toplist` / `blog20 toplist` (chủ yếu) + `forum` | Primary keyword. **Chỉ để viết**, không đổi list truyện |
 
 **Không còn `--img`.** Ảnh = ImgBB (`anh_imgbb` trong JSON / `scripts/imgbb-upload.sh`).
 
-**Không cần** `--site` / `--lo`: `bio`, `forum`.  
+**Không cần** `--site` / `--lo`: `bio`, `forum`.
 **`pbn faq`:** cần `--site`, không cần `--lo`.
+**`blog20`:** cần `--lo`, không nhận/hỏi/suy luận `--site` hay domain; không URL/Slug hoặc self-link.
 
 ---
 
@@ -63,6 +64,13 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 # FORUM — 3 post hỏi đáp dài (plain text)
 /content-webnovel forum https://webnovel.vn/<slug>/
 /content-webnovel forum https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …"
+
+# BLOG20 REVIEW — HTML thuần, không domain/URL/Slug/self-link
+/content-webnovel blog20 review https://webnovel.vn/<slug-truyen>/ --lo 01
+
+# BLOG20 TOPLIST — pool/keyword/ảnh/backlink như PBN, nhưng không --site
+/content-webnovel blog20 toplist https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …" --lo 01
+/content-webnovel blog20 toplist "<Tên thể loại hoặc tác giả>" --lo 01
 ```
 
 ---
@@ -152,6 +160,24 @@ Mỗi post: **câu hỏi hook** (title) → body 3–5 đoạn → CTA + **1 URL
 
 Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viết).
 
+### `blog20 review|toplist` — HTML thuần, không domain/URL/Slug/self-link
+
+`blog20` kế thừa nội dung `pbn review` / `pbn toplist`: HTML 1000–1500 chữ, lọc pool theo `--lo`, keyword, backlink Webnovel.vn và ảnh ImgBB. Chỉ khác:
+
+1. Không nhận, hỏi hoặc suy luận `--site` hay domain đăng bài.
+2. Không in block `URL:` / `Slug:` và không gợi ý slug.
+3. Không chèn self-link trong đoạn mở; backlink Webnovel.vn vẫn giữ nguyên.
+
+```
+/content-webnovel blog20 review https://webnovel.vn/ai-bao-han-tu-tien/ --lo 01
+/content-webnovel blog20 toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --lo 01
+/content-webnovel blog20 toplist "Tối Bạch Đích Ô Nha" --lo 01
+```
+
+- Pool `>= 2` → toplist; pool `== 1` → tự chuyển `blog20 review`; pool `== 0` → fallback thể loại / dừng với tác giả như PBN.
+- `blog20` chỉ là tên type. Số `20` **không** yêu cầu đủ 20 truyện; không padding hoặc bịa thêm truyện.
+- Auto-switch từ danh mục: link truyện đúng 1 lần tại CTA + link danh mục đúng 1 lần trong intro/đoạn thể loại; vẫn không có self-link.
+
 ---
 
 ## Ảnh (ImgBB) — không nhập tháng
@@ -170,12 +196,13 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 
 ## Lưu ý nhanh
 
-1. Type: `bio` | `pbn` | `forum`. Thiếu → skill hỏi lại.
-2. `pbn` cần subtype: `review` | `toplist` | `faq`.
-3. Mọi `pbn` cần `--site`. `review`/`toplist` cần thêm `--lo`.
+1. Type: `bio` | `pbn` | `forum` | `blog20`. Thiếu → skill hỏi lại.
+2. `pbn` cần subtype: `review` | `toplist` | `faq`; `blog20` cần subtype: `review` | `toplist`.
+3. Mọi `pbn` cần `--site`; `pbn review`/`pbn toplist` cần thêm `--lo`. `blog20` chỉ cần `--lo`, không domain.
 4. **Không** truyền `--img` (đã bỏ).
-5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `forum`.
+5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `blog20` + `forum`.
 6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.
-7. Output forum: plain text **3 post** (hook Q + body 500–1000 chữ + CTA URL trần) — **không** còn 10 cặp Q&A.
-8. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
-9. Chỉ URL thuộc `webnovel.vn`.
+7. Output blog20: HTML thuần, ảnh ImgBB, không domain/URL/Slug/self-link; số `20` không phải số lượng truyện.
+8. Output forum: plain text **3 post** (hook Q + body 500–1000 chữ + CTA URL trần) — **không** còn 10 cặp Q&A.
+9. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
+10. Chỉ URL thuộc `webnovel.vn`.
