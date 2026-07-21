@@ -22,7 +22,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 > **Cheat sheet input nhanh:** [`CHEATSHEET.md`](CHEATSHEET.md) — copy lệnh + bảng tham số. Đổi cú pháp/tham số skill → update cả file đó.
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--lo <nhãn>]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>]
 ```
 
 | type | subtype | input | output |
@@ -34,8 +34,9 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
-- `--lo <nhãn>` — lô truyện trong `data/truyen-data.json` (vd `01`, `02`). **Bắt buộc** với `pbn review` / `pbn toplist` / `blog20 review` / `blog20 toplist`. Thiếu → hỏi lại. `bio` / `forum` / `pbn faq` không cần.
 - `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` / `blog20` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn/blog20: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
+
+> **Tương thích input cũ:** nếu user vẫn truyền `--lo <nhãn>`, bỏ qua cả flag và giá trị; không hỏi lại, không báo lỗi và không dùng để lọc dữ liệu.
 
 > **Đã bỏ `--img`.** Ảnh không host trên WordPress domain. Ảnh bìa lấy từ ImgBB (field `anh_imgbb` hoặc upload qua `scripts/imgbb-upload.sh`).
 
@@ -44,25 +45,25 @@ Ví dụ:
 /content-webnovel bio https://webnovel.vn/ai-bao-han-tu-tien/
 /content-webnovel bio https://webnovel.vn/xuyen-khong/
 /content-webnovel bio https://webnovel.vn/
-/content-webnovel pbn review https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn --lo 01
-/content-webnovel pbn toplist https://webnovel.vn/tien-hiep/ --site tonghoixaydungvn.org.vn --lo 01
-/content-webnovel pbn toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --site tonghoixaydungvn.org.vn --lo 01
-/content-webnovel pbn toplist "Tiên Hiệp" --site fbu.vn --lo 01
-/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site fbu.vn --lo 01
+/content-webnovel pbn review https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn
+/content-webnovel pbn toplist https://webnovel.vn/tien-hiep/ --site tonghoixaydungvn.org.vn
+/content-webnovel pbn toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --site tonghoixaydungvn.org.vn
+/content-webnovel pbn toplist "Tiên Hiệp" --site fbu.vn
+/content-webnovel pbn toplist "Tối Bạch Đích Ô Nha" --site fbu.vn
 /content-webnovel pbn faq https://webnovel.vn/tien-hiep/ --site fbu.vn
 /content-webnovel forum https://webnovel.vn/ngon-tinh/
 /content-webnovel forum https://webnovel.vn/ai-bao-han-tu-tien/
 /content-webnovel forum https://webnovel.vn/dien-van/ keyword="truyện điền văn full"
-/content-webnovel blog20 review https://webnovel.vn/ai-bao-han-tu-tien/ --lo 01
-/content-webnovel blog20 toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn" --lo 01
-/content-webnovel blog20 toplist "Tối Bạch Đích Ô Nha" --lo 01
+/content-webnovel blog20 review https://webnovel.vn/ai-bao-han-tu-tien/
+/content-webnovel blog20 toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn"
+/content-webnovel blog20 toplist "Tối Bạch Đích Ô Nha"
 ```
 
 Nếu user chỉ gửi URL + mô tả bằng lời ("viết bio cho truyện này", "làm bài review", "top truyện xuyên không cho fbu.vn", "top truyện của Tối Bạch Đích Ô Nha", "bài hỏi đáp forum", "forum webnovel", "viết blog20 review", "blog20 toplist", "keyword điền văn full") → tự map sang type/subtype + tham số tương ứng.
 
 **Pattern chuẩn pbn toplist danh mục + keyword (khuyến nghị):**
 ```
-/content-webnovel pbn toplist <URL_DANH_MỤC> keyword="<primary keyword>" --site <domain> --lo <nhãn>
+/content-webnovel pbn toplist <URL_DANH_MỤC> keyword="<primary keyword>" --site <domain>
 ```
 → URL = pool list truyện; keyword = cách viết SEO. Cả hai dùng cùng lúc cho chính xác hơn.
 
@@ -77,11 +78,12 @@ data/truyen-data.json
 ```
 
 - File này **đồng bộ tự động** từ skill `/crawl-data-webnovel`: mỗi lần user chạy crawl, `crawl.py` ghi bản chính vào `~/Downloads/webnovel/truyen-data.json` **và copy 1 bản** vào `data/truyen-data.json` của skill này. Không cần sync tay.
-- Mỗi record: `tu_khoa`, `slug`, `link_truyen`, `anh_local`, `anh_url` (CDN webnovel — **không** hotlink trong bài PBN), `anh_imgbb` (direct URL ImgBB — **ưu tiên dùng**), `danh_muc`, `tac_gia`, `lo`.
+- Mỗi record: `tu_khoa`, `slug`, `link_truyen`, `anh_local`, `anh_url` (CDN webnovel — **không** hotlink trong bài PBN), `anh_imgbb` (direct URL ImgBB — **ưu tiên dùng**), `danh_muc`, `tac_gia`.
 - **File ảnh local** = `~/Downloads/webnovel/{anh_local}` — chỉ dùng khi `anh_imgbb` trống (upload mới qua ImgBB).
-- **Lọc theo lô:** `pbn toplist`/`pbn review` chỉ bốc record `lo == <--lo>`. Thiếu `--lo` → hỏi lại, KHÔNG bốc chung tất cả lô.
+- **Review:** tìm record trên toàn bộ JSON bằng `link_truyen` đã chuẩn hoá (bỏ trailing slash khi so sánh); nếu chưa khớp thì fallback theo `slug` lấy từ URL input. Record khớp dùng để lấy `anh_imgbb` / `anh_local`. Không có record khớp → vẫn scrape live và áp quy tắc báo thiếu ảnh hiện tại; không bịa hoặc hotlink ảnh.
+- **Toplist:** đọc toàn bộ JSON rồi lọc trực tiếp theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`).
 
-Nếu file không tồn tại hoặc **pool = 0** sau lọc lô + tiêu chí → **fallback scrape live** URL danh mục (thể loại) / dừng (tác giả). Pool = 1 → auto-switch review (xem pbn toplist).
+Nếu file không tồn tại hoặc **pool = 0** sau lọc theo tiêu chí → **fallback scrape live** URL danh mục (thể loại) / dừng (tác giả). Pool = 1 → auto-switch review (xem pbn toplist).
 
 ---
 
@@ -118,11 +120,11 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
    - `story` → **bio tentruyen**
 3. **pbn subtype** do user khai báo (`review` / `toplist` / `faq`). Không có → hỏi lại.
    - `review` + `faq` yêu cầu đúng loại trang phù hợp; `toplist` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay.
-   - Mọi subtype pbn cần `--site`. `review`/`toplist` cần thêm `--lo`. Thiếu → hỏi lại (không đoán).
+   - Mọi subtype pbn cần `--site`. Thiếu → hỏi lại (không đoán).
 4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → post hỏi đáp về truyện; category → post hỏi đáp về thể loại). Keyword tuỳ chọn (xem **LOẠI forum**).
 5. **blog20 subtype** do user khai báo (`review` / `toplist`). Không có → hỏi lại.
    - `review` nhận 1 URL truyện; `toplist` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay.
-   - Cả hai subtype bắt buộc `--lo`; thiếu → hỏi lại.
+   - Cả hai subtype đọc toàn bộ `data/truyen-data.json` khi cần tìm record hoặc lọc pool.
    - **KHÔNG** yêu cầu, hỏi hoặc suy luận `--site` hay domain đăng bài ở bất kỳ nhánh nào.
 
 ---
@@ -342,19 +344,18 @@ Toplist có 2 kiểu lọc — xác định từ input user:
 
 **Nguồn truyện (BẮT BUỘC theo thứ tự ưu tiên):**
 
-1. **Đọc `data/truyen-data.json`** rồi lọc pool:
-   - **Lọc lô trước tiên:** chỉ giữ record có `lo` == `--lo`. Thiếu `--lo` → hỏi lại, KHÔNG bốc toàn bộ JSON.
-   - Kiểu **thể loại** → trong pool lô đó, lọc record có `danh_muc` chứa thể loại target (match không phân biệt hoa thường: "Tiên Hiệp", "Xuyên Không", "Ngôn Tình", "Điền Văn"...).
-   - Kiểu **tác giả** → trong pool lô đó, lọc record có `tac_gia` khớp tên tác giả target (không phân biệt hoa thường; chấp nhận khớp gần đúng).
+1. **Đọc toàn bộ `data/truyen-data.json`** rồi lọc pool:
+   - Kiểu **thể loại** → lọc record có `danh_muc` chứa thể loại target (match không phân biệt hoa thường: "Tiên Hiệp", "Xuyên Không", "Ngôn Tình", "Điền Văn"...).
+   - Kiểu **tác giả** → lọc record có `tac_gia` khớp tên tác giả target (không phân biệt hoa thường; chấp nhận khớp gần đúng).
 2. **Xác định target (tên thể loại/tác giả để LỌC — không phải SEO keyword):**
    - Thể loại từ URL danh mục → scrape live lấy `CAT_TITLE`, bỏ tiền tố "Truyện " nếu có (vd "Truyện Tiên Hiệp" → "Tiên Hiệp"; "Truyện Điền Văn" → "Điền Văn").
    - Thể loại / tác giả gõ tay → dùng đúng tên đó (chuẩn hoá hoa/thường).
-3. **Nhánh theo kích thước pool (sau lọc lô + tiêu chí):**
+3. **Nhánh theo kích thước pool (sau lọc theo tiêu chí):**
    - **`pool >= 2`** → viết **toplist**. N = số truyện lấy được (khuyến nghị top 5–10; 2 truyện vẫn toplist "Top 2").
    - **`pool == 1`** → **TỰ CHUYỂN `pbn review`** truyện đó (xem **"Auto-switch pool=1 → review"**). **KHÔNG** viết "Top 1…".
    - **`pool == 0`** (hoặc JSON không tồn tại/rỗng) → fallback:
-     - Kiểu **thể loại**: scrape live URL danh mục (`STORY` lines), KHÔNG có ảnh ImgBB (báo user + gợi ý crawl thêm vào lô). Nếu scrape cũng ra đúng 1 `STORY` → vẫn auto-switch review.
-     - Kiểu **tác giả**: KHÔNG có trang tác giả → báo user "chưa có truyện của tác giả này trong lô `<--lo>`, hãy crawl thêm rồi chạy lại", DỪNG (không bịa).
+     - Kiểu **thể loại**: scrape live URL danh mục (`STORY` lines), KHÔNG có ảnh ImgBB (báo user + gợi ý crawl thêm vào dữ liệu). Nếu scrape cũng ra đúng 1 `STORY` → vẫn auto-switch review.
+     - Kiểu **tác giả**: KHÔNG có trang tác giả → báo user "chưa có truyện của tác giả này trong dữ liệu, hãy crawl thêm rồi chạy lại", DỪNG (không bịa).
 4. **Chọn N truyện** từ pool khi `pool >= 2` (lấy theo thứ tự trong JSON, cắt theo N).
 
 > Chỉ fallback khi **pool = 0**. Pool 2 truyện **không** scrape live, **không** chuyển review.
@@ -366,7 +367,7 @@ Toplist có 2 kiểu lọc — xác định từ input user:
 Khi bước lọc cho ra **đúng 1 truyện**, skill **bắt buộc**:
 
 1. **Announce** rõ trong output (trước meta/HTML):  
-   `Pool = 1 ([thể loại|tác giả] "<target>" / lo=<--lo>) → chuyển pbn review truyện "<tên>".`
+   `Pool = 1 ([thể loại|tác giả] "<target>") → chuyển pbn review truyện "<tên>".`
 2. Scrape live URL truyện đó (lấy `TITLE`/`AUTHOR`/`GENRES`/`STATUS`/`SUMMARY`) nếu chưa có đủ field; ảnh dùng `anh_imgbb` / upload ImgBB.
 3. Viết theo **cấu trúc pbn review** (**áp Góc review** như pbn review), với bổ sung:
 
@@ -387,7 +388,7 @@ Khi bước lọc cho ra **đúng 1 truyện**, skill **bắt buộc**:
 - Nếu record có `danh_muc` → **thêm 1 link danh mục chính** = thể loại đầu (map URL webnovel nếu biết; không chắc thì chỉ nêu tên thể loại + link truyện).
 - Mục giải đáp: về truyện + 1 câu về phong cách tác giả.
 
-4. Giữ contract `--site` / `--lo`. Output HTML thuần + meta URL/Slug (không JSON-LD).
+4. Giữ contract `--site`. Output HTML thuần + meta URL/Slug (không JSON-LD).
 
 #### Cấu trúc toplist (khi pool >= 2)
 
@@ -424,7 +425,7 @@ Cấu trúc:
 
 `blog20 review` và `blog20 toplist` kế thừa toàn bộ contract tương ứng của `pbn review` / `pbn toplist`, gồm:
 - HTML thuần 1000–1500 chữ, SEO/GEO/AEO, freshness, tone, bảng/list, mục giải đáp và không JSON-LD.
-- Cách scrape, resolve keyword, lọc `--lo`, chọn pool, fallback và auto-switch khi pool = 1.
+- Cách scrape, resolve keyword, tra cứu toàn bộ JSON, chọn pool, fallback và auto-switch khi pool = 1.
 - Backlink unique về `webnovel.vn` và CTA theo đúng subtype.
 - Ảnh ImgBB: ưu tiên `anh_imgbb`, thiếu thì upload từ file local; không hotlink CDN, không ghép path WordPress.
 
@@ -457,7 +458,7 @@ Khi pool `== 1`, announce và tự chuyển thành **`blog20 review`** (không c
 - **`keyword="..."` / `--kw` / freeform** — tuỳ chọn. Có → hook + body bám keyword; **không** đổi dữ liệu scrape. Không có → auto primary từ scrape:
   - story → tên truyện (+ thể loại chính nếu hợp)
   - category → `truyện {tên danh mục}` sau strip tiền tố "Truyện " (vd `Truyện Điền Văn` → `truyện điền văn`)
-- **Không** cần `--site` / `--lo`. **Không** HTML, **không** meta URL/Slug, **không** ảnh.
+- **Không** cần `--site`. **Không** HTML, **không** meta URL/Slug, **không** ảnh.
 
 ### Cấu trúc mỗi post (BẮT BUỘC)
 1. **Dòng tiêu đề = câu hỏi hook** — như title thread forum, gây tò mò, tự nhiên (không khô kiểu SEO “X là gì 2026”). Có thể neo keyword/tên truyện/thể loại.
@@ -506,10 +507,10 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 
 - **Luôn scrape trước khi viết** (trừ `pbn toplist` / `blog20 toplist` lấy pool từ JSON — scrape chỉ khi fallback `pool=0`, cần `CAT_TITLE` từ URL danh mục, hoặc auto-switch review 1 truyện). Không đoán nội dung từ slug.
 - **Không bịa.** Scrape fail (rc≠0) → báo lỗi rõ theo mã lỗi, DỪNG. (Ngoại lệ bio truyện thiếu summary như mô tả trên.)
-- **Toplist chọn truyện đúng tiêu chí** từ JSON: lọc theo `lo` trước, rồi theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`).
+- **Toplist chọn truyện đúng tiêu chí** từ toàn bộ JSON: lọc theo thể loại (`danh_muc`) hoặc tác giả (`tac_gia`).
 - **Tách pool vs keyword:** list truyện bám URL danh mục / filter JSON; keyword (`keyword=` / `--kw` / freeform / auto) chỉ để viết (pbn + blog20 + forum). **Không** dùng keyword để lọc pool.
-- **Pool size (sau lọc lô + tiêu chí):** `>= 2` → toplist; `== 1` → **auto-switch review cùng type** (announce + dual-entity nếu từ danh mục; author → link truyện + 1 danh mục chính); `== 0` → fallback scrape (thể loại) hoặc dừng (tác giả).
-- **Lô truyện (`--lo`):** bắt buộc với `pbn review`/`pbn toplist`/`blog20 review`/`blog20 toplist`. Thiếu → hỏi lại.
+- **Pool size (sau lọc theo tiêu chí):** `>= 2` → toplist; `== 1` → **auto-switch review cùng type** (announce + dual-entity nếu từ danh mục; author → link truyện + 1 danh mục chính); `== 0` → fallback scrape (thể loại) hoặc dừng (tác giả).
+- **Input cũ có `--lo <nhãn>`:** bỏ qua flag và giá trị; không dùng để lọc dữ liệu.
 - **PBN bắt buộc `--site`.** Thiếu → hỏi lại. **Blog20 không nhận, hỏi hoặc suy luận `--site`/domain.** Không còn `--img`.
 - **Ảnh PBN/blog20:** ưu tiên `anh_imgbb`; thiếu thì upload ImgBB từ file local. Không hotlink CDN webnovel, không ghép path WP.
 - **URL bài PBN:** sinh slug từ title, in `URL` + `Slug` trước HTML; 1 self-link internal trong đoạn mở. **Blog20 không có URL/Slug hoặc self-link.**
@@ -524,7 +525,7 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 ## Scripts & Data
 - `scripts/scrape.sh` — live-scrape webnovel.vn (curl browser-UA), auto-detect loại trang, in field dạng `KEY<TAB>value`. Fail rõ ràng rc 2/3/4/5.
 - `scripts/imgbb-upload.sh` — upload 1 ảnh lên ImgBB, stdout = direct URL. Key: `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`. rc 2/3/4 khi lỗi.
-- `data/truyen-data.json` — pool truyện đã crawl (đồng bộ từ `/crawl-data-webnovel`). Có `anh_imgbb`, `lo`.
+- `data/truyen-data.json` — pool truyện đã crawl (đồng bộ từ `/crawl-data-webnovel`). Có `anh_imgbb`; toàn bộ record được xét khi tra cứu/lọc.
 - `data/pbn-domains.txt` — domain PBN hợp lệ (đối chiếu `--site`). Dùng ghép URL bài, **không** host ảnh.
 - `CHEATSHEET.md` — input cheat sheet (update cùng SKILL khi đổi Usage).
 
