@@ -62,6 +62,17 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 # PBN FAQ
 /content-webnovel pbn faq https://webnovel.vn/<slug>/ --site <domain>
 
+# PBN GENRE — giải thích thể loại (URL danh mục hoặc tên thể loại)
+/content-webnovel pbn genre https://webnovel.vn/<slug-danh-muc>/ --site <domain>
+/content-webnovel pbn genre "Điền Văn" --site <domain>
+
+# PBN VERSUS — so sánh 2 truyện (2 URL / 2 tên / URL danh mục lấy top 2)
+/content-webnovel pbn versus https://webnovel.vn/<truyen-a>/ https://webnovel.vn/<truyen-b>/ --site <domain>
+/content-webnovel pbn versus https://webnovel.vn/<slug-danh-muc>/ --site <domain>
+
+# PBN GUIDE — cẩm nang người mới (URL danh mục hoặc tên thể loại)
+/content-webnovel pbn guide https://webnovel.vn/<slug-danh-muc>/ --site <domain>
+
 # FORUM — 3 post hỏi đáp dài (plain text)
 /content-webnovel forum https://webnovel.vn/<slug>/
 /content-webnovel forum https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …"
@@ -72,6 +83,11 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 # BLOG20 TOPLIST — pool/keyword/ảnh/backlink như PBN, nhưng không --site
 /content-webnovel blog20 toplist https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …"
 /content-webnovel blog20 toplist "<Tên thể loại hoặc tác giả>"
+
+# BLOG20 GENRE / VERSUS / GUIDE — như pbn tương ứng, không --site/URL/Slug/self-link
+/content-webnovel blog20 genre https://webnovel.vn/<slug-danh-muc>/
+/content-webnovel blog20 versus https://webnovel.vn/<truyen-a>/ https://webnovel.vn/<truyen-b>/
+/content-webnovel blog20 guide "<Tên thể loại>"
 ```
 
 ---
@@ -143,6 +159,36 @@ Cùng pattern với tên thể loại / tác giả:
 
 Cần `--site`.
 
+### `pbn genre` — giải thích thể loại (HTML thuần + meta URL/Slug)
+
+Bài định nghĩa thể loại + gợi ý N truyện. Input: URL danh mục **hoặc** tên thể loại (+kw). Cần `--site`.
+
+```
+/content-webnovel pbn genre https://webnovel.vn/tien-hiep/ --site fbu.vn
+/content-webnovel pbn genre "Điền Văn" --site fbu.vn
+```
+
+Pool nhỏ (không phải list xếp hạng): 1-2 vẫn viết; pool==0 + input tên (không URL) → dừng + báo crawl. CTA link danh mục chỉ khi có URL thật.
+
+### `pbn versus` — so sánh 2 truyện (HTML thuần + meta URL/Slug)
+
+Input: **2 URL truyện** / **2 tên** (match `tu_khoa`) / **1 URL danh mục** (top 2). Scrape cả 2; input tường minh mà scrape fail → dừng. Bảng so sánh text-only. Backlink 1/truyện. Cần `--site`.
+
+```
+/content-webnovel pbn versus https://webnovel.vn/truyen-a/ https://webnovel.vn/truyen-b/ --site fbu.vn
+/content-webnovel pbn versus https://webnovel.vn/tien-hiep/ --site fbu.vn
+```
+
+### `pbn guide` — cẩm nang người mới (HTML thuần + meta URL/Slug)
+
+Advisory cho người mới (KHÁC genre: không có block "…là gì"). Input: URL danh mục **hoặc** tên thể loại (+kw). Cần `--site`. Pool nhỏ như genre.
+
+```
+/content-webnovel pbn guide https://webnovel.vn/tien-hiep/ --site fbu.vn
+```
+
+> **Title pool + non-fiction (áp cho review/toplist + subtype mới):** H1 review/toplist xoay theo hash (không còn 1 công thức cứng). ~48% pool là **sách non-fiction** (Phát triển bản thân, Tâm linh) → danh từ tự đổi "truyện"→"sách", tránh "cày/nghiện".
+
 ### `forum` — 3 post plain text (hỏi đáp dài 500–1000 chữ)
 
 Mỗi post: **câu hỏi hook** (title) → body 3–5 đoạn → CTA + **1 URL trần** (truyện → link truyện; danh mục → link danh mục). Không HTML, không hashtag, không `--site`.
@@ -160,9 +206,9 @@ Mỗi post: **câu hỏi hook** (title) → body 3–5 đoạn → CTA + **1 URL
 
 Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viết).
 
-### `blog20 review|toplist` — HTML thuần, không domain/URL/Slug/self-link
+### `blog20 review|toplist|genre|versus|guide` — HTML thuần, không domain/URL/Slug/self-link
 
-`blog20` kế thừa nội dung `pbn review` / `pbn toplist`: HTML 1000–1500 chữ, tra cứu/lọc trên toàn bộ JSON, keyword, backlink Webnovel.vn và ảnh ImgBB. Chỉ khác:
+`blog20` kế thừa nội dung `pbn` subtype cùng tên (HTML 1000–1500 chữ, tra cứu/lọc JSON, keyword, title pool, category-class, backlink Webnovel.vn và ảnh ImgBB). **KHÔNG có `blog20 faq`.** Chỉ khác:
 
 1. Không nhận, hỏi hoặc suy luận `--site` hay domain đăng bài.
 2. Không in block `URL:` / `Slug:` và không gợi ý slug.
@@ -172,6 +218,9 @@ Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viế
 /content-webnovel blog20 review https://webnovel.vn/ai-bao-han-tu-tien/
 /content-webnovel blog20 toplist https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn"
 /content-webnovel blog20 toplist "Tối Bạch Đích Ô Nha"
+/content-webnovel blog20 genre https://webnovel.vn/tien-hiep/
+/content-webnovel blog20 versus https://webnovel.vn/truyen-a/ https://webnovel.vn/truyen-b/
+/content-webnovel blog20 guide "Ngôn Tình"
 ```
 
 - Pool `>= 2` → toplist; pool `== 1` → tự chuyển `blog20 review`; pool `== 0` → fallback thể loại / dừng với tác giả như PBN.
@@ -197,8 +246,8 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 ## Lưu ý nhanh
 
 1. Type: `bio` | `pbn` | `forum` | `blog20`. Thiếu → skill hỏi lại.
-2. `pbn` cần subtype: `review` | `toplist` | `faq`; `blog20` cần subtype: `review` | `toplist`.
-3. Mọi `pbn` cần `--site`; `blog20` không dùng domain. Review/toplist tra cứu hoặc lọc trên toàn bộ JSON.
+2. `pbn` cần subtype: `review` | `toplist` | `faq` | `genre` | `versus` | `guide`; `blog20` cần subtype: `review` | `toplist` | `genre` | `versus` | `guide` (**không** `faq`).
+3. Mọi `pbn` cần `--site`; `blog20` không dùng domain. Review/toplist/genre/versus/guide tra cứu hoặc lọc trên toàn bộ JSON.
 4. **Không** truyền `--img` (đã bỏ).
 5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `blog20` + `forum`.
 6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.
@@ -206,3 +255,7 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 8. Output forum: plain text **3 post** (hook Q + body 500–1000 chữ + CTA URL trần) — **không** còn 10 cặp Q&A.
 9. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
 10. Chỉ URL thuộc `webnovel.vn`.
+11. **Title pool:** H1 review/toplist xoay theo hash slug/target (chống nhàm) — vẫn giữ keyword + `[năm]`.
+12. **Non-fiction:** danh mục Phát triển bản thân / Tâm linh → danh từ "sách" thay "truyện".
+13. **Tác giả** KHÔNG phải subtype riêng → dùng `pbn toplist "<Tên tác giả>"` (author-mode có biến thể intro "dấu ấn qua các tác phẩm").
+14. `versus`: 2 truyện; scrape cả 2; 2 tên → match `tu_khoa`; bảng so sánh text-only.
