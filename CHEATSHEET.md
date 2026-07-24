@@ -47,6 +47,9 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 # PBN REVIEW
 /content-webnovel pbn review https://webnovel.vn/<slug-truyen>/ --site <domain>
 
+# PBN REVIEW-SHORT — đọc chương thật (chỉ fiction; non-fiction/khóa → tự route review)
+/content-webnovel pbn review-short https://webnovel.vn/<slug-truyen>/ --site <domain>
+
 # PBN TOPLIST — URL danh mục (list bám URL)
 /content-webnovel pbn toplist https://webnovel.vn/<slug-danh-muc>/ --site <domain>
 
@@ -79,6 +82,9 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 
 # BLOG20 REVIEW — HTML thuần, không domain/URL/Slug/self-link
 /content-webnovel blog20 review https://webnovel.vn/<slug-truyen>/
+
+# BLOG20 REVIEW-SHORT — đọc chương thật, không domain/URL/Slug/self-link
+/content-webnovel blog20 review-short https://webnovel.vn/<slug-truyen>/
 
 # BLOG20 TOPLIST — pool/keyword/ảnh/backlink như PBN, nhưng không --site
 /content-webnovel blog20 toplist https://webnovel.vn/<slug-danh-muc>/ keyword="truyện …"
@@ -115,6 +121,18 @@ Subtype **auto** theo URL.
 ```
 /content-webnovel pbn review https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn
 ```
+
+### `pbn review-short` — đọc chương thật, phân tích cụ thể (HTML thuần + meta URL/Slug)
+
+Biến thể review **đọc thật các chương free đầu** (script `scrape-chapters.sh`) → phân tích nhân vật/phân cảnh/thoại có thật + verdict "ấn tượng ban đầu". **Chỉ fiction** — cần `--site`.
+
+```
+/content-webnovel pbn review-short https://webnovel.vn/ai-bao-han-tu-tien/ --site tonghoixaydungvn.org.vn
+```
+
+- **Non-fiction** (Phát triển bản thân / Tâm linh) → announce + tự route sang `pbn review` intro (không đọc chương).
+- Chương 1 khóa/không đọc được, hoặc **<2 chương free** → announce + route `pbn review` intro (tránh bịa).
+- H2 phân tích chỉ dùng nội dung chương đã đọc; không spoiler chương chưa đọc; không kết luận toàn tác phẩm.
 
 ### `pbn toplist` — HTML thuần + meta URL/Slug
 
@@ -206,9 +224,9 @@ Mỗi post: **câu hỏi hook** (title) → body 3–5 đoạn → CTA + **1 URL
 
 Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viết).
 
-### `blog20 review|toplist|genre|versus|guide` — HTML thuần, không domain/URL/Slug/self-link
+### `blog20 review|review-short|toplist|genre|versus|guide` — HTML thuần, không domain/URL/Slug/self-link
 
-`blog20` kế thừa nội dung `pbn` subtype cùng tên (HTML 1000–1500 chữ, tra cứu/lọc JSON, keyword, title pool, category-class, backlink Webnovel.vn và ảnh ImgBB). **KHÔNG có `blog20 faq`.** Chỉ khác:
+`blog20` kế thừa nội dung `pbn` subtype cùng tên (HTML 1000–1500 chữ, tra cứu/lọc JSON, keyword, title pool, category-class, backlink Webnovel.vn và ảnh ImgBB; `review-short` đọc chương thật + route non-fiction/khóa/<2-free → `blog20 review` intro). **KHÔNG có `blog20 faq`.** Chỉ khác:
 
 1. Không nhận, hỏi hoặc suy luận `--site` hay domain đăng bài.
 2. Không in block `URL:` / `Slug:` và không gợi ý slug.
@@ -246,7 +264,7 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 ## Lưu ý nhanh
 
 1. Type: `bio` | `pbn` | `forum` | `blog20`. Thiếu → skill hỏi lại.
-2. `pbn` cần subtype: `review` | `toplist` | `faq` | `genre` | `versus` | `guide`; `blog20` cần subtype: `review` | `toplist` | `genre` | `versus` | `guide` (**không** `faq`).
+2. `pbn` cần subtype: `review` | `review-short` | `toplist` | `faq` | `genre` | `versus` | `guide`; `blog20` cần subtype: `review` | `review-short` | `toplist` | `genre` | `versus` | `guide` (**không** `faq`). `review-short` chỉ fiction (đọc chương thật); non-fiction/chương-khóa/<2-free → tự route `review` intro cùng type.
 3. Mọi `pbn` cần `--site`; `blog20` không dùng domain. Review/toplist/genre/versus/guide tra cứu hoặc lọc trên toàn bộ JSON.
 4. **Không** truyền `--img` (đã bỏ).
 5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `blog20` + `forum`.
