@@ -1,7 +1,7 @@
 # Cheat sheet — `/content-webnovel`
 
 Cách input nhanh cho skill content marketing Webnovel.vn.  
-**Skill active:** `C:\Users\Admin\.claude\skills\content-webnovel\`  
+**Skill active:** `~/.commandcode/skills/content-webnovel/`  
 **Repo:** https://github.com/minhtranquang1993/content-webnovel  
 **Chi tiết đầy đủ:** xem `SKILL.md`.
 
@@ -253,7 +253,7 @@ Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viế
 2. Thiếu → upload:
 
 ```bash
-bash "C:\Users\Admin\.claude\skills\content-webnovel\scripts\imgbb-upload.sh" \
+bash "~/.commandcode/skills/content-webnovel/scripts/imgbb-upload.sh" \
   "$HOME/Downloads/webnovel/{anh_local}" "{slug}"
 ```
 
@@ -271,9 +271,10 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.
 7. Output blog20: HTML thuần, ảnh ImgBB, không domain/URL/Slug/self-link; số `20` không phải số lượng truyện.
 8. Output forum: plain text **3 post** (hook Q + body 500–1000 chữ + CTA URL trần) — **không** còn 10 cặp Q&A.
-9. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-data-webnovel`).
+9. Pool JSON: `data/truyen-data.json` (đồng bộ từ `/crawl-webnovel`).
 10. Chỉ URL thuộc `webnovel.vn`.
 11. **Title pool:** H1 review/toplist xoay theo hash slug/target (chống nhàm) — vẫn giữ keyword + `[năm]`.
+11b. **Archetype khung bài:** chống "một màu" ở tầng *hình hài* — 4 archetype (Chuẩn / Kể trải nghiệm / Hỏi-đáp / Chốt trước) chọn deterministic theo hash (`//7`, tách pha khỏi title/góc/verdict), đổi trình tự section + ẩn/dời bảng-info & "Giải đáp tò mò" + 4 persona (pin theo 4 archetype) + họ title. Forum: 3 post = 3 archetype khác nhau. **Giữ nguyên contract:** nếu ẩn table phải có list thay thế (≥1 table/list); pbn giữ self-link đoạn mở, blog20 bỏ self-link; versus luôn giữ bảng so sánh; forum plain text không HTML/table, mỗi post 1 URL trần.
 12. **Non-fiction:** danh mục Phát triển bản thân / Tâm linh → danh từ "sách" thay "truyện".
 13. **Tác giả** KHÔNG phải subtype riêng → dùng `pbn toplist "<Tên tác giả>"` (author-mode có biến thể intro "dấu ấn qua các tác phẩm").
 14. `versus`: 2 truyện; scrape cả 2; 2 tên → match `tu_khoa`; bảng so sánh text-only.
