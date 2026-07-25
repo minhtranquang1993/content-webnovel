@@ -197,7 +197,7 @@ Vấn đề: title 1 công thức cứng → search result bài nào cũng giố
 
 ### Pool title review (6 công thức)
 
-`h` = tổng code-point của `slug` truyện (đã có sẵn ở "Góc review"). **Index = `(h // 3) mod 6`** (`// 3` để tách khỏi verdict `h mod 3`, hai thứ xoay độc lập). Slot đầu = **primary keyword đã resolve** (tên truyện với review), giữ `[năm]` trong H1:
+`h` = tổng code-point của `slug` truyện (đã có sẵn ở "Góc review"). **Index = `(h // 3) mod 6`** (`// 3` để tách khỏi verdict `h mod 3`, hai thứ xoay độc lập). Slot đầu = **primary keyword đã resolve** (tên truyện với review). **`[năm]` = slot OPTIONAL** (theo freshness "năm ≥1 lần/bài"): có thể bỏ `[năm]` khỏi H1 cho tự nhiên miễn đoạn mở có năm — KHÔNG bắt buộc dán đuôi mọi công thức:
 
 | # | Công thức (fiction; non-fiction đổi `[noun]`/connotation) |
 |---|---|
@@ -212,7 +212,7 @@ Vấn đề: title 1 công thức cứng → search result bài nào cũng giố
 
 ### Pool title toplist (5 công thức)
 
-Seed = `h_top` = tổng code-point của **chuỗi target đã chuẩn hoá** (tên thể loại sau strip "Truyện ", hoặc tên tác giả) — luôn tồn tại TRƯỚC khi sinh title (article slug sinh *sau* H1 nên KHÔNG seed được trên slug; input tên/tác giả cũng không có slug URL). **Index = `(h_top // 3) mod 5`**. Giữ N + primary keyword + `[năm]`:
+Seed = `h_top` = tổng code-point của **chuỗi target đã chuẩn hoá** (tên thể loại sau strip "Truyện ", hoặc tên tác giả) — luôn tồn tại TRƯỚC khi sinh title (article slug sinh *sau* H1 nên KHÔNG seed được trên slug; input tên/tác giả cũng không có slug URL). **Index = `(h_top // 3) mod 5`**. Giữ N + primary keyword. **`[năm]` = slot OPTIONAL** (freshness "năm ≥1 lần/bài"): có thể bỏ `[năm]` khỏi H1 miễn đoạn mở có năm — KHÔNG bắt buộc dán đuôi:
 
 | # | Công thức |
 |---|---|
@@ -224,6 +224,42 @@ Seed = `h_top` = tổng code-point của **chuỗi target đã chuẩn hoá** (t
 
 - N = **pool thật** (không bịa để đủ số); "hoàn/full" chỉ khi data đỡ; **cấm** claim "đọc nhiều nhất / bán chạy" nếu data không có.
 - **Announce title pool (ngoài HTML), như dòng góc review:** `Title pool: review #[i]` hoặc `toplist #[i]` (thể loại: [X], class: [fiction/non-fiction]).
+
+### Pool title versus (5 công thức)
+
+Seed = `h_vs` = Σ code-point của `slugA + slugB` **đã sort a→z** (đối xứng, không phụ thuộc thứ tự input — cùng seed dùng cho archetype versus). **Index = `(h_vs // 3) mod 5`**. Giữ **2 tên truyện `[Tên A]`/`[Tên B]` ở slot đầu** (không được để "Nên đọc"/"Đọc" đứng trước tên). **`[năm]` = slot OPTIONAL** (freshness "năm ≥1 lần/bài"): bỏ được khỏi H1 miễn đoạn mở có năm. Archetype versus CHỈ đổi hình hài/persona/furniture — KHÔNG chọn "họ title" (H1 lấy trực tiếp từ pool này theo `h_vs`):
+
+| # | Công thức |
+|---|---|
+| 0 | `[Tên A] hay [Tên B]? Nên đọc [noun] [thể loại] nào [năm]` |
+| 1 | `[Tên A] vs [Tên B]: chọn [noun] [thể loại] nào để đọc [năm]?` |
+| 2 | `Phân vân [Tên A] hay [Tên B]? So sánh chi tiết [năm]` |
+| 3 | `Đọc [Tên A] hay [Tên B] trước? Gợi ý cho người mới [năm]` |
+| 4 | `[Tên A] hay [Tên B] – [noun] [thể loại] nào hợp gu bạn hơn [năm]?` |
+
+### Pool title genre (4 công thức)
+
+Seed = `h_top` (như toplist: Σ code-point chuỗi target chuẩn hoá — tên thể loại strip "Truyện "). **Index = `(h_top // 3) mod 4`**. Giữ **tên thể loại slot đầu**. **`[năm]` = slot OPTIONAL**. Archetype genre CHỈ đổi hình hài/persona/furniture (H1 lấy từ pool này theo `h_top`):
+
+| # | Công thức (fiction; non-fiction đổi `[noun]`="sách") |
+|---|---|
+| 0 | `Truyện [thể loại] là gì? Đặc trưng & N [noun] hay nên đọc [năm]` (non-fiction: `Sách [thể loại] là gì?…`) |
+| 1 | `[thể loại] là dòng [noun] thế nào? Giải mã & N gợi ý [năm]` |
+| 2 | `Vì sao [noun] [thể loại] cuốn người đọc? Tất tần tật [năm]` |
+| 3 | `[thể loại] cho người mới: đặc trưng & N [noun] đáng thử [năm]` |
+
+### Pool title guide (4 công thức)
+
+Seed = `h_top` (như genre/toplist). **Index = `(h_top // 3) mod 4`**. Giữ **tên thể loại slot đầu** (góc người mới). **`[năm]` = slot OPTIONAL**. Archetype guide CHỈ đổi hình hài/persona/furniture (H1 lấy từ pool này theo `h_top`):
+
+| # | Công thức |
+|---|---|
+| 0 | `Người mới đọc [noun] [thể loại] nên bắt đầu từ đâu? [năm]` |
+| 1 | `Lộ trình đọc [noun] [thể loại] cho người mới [năm]` |
+| 2 | `Mới mê [thể loại]? Đọc [noun] nào trước, tránh gì [năm]` |
+| 3 | `Cẩm nang nhập môn [noun] [thể loại] [năm]: bắt đầu đúng cách` |
+
+- **Announce (ngoài HTML):** `Title pool: versus #[i]` / `genre #[i]` / `guide #[i]` (thể loại: [X], class: [fiction/non-fiction]).
 
 ---
 
@@ -261,9 +297,9 @@ Archetype: #[A] [tên] — persona: [giọng]
 | 2 | **Hỏi–đáp** (Q&A-led) | H1 câu hỏi → thân = **chuỗi H2 dạng câu hỏi** → **bảng "nhanh" đặt GIỮA bài** | bảng nhỏ giữa bài | **HOÀ vào thân** (cả bài là Q&A), KHÔNG H2 tail riêng | người dẫn-giải trực tiếp | Fam C (câu hỏi) |
 | 3 | **Chốt trước** (verdict-first) | mở bằng **khuyến nghị/verdict** → **list "nhanh gọn" đầu bài** → thân biện giải theo góc → H2 giải đáp NGẮN (2 câu) → CTA | **list đầu bài** thay table | H2 tail ngắn 2 câu | người tư vấn | Fam D (khuyến nghị) |
 
-### Họ title theo archetype (mở rộng pool, vẫn giữ keyword slot + `[năm]`)
+### Họ title theo archetype (mở rộng pool, giữ keyword slot; `[năm]` optional)
 
-Archetype chọn **họ title**; trong họ, hash chọn công thức. **Archetype 0** dùng pool gốc như cũ (review `(h//3) mod 6`, toplist `(h_top//3) mod 5`). Archetype 1-3 dùng họ 2 công thức, chọn bằng `(h//3) mod 2` (review/review-short) hoặc `(h_top//3) mod 2` (toplist). Mọi công thức giữ **primary keyword slot đầu + `[năm]`**; non-fiction đổi `[noun]`/connotation.
+Archetype chọn **họ title**; trong họ, hash chọn công thức. **Archetype 0** dùng pool gốc như cũ (review `(h//3) mod 6`, toplist `(h_top//3) mod 5`). Archetype 1-3 dùng họ 2 công thức, chọn bằng `(h//3) mod 2` (review/review-short) hoặc `(h_top//3) mod 2` (toplist). Mọi công thức giữ **primary keyword slot đầu**; **`[năm]` = slot OPTIONAL** (freshness "năm ≥1 lần/bài" — bỏ được khỏi H1 miễn intro có năm); non-fiction đổi `[noun]`/connotation.
 
 **Review / review-short — họ theo archetype:**
 
@@ -281,7 +317,7 @@ Archetype chọn **họ title**; trong họ, hash chọn công thức. **Archety
 - **review-short** vẫn thêm **neo trải-nghiệm-chương** ("qua những chương đầu" / "đọc thử [N] chương") vào H1 dù ở họ nào; slug bài suy từ H1 → khác review intro cùng truyện.
 - **Auto-switch dual-entity pool=1** vẫn thắng mọi họ title (giữ contract dual-entity), archetype chỉ đổi hình hài + persona thân bài.
 
-**Toplist — họ theo archetype** (giữ N + keyword + `[năm]`):
+**Toplist — họ theo archetype** (giữ N + keyword; `[năm]` optional — năm ≥1 lần/bài):
 
 | Arch | # | Công thức |
 |---|---|---|
@@ -294,15 +330,15 @@ Archetype chọn **họ title**; trong họ, hash chọn công thức. **Archety
 
 - Kiểu tác giả: thay `[thể loại]` bằng `của [Tác giả]`.
 
-**genre / versus / guide:** giữ **H1 đặc thù đã định** (ở mục subtype) làm mặc định; archetype chủ yếu đổi **hình hài section + persona + furniture**. H1 chỉ nhận biến thể nhẹ khi hợp (vd Q&A-led genre có thể giữ nguyên "…là gì?"; verdict-first guide mở bằng khuyến nghị). Không ép công thức mới lên 3 subtype này.
+**genre / versus / guide:** H1 chọn từ **Pool title riêng của subtype** (versus `(h_vs//3) mod 5`; genre `(h_top//3) mod 4`; guide `(h_top//3) mod 4` — xem "Pool title versus/genre/guide"). **Archetype với 3 subtype này CHỈ đổi hình hài section + persona + furniture, KHÔNG chọn "họ title"** (khác review/toplist — không tồn tại 2 paradigm title song song). Announce dòng "Title pool: versus/genre/guide #[i]" ngoài HTML.
 
 ### Guardrail archetype (BẤT BIẾN — archetype KHÔNG được phá)
 
 Dù hình hài nào, mọi bài vẫn phải:
 1. **Câu định nghĩa entity** xuất hiện sớm (đoạn mở) — kể cả archetype narrative phải lồng câu này vào lời kể, không được bỏ.
 2. **≥ 1 table HOẶC list** trong bài (archetype ẩn info-table thì **bắt buộc** có list thay thế — không được bỏ cả hai).
-3. **Backlink-unique + self-link** giữ **nguyên contract** theo subtype (review 1 CTA + self-link đoạn mở; toplist N link mỗi truyện 1 lần; blog20 bỏ self-link; v.v.). Đổi vị trí block KHÔNG được đổi số lượng/tính duy nhất của link. H2 thân giữa vẫn KHÔNG chèn `<a>` webnovel.vn.
-4. **Freshness `[năm]`** ở H1 + đoạn mở.
+3. **Backlink-unique + self-link** giữ **nguyên contract** theo subtype (review 1 CTA + self-link đoạn mở; toplist N link mỗi truyện 1 lần; blog20 bỏ self-link; v.v.). Đổi vị trí block KHÔNG được đổi số lượng/tính duy nhất của link. **H2 thân giữa vẫn KHÔNG chèn `<a>` webnovel.vn — luật này review-scoped** (áp cho `review` / `review-short`, nơi backlink chỉ ở CTA cuối). **`versus` được miễn:** 2 backlink versus đặt trong block "Nên đọc cái nào?"/verdict (bước 6) là HỢP LỆ ở mọi archetype dù block đó nằm giữa/cuối bài — **kể cả khi archetype #2 đổi block này thành các H2 câu hỏi "Ai nên đọc A/B?"** (backlink vẫn ở đó, không coi là "H2 thân giữa" bị cấm). Xem "pbn versus".
+4. **Freshness:** năm hiện tại xuất hiện **≥1 lần trong bài** (H1 **hoặc** đoạn mở) — KHÔNG bắt buộc dán đuôi H1.
 5. **KHÔNG JSON-LD**, HTML thuần (pbn/blog20).
 6. **Không bịa:** guard SUMMARY-only (review intro / 8 góc) và guard chương-sourced (review-short) giữ nguyên. Persona "người đọc kể lại" KHÔNG cho phép dựng tình tiết/cảm xúc ngoài dữ liệu scrape — chỉ đổi *giọng*, không đổi *nguồn sự thật*. **Archetype #1 (narrative)** KHÔNG được dựng "trải nghiệm đọc" / cảnh cụ thể như đã đọc hết truyện: câu mở chỉ dùng cảm nhận SUY RA từ SUMMARY/metadata (review intro) hoặc chi tiết có thật trong text chương đã fetch (review-short) — CẤM dựng cảnh/nhân vật/thoại không có trong nguồn.
 7. **Độ dài 1000-1500 chữ** (forum: 500-1000 chữ/post).
@@ -321,7 +357,7 @@ Nguyên tắc chung SEO/GEO/AEO (áp cho **mọi** subtype):
   Đây là câu AI dễ trích dẫn nhất — BẮT BUỘC có ở mọi subtype.
 - **Answer-first** chỉ ở: đoạn intro, mỗi câu FAQ, đầu mỗi mục toplist. KHÔNG nhồi answer-first vào mọi đoạn (đọc như bot → mất E-E-A-T).
 - Có **bảng hoặc list** (dễ ăn featured snippet + AI trích).
-- **Freshness:** H1 + intro có năm hiện tại (2026).
+- **Freshness:** năm hiện tại (2026) xuất hiện **≥1 lần trong bài** — ở H1 **HOẶC** intro. **KHÔNG bắt buộc dán đuôi H1**; có thể để năm trong câu mở nếu H1 tự nhiên hơn khi bỏ năm.
 - **Brand tiết chế:** "Webnovel.vn" xuất hiện tối đa 2-3 lần/bài **dạng text**, chủ yếu ở CTA. Giữ giọng blogger bên thứ 3, KHÔNG nhồi quảng cáo.
 - **Backlink unique (BẮT BUỘC):** mỗi URL `webnovel.vn` (bất kỳ path) chỉ được chèn **đúng 1 lần** dưới dạng `<a href="...">` trong toàn bộ HTML. Trùng URL = vi phạm.
   - `review` / `faq`: đúng **1** backlink — đặt ở **CTA cuối**. Chỗ khác (bảng info, đoạn giữa) chỉ text "Webnovel.vn", không bọc `<a>`.
@@ -467,7 +503,7 @@ Vấn đề: nếu bài review nào cũng cùng khung Điểm mạnh / Điểm y
 **Guard cứng theo góc (BẮT BUỘC — chống bịa & phá backlink):**
 - **Highlight & điểm sáng (#6):** chỉ dựa dữ liệu `SUMMARY` đã scrape; **CẤM** spoiler kết, CẤM bịa cảnh không có trong summary.
 - **So sánh nhẹ (#7):** chỉ so ở mức **motip / thể loại chung**; **CẤM nêu tên truyện khác** trừ khi truyện đó có trong pool JSON; **CẤM sinh thêm bất kỳ URL webnovel.vn nào**.
-- **H2 thân giữa (mọi góc):** chỉ **text + list**, **KHÔNG** chứa thẻ `<a>` webnovel.vn, **KHÔNG** self-link thứ 2. Toàn bộ đếm backlink/self-link giữ nguyên contract (mục backlink unique + self-link ở đầu LOẠI pbn).
+- **H2 thân giữa (mọi góc):** chỉ **text + list**, **KHÔNG** chứa thẻ `<a>` webnovel.vn, **KHÔNG** self-link thứ 2. Toàn bộ đếm backlink/self-link giữ nguyên contract (mục backlink unique + self-link ở đầu LOẠI pbn). *(Luật này review-scoped — chỉ áp `review`/`review-short`; `versus` đặt 2 backlink ở block "Nên đọc cái nào?"/verdict là hợp lệ — kể cả khi archetype #2 đổi block đó thành H2 câu hỏi "Ai nên đọc A/B?", xem "pbn versus".)*
 - **Bám SUMMARY (mọi góc, đặc biệt #4 Cốt truyện / #0 Nhân vật / #1 Thế giới):** mọi H2 thân giữa chỉ dựa dữ liệu `SUMMARY` đã scrape; **CẤM spoiler kết**, **CẤM dựng tình tiết / nhân vật / bối cảnh / cao trào không có trong SUMMARY**.
 
 **Verdict xoay (thay box "x/10" cứng)** — chọn 1 trong 3 dạng theo `h mod 3`:
@@ -488,7 +524,7 @@ Góc review: [góc chính] + [góc phụ] (thể loại: [X], verdict: [dạng])
 Cấu trúc base (archetype 0):
 1. Dòng announce góc + **dòng announce archetype** (ngoài HTML)
 2. Block meta `URL` + `Slug`
-3. `<h1>` — **họ title theo archetype** (arch 0 = pool gốc `(h//3) mod 6`; arch 1-3 = họ tương ứng, xem "Họ title theo archetype"); giữ tên truyện ở slot đầu + `[năm]`. Non-fiction → `[noun]`="sách".
+3. `<h1>` — **họ title theo archetype** (arch 0 = pool gốc `(h//3) mod 6`; arch 1-3 = họ tương ứng, xem "Họ title theo archetype"); giữ tên truyện ở slot đầu, `[năm]` optional (năm ≥1 lần/bài — H1 hoặc intro). Non-fiction → `[noun]`="sách".
 4. Đoạn mở: **câu mở theo góc chính + persona archetype** (KHÔNG mở bằng "Review") + câu định nghĩa entity → **1 self-link** về URL bài → TL;DR 2-3 câu. Ngay dưới chèn **1 ảnh ImgBB** (nếu có).
 5. `<table>` thông tin nhanh: Tác giả / Thể loại / Tình trạng / Đọc tại (**text** "Webnovel.vn", không link) — *archetype 1/3 có thể ẩn bảng này và thay bằng list (guardrail: phải còn ≥1 table/list)*
 6. `<h2>` Nội dung truyện — tóm tắt cốt (KHÔNG spoiler kết) — **khối lõi, luôn giữ ở mọi archetype**
@@ -518,7 +554,7 @@ bash "C:\Users\Admin\.claude\skills\content-webnovel\scripts\scrape-chapters.sh"
 
 **Cấu trúc (delta so với `pbn review`):**
 1. **Dòng announce** (ngoài HTML): `review-short: đọc [FREE_COUNT] chương [FREE_CHAPTERS] — fiction ([thể loại]).` + dòng `Title pool: review-short #[i]` (xem dưới). Rồi block meta `URL` + `Slug`.
-2. `<h1>` — **Title pool lệch index**: `((h//3)+1) mod 6` (intro dùng `(h//3) mod 6`) trên cùng pool 6 công thức review, **thêm neo trải-nghiệm-chương** ("qua những chương đầu" / "đọc thử [N] chương") vào H1; giữ tên truyện slot đầu + `[năm]`. **Formula #5** (`[Tên] – [neo góc chính]…`): review-short không có "góc chính" → slot đó thay bằng **neo trải-nghiệm-chương**. Slug bài suy từ H1 → **khác** slug review intro cùng truyện.
+2. `<h1>` — **Title pool lệch index**: `((h//3)+1) mod 6` (intro dùng `(h//3) mod 6`) trên cùng pool 6 công thức review, **thêm neo trải-nghiệm-chương** ("qua những chương đầu" / "đọc thử [N] chương") vào H1; giữ tên truyện slot đầu, `[năm]` optional (năm ≥1 lần/bài — H1 hoặc intro). **Formula #5** (`[Tên] – [neo góc chính]…`): review-short không có "góc chính" → slot đó thay bằng **neo trải-nghiệm-chương**. Slug bài suy từ H1 → **khác** slug review intro cùng truyện.
 3. **Đoạn mở:** câu định nghĩa entity (từ `SUMMARY`, cho AEO) + **1 self-link** về URL bài → TL;DR **khung-chương**: "Qua [N] chương đầu, …". Chèn **1 ảnh ImgBB** (nếu có). CẤM mở bằng "Review".
 4. `<table>` info nhanh: Tác giả / Thể loại / Tình trạng / Đọc tại ("Webnovel.vn" text) — từ `scrape.sh`.
 5. **2–3 `<h2>` phân tích CHƯƠNG-SOURCED (phần lõi mới):** nhân vật / phân cảnh / tình tiết / thoại **có thật trong chương đã đọc**. Nêu rõ "chương [N]" khi dẫn chi tiết (không có tên chương chữ — chỉ số). **KHÔNG** chèn `<a>` webnovel.vn nào (kể cả URL `/chuong-N` — sẽ thành backlink thứ 2, phá contract unique).
@@ -592,7 +628,7 @@ Trước khi viết: chạy **Resolve SEO keyword** (thể loại) — H1/body b
 **Archetype toplist** (`A = (h_top//7) mod 4`, xem "Archetype khung bài"): H1 lấy từ **họ title theo archetype** (archetype 0 = pool gốc `(h_top//3) mod 5`); hình hài đổi theo A: **#0** giữ khung dưới đây; **#1 narrative** — mở bằng "hành trình đọc" + mỗi item kể trải nghiệm, đoạn "Tiêu chí chọn" thành đoạn dẫn cảm nhận, ẩn bảng so sánh → thay bằng list "vì sao vào top"; **#2 Q&A-led** — mỗi item đóng khung dạng "Truyện nào cho [nhu cầu]?", "Giải đáp tò mò" hoà vào các H2 item; **#3 verdict-first** — mở bằng "chốt nhanh" top 3 + list đầu bài, biện giải sau. **Bất biến giữ nguyên mọi archetype:** mỗi truyện đúng 1 backlink `link_truyen`, N = pool thật, ≥1 table/list, self-link đoạn mở (pbn), announce archetype ngoài HTML.
 
 1. Block meta `URL` + `Slug`
-2. `<h1>` — **họ title theo archetype**: arch 0 dùng **Pool title toplist** gốc (`(h_top//3) mod 5`, xem section Title pool); arch 1-3 dùng họ title toplist tương ứng (xem "Họ title theo archetype"). Luôn giữ N + primary keyword + `[năm]` (vd arch 0 `Top N truyện điền văn hoàn hay nhất 2026`); kiểu tác giả thay `[thể loại]` bằng `của [Tên tác giả]` (vd `Top N truyện hay nhất của [Tên tác giả] [năm]`). Non-fiction → `[noun]`="sách". (Cấu trúc dưới là **archetype 0** — base; arch 1-3 đổi hình hài theo "Archetype toplist" ở trên.)
+2. `<h1>` — **họ title theo archetype**: arch 0 dùng **Pool title toplist** gốc (`(h_top//3) mod 5`, xem section Title pool); arch 1-3 dùng họ title toplist tương ứng (xem "Họ title theo archetype"). Luôn giữ N + primary keyword; `[năm]` optional (năm ≥1 lần/bài — H1 hoặc intro; vd arch 0 `Top N truyện điền văn hoàn hay nhất 2026`); kiểu tác giả thay `[thể loại]` bằng `của [Tên tác giả]` (vd `Top N truyện hay nhất của [Tên tác giả] [năm]`). Non-fiction → `[noun]`="sách". (Cấu trúc dưới là **archetype 0** — base; arch 1-3 đổi hình hài theo "Archetype toplist" ở trên.)
 3. Intro answer-first: liệt kê nhanh N tên + **1 self-link** về URL bài; rải primary keyword 1 lần tự nhiên
 4. Đoạn **"Tiêu chí chọn"** (lượt đọc/đánh giá/tình trạng full-đang ra/độ hot) — bắt buộc. Kiểu tác giả: nêu thêm dấu ấn/phong cách chung của tác giả.
    - **Biến thể intro biên tập (kiểu tác giả):** thay đoạn "Tiêu chí chọn" khô bằng 1 đoạn nêu **"dấu ấn qua các tác phẩm"** — chỉ suy từ **phân bố `danh_muc` thật** của tác giả (vd "phần lớn là tiên hiệp, huyền huyễn"). **CẤM bịa** tiểu sử / sự nghiệp / tên thật / "văn phong" không có trong data. Đây là chỗ author được xử lý (KHÔNG có subtype `author` riêng).
@@ -607,7 +643,7 @@ Trước khi viết: chạy **Resolve SEO keyword** (thể loại) — H1/body b
 ### pbn faq (1 URL truyện hoặc danh mục)
 Cấu trúc:
 1. Block meta `URL` + `Slug`
-2. `<h1>` — câu hỏi lớn + năm (vd "Truyện tiên hiệp hay nhất 2026: giải đáp mọi thắc mắc")
+2. `<h1>` — câu hỏi lớn (năm optional — năm ≥1 lần/bài, H1 hoặc intro; vd "Truyện tiên hiệp hay nhất 2026: giải đáp mọi thắc mắc")
 3. Đoạn mở ngắn + **1 self-link** về URL bài
 4. 6-10 cặp Q&A: mỗi Q = `<h2>` hoặc `<h3>` (không bọc thêm H2 "FAQ"), A answer-first 2-4 câu rồi mở rộng
 5. Câu hỏi bám chủ đề trang (truyện cụ thể hoặc thể loại)
@@ -619,7 +655,7 @@ Bài định nghĩa + giới thiệu thể loại (mạnh AEO/GEO). Input: URL d
 
 Cấu trúc:
 1. Block meta `URL` + `Slug`
-2. `<h1>` — fiction: `Truyện [thể loại] là gì? Đặc trưng & N truyện hay nên đọc [năm]`; non-fiction: `Sách [thể loại] là gì? Đặc trưng & N cuốn hay nên đọc [năm]`
+2. `<h1>` — chọn từ **Pool title genre** (`(h_top//3) mod 4`, xem "Pool title versus/genre/guide"); giữ tên thể loại + `[năm]` optional
 3. Đoạn mở answer-first + **câu định nghĩa entity thể loại** ("[Thể loại] là dòng [noun]…") → **1 self-link** về URL bài
 4. `<h2>` **Đặc trưng nhận biết** — dựa `CAT_DESC` + kiến thức thể loại chung; **KHÔNG bịa** truyện/nhân vật cụ thể
 5. `<h2>` **Vì sao [thể loại] hấp dẫn** — text + list
@@ -629,7 +665,7 @@ Cấu trúc:
 
 **Pool nhỏ (genre + guide — KHÔNG phải list xếp hạng):** pool 1-2 vẫn viết (liệt kê những gì có). **pool==0 + input URL** → giữ CTA link danh mục thật làm backlink duy nhất + ghi chú "chưa có truyện khớp trong dữ liệu". **pool==0 + input tên** (không URL) → announce + **DỪNG** + báo crawl (tránh bài 0 backlink).
 
-**Archetype (genre):** `A = (h_top//7) mod 4` — giữ H1 "…là gì?" làm mặc định, đổi **hình hài + persona + furniture**: #0 khung trên; #1 narrative (dẫn bằng cảm nhận về dòng truyện, ẩn/gộp "Giải đáp tò mò" inline); #2 Q&A-led (các H2 thành câu hỏi "Thể loại này hợp ai / đọc thế nào?"); #3 verdict-first (mở bằng "nên đọc nếu…", list đặc trưng lên đầu). Announce archetype ngoài HTML. Bất biến: câu định nghĩa entity, backlink unique, self-link đoạn mở (pbn), ≥1 list.
+**Archetype (genre):** `A = (h_top//7) mod 4` — H1 lấy từ **Pool title genre** (`(h_top//3) mod 4`, xem "Title pool"); archetype CHỈ đổi **hình hài + persona + furniture** (KHÔNG chọn họ title): #0 khung trên; #1 narrative (dẫn bằng cảm nhận về dòng truyện, ẩn/gộp "Giải đáp tò mò" inline); #2 Q&A-led (các H2 thành câu hỏi "Thể loại này hợp ai / đọc thế nào?"); #3 verdict-first (mở bằng "nên đọc nếu…", list đặc trưng lên đầu). Announce archetype ngoài HTML. Bất biến: câu định nghĩa entity, backlink unique, self-link đoạn mở (pbn), ≥1 list.
 
 ### pbn versus (so sánh 2 truyện)
 
@@ -642,15 +678,17 @@ Bài so sánh head-to-head, dễ click + tự nhiên có 2 backlink. Input: **2 
 
 Cấu trúc:
 1. Block meta `URL` + `Slug`
-2. `<h1>` — `[Tên A] hay [Tên B]? Nên đọc [noun] [thể loại] nào [năm]`
+2. `<h1>` — chọn từ **Pool title versus** (`(h_vs//3) mod 5`, xem "Pool title versus/genre/guide"); giữ 2 tên truyện + `[năm]` optional
 3. Đoạn mở: **2 câu định nghĩa entity** (mỗi truyện 1 câu) → **1 self-link** về URL bài
-4. `<h2>` mỗi truyện — giới thiệu ngắn (KHÔNG spoiler kết) + **1** backlink `link_truyen`/truyện (2 URL khác nhau, mỗi URL 1 lần) + ảnh ImgBB tùy chọn
+4. `<h2>` mỗi truyện — giới thiệu ngắn (KHÔNG spoiler kết) + ảnh ImgBB tùy chọn. **Block này TEXT-ONLY — KHÔNG chèn `<a>` webnovel.vn** (backlink dời hẳn xuống block 6 để tránh trùng URL). Chỉ nêu tên truyện dạng text ở đây.
 5. `<table>` so sánh — Tác giả / Thể loại / Tình trạng / Nhịp-tông (**text-only, KHÔNG** thẻ `<a>`; chỉ dựa data scrape)
-6. `<h2>` **Nên đọc cái nào?** — cân bằng: A hợp gu X, B hợp gu Y (cả 2 tích cực vì cùng dẫn về 1 site). **KHÔNG** bịa mâu thuẫn để dìm 1 bên
+6. `<h2>` **Nên đọc cái nào?** — cân bằng: A hợp gu X, B hợp gu Y (cả 2 tích cực vì cùng dẫn về 1 site). **KHÔNG** bịa mâu thuẫn để dìm 1 bên. **Đây là NƠI DUY NHẤT chứa 2 backlink versus** (mỗi URL 1 lần, 2 URL khác nhau):
+   - Anchor URL = input 2 URL truyện → **dùng CHÍNH URL user đưa** (KHÔNG phụ thuộc có record trong `truyen-data.json`); input 2 tên / danh mục → dùng `link_truyen` resolve từ JSON.
+   - **Anchor tách rời:** mỗi backlink nằm trong 1 câu khuyến nghị riêng, **1 anchor/câu** (vd "A hợp gu X → [đọc A]; B hợp gu Y → [đọc B]") — KHÔNG dồn 2 `<a>` sát nhau đọc như link-stuffing. Giữ tone blogger bên thứ 3.
 7. `<h2>` theo pool "Giải đáp tò mò…" — Q&A so sánh
 8. CTA: webnovel link **chỉ khi input danh mục** (dùng URL danh mục chưa dùng); input 2-truyện/2-tên → **CTA text-only** (KHÔNG link thứ 3, KHÔNG re-link truyện đã dùng)
 
-**Archetype (versus):** `A = (h_vs//7) mod 4` (`h_vs` = Σ code-point `slugA+slugB` đã sort a→z → đối xứng). Giữ H1 "[A] hay [B]?" mặc định, đổi **hình hài + persona + furniture**: #0 khung trên; #1 narrative (dẫn bằng trải nghiệm đọc 2 truyện, gộp giải đáp inline); #2 Q&A-led (H2 thành câu hỏi "Ai nên đọc A? Ai nên đọc B?"); #3 verdict-first (chốt "chọn A nếu…, chọn B nếu…" lên đầu, bảng so sánh theo sau). Announce ngoài HTML. **Bất biến:** 2 câu định nghĩa entity, 2 backlink (mỗi URL 1 lần), **bảng so sánh text-only KHÔNG `<a>` là block BẮT BUỘC ở MỌI archetype** (kể cả #1 narrative — chỉ được dời vị trí bảng, KHÔNG ẩn/thay bằng list), self-link đoạn mở (pbn).
+**Archetype (versus):** `A = (h_vs//7) mod 4` (`h_vs` = Σ code-point `slugA+slugB` đã sort a→z → đối xứng). H1 lấy từ **Pool title versus** (index `(h_vs//3) mod 5`, xem "Title pool versus/genre/guide") — archetype CHỈ đổi **hình hài + persona + furniture**, KHÔNG chọn họ title: #0 khung trên; #1 narrative (dẫn bằng trải nghiệm đọc 2 truyện, gộp giải đáp inline); #2 Q&A-led (H2 thành câu hỏi "Ai nên đọc A? Ai nên đọc B?"); #3 verdict-first (chốt "chọn A nếu…, chọn B nếu…" lên đầu, bảng so sánh theo sau). Announce ngoài HTML. **Bất biến (mọi archetype #0-#3):** 2 câu định nghĩa entity; **2 backlink LUÔN nằm trong block "Nên đọc cái nào?"/verdict (bước 6)** — dù #0/#1/#2/#3 sắp xếp/ẩn/gộp/đổi tên block thế nào, 2 backlink KHÔNG bao giờ mất và KHÔNG bao giờ ở 2 nơi (block "H2 mỗi truyện" bước 4 luôn text-only); **bảng so sánh text-only KHÔNG `<a>` là block BẮT BUỘC ở MỌI archetype** (kể cả #1 narrative — chỉ được dời vị trí bảng, KHÔNG ẩn/thay bằng list), self-link đoạn mở (pbn).
 
 ### pbn guide (cẩm nang cho người mới — URL danh mục hoặc tên thể loại)
 
@@ -658,7 +696,7 @@ Bài **advisory** cho người mới vào thể loại (KHÁC `genre`: genre = "
 
 Cấu trúc:
 1. Block meta `URL` + `Slug`
-2. `<h1>` — `Người mới đọc [noun] [thể loại] nên bắt đầu từ đâu? [năm]`
+2. `<h1>` — chọn từ **Pool title guide** (`(h_top//3) mod 4`, xem "Pool title versus/genre/guide"); giữ tên thể loại + `[năm]` optional
 3. Đoạn mở answer-first tóm lộ trình + neo entity thể loại (góc người mới) → **1 self-link** về URL bài
 4. `<h2>` **Bắt đầu từ đâu** — 2-3 truyện dễ tiếp cận từ pool, mỗi truyện + **1** backlink unique
 5. `<h2>` **Sau đó khám phá thêm** — nhóm mở rộng; truyện **đã link ở mục 4** = text "xem mục trên", truyện **mới** = backlink unique
@@ -668,7 +706,7 @@ Cấu trúc:
 
 Áp **Pool nhỏ** như genre (mục pbn genre): pool 1-2 vẫn viết; pool==0 + URL → CTA danh mục là backlink duy nhất + ghi chú; pool==0 + tên → DỪNG + báo crawl.
 
-**Archetype (guide):** `A = (h_top//7) mod 4` — giữ H1 "…nên bắt đầu từ đâu?" mặc định, đổi **hình hài + persona + furniture**: #0 khung trên; #1 narrative (kể lộ trình như trải nghiệm cá nhân, gộp giải đáp inline); #2 Q&A-led (H2 thành câu hỏi người mới "Đọc gì trước? Tránh gì?"); #3 verdict-first (chốt "bắt đầu ngay với X" lên đầu, lý do sau). Announce archetype ngoài HTML. Bất biến: neo entity thể loại, backlink unique, self-link đoạn mở (pbn), ≥1 list.
+**Archetype (guide):** `A = (h_top//7) mod 4` — H1 lấy từ **Pool title guide** (`(h_top//3) mod 4`, xem "Title pool"); archetype CHỈ đổi **hình hài + persona + furniture** (KHÔNG chọn họ title): #0 khung trên; #1 narrative (kể lộ trình như trải nghiệm cá nhân, gộp giải đáp inline); #2 Q&A-led (H2 thành câu hỏi người mới "Đọc gì trước? Tránh gì?"); #3 verdict-first (chốt "bắt đầu ngay với X" lên đầu, lý do sau). Announce archetype ngoài HTML. Bất biến: neo entity thể loại, backlink unique, self-link đoạn mở (pbn), ≥1 list.
 
 ---
 
@@ -680,7 +718,7 @@ Cấu trúc:
 
 `blog20 review` / `review-short` / `toplist` / `genre` / `versus` / `guide` kế thừa **toàn bộ** contract tương ứng của `pbn` subtype cùng tên (**KHÔNG** có `blog20 faq` — faq chỉ pbn), gồm:
 - HTML thuần 1000–1500 chữ, SEO/GEO/AEO, freshness, tone, bảng/list, mục giải đáp và không JSON-LD.
-- **Title pool** (review 6 / toplist 5) + **Archetype khung bài** (seed `//7`, 4 hình hài, họ title, persona) + **Category-class** noun-swap y hệt pbn. Blog20 chỉ bỏ self-link/meta/domain — archetype chọn & hiện thực hoá **giống hệt** pbn cùng subtype. Dòng announce Title pool/Archetype/Góc là **ngoài block HTML** (không phải meta URL/Slug) nên blog20 vẫn in bình thường để user kiểm seed; tuyệt đối KHÔNG in `URL:`/`Slug:` và KHÔNG self-link.
+- **Title pool** (review 6 / toplist 5 / versus 5 / genre 4 / guide 4) + **Archetype khung bài** (seed `//7`, 4 hình hài, họ title, persona) + **Category-class** noun-swap y hệt pbn. Blog20 chỉ bỏ self-link/meta/domain — archetype chọn & hiện thực hoá **giống hệt** pbn cùng subtype. Dòng announce Title pool/Archetype/Góc là **ngoài block HTML** (không phải meta URL/Slug) nên blog20 vẫn in bình thường để user kiểm seed; tuyệt đối KHÔNG in `URL:`/`Slug:` và KHÔNG self-link.
 - Cách scrape, resolve keyword, tra cứu toàn bộ JSON, chọn pool, fallback, auto-switch pool=1, resolve 2-tên versus, quy tắc pool nhỏ genre/guide.
 - Backlink unique về `webnovel.vn` và CTA theo đúng subtype.
 - Ảnh ImgBB: ưu tiên `anh_imgbb`, thiếu thì upload từ file local; không hotlink CDN, không ghép path WordPress.
@@ -794,8 +832,8 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 - **Không schema/JSON-LD** trong output pbn/blog20.
 - **`blog20` là tên type, không phải số lượng:** không ép đủ 20 truyện; dùng N theo pool như PBN toplist.
 - **Góc review (mọi dạng review):** `pbn review` / `blog20 review` / auto-switch pool=1 phải chọn góc deterministic theo hash slug (xem "Góc review"), câu mở + 2-3 H2 thân giữa theo góc, verdict xoay `h mod 3`, announce góc ngoài HTML. H2 thân giữa KHÔNG chứa `<a>` webnovel.vn / self-link; đếm backlink giữ nguyên contract. **Carve-out `review-short`:** KHÔNG áp 8 Góc + KHÔNG guard SUMMARY-only — thay bằng đọc chương thật (`scrape-chapters.sh`) + guard chương-sourced + verdict "ấn tượng ban đầu"; H2 thân giữa vẫn KHÔNG chứa `<a>` webnovel.vn, backlink giữ contract review (self-link đoạn mở + 1 CTA; blog20 review-short bỏ self-link).
-- **Title pool (review + toplist):** H1 chọn từ pool theo hash (review `(h//3) mod 6`; **review-short `((h//3)+1) mod 6`** trên cùng pool 6 + neo trải-nghiệm-chương, slug ≠ review intro cùng truyện; toplist `(h_top//3) mod 5`) — giữ primary keyword slot đầu + `[năm]`; announce dòng "Title pool: …" ngoài HTML. Câu mở review/review-short CẤM bắt đầu bằng "Review"/"Top". Auto-switch dual-entity H1 thắng pool khi ở nhánh auto-switch.
-- **Archetype khung bài (chống "một màu" tầng HÌNH HÀI):** review/review-short/toplist/genre/versus/guide + forum chọn archetype deterministic theo hash lát cắt `//7` (review `(h//7) mod 4`; review-short lệch `+1`; toplist/genre/guide `(h_top//7) mod 4`; versus `(h_vs//7) mod 4` với `h_vs`=Σ code-point `slugA+slugB` sort a→z; forum 3 post = `s,(s+1)%4,(s+2)%4`). Archetype đổi **trình tự section + ẩn/dời info-table & mục "Giải đáp tò mò" + persona (4 giọng pin theo archetype) + họ title**; 8 góc review vẫn định nội dung H2 thân (xoay độc lập). Announce dòng "Archetype: …" ngoài HTML. **Bất biến mọi archetype:** câu định nghĩa entity sớm, ≥1 table/list, backlink-unique + self-link theo contract subtype (H2 thân KHÔNG `<a>` webnovel.vn), freshness `[năm]`, không JSON-LD, guard không-bịa (SUMMARY/chương-sourced), 1000-1500 chữ. blog20 kế thừa archetype y hệt pbn. Xem section "Archetype khung bài".
+- **Title pool (review + toplist):** H1 chọn từ pool theo hash (review `(h//3) mod 6`; **review-short `((h//3)+1) mod 6`** trên cùng pool 6 + neo trải-nghiệm-chương, slug ≠ review intro cùng truyện; toplist `(h_top//3) mod 5`) — giữ primary keyword slot đầu; `[năm]` là slot **optional** ở H1 (giữ năm ≥1 lần trong bài — H1 hoặc intro); announce dòng "Title pool: …" ngoài HTML. Câu mở review/review-short CẤM bắt đầu bằng "Review"/"Top". Auto-switch dual-entity H1 thắng pool khi ở nhánh auto-switch.
+- **Archetype khung bài (chống "một màu" tầng HÌNH HÀI):** review/review-short/toplist/genre/versus/guide + forum chọn archetype deterministic theo hash lát cắt `//7` (review `(h//7) mod 4`; review-short lệch `+1`; toplist/genre/guide `(h_top//7) mod 4`; versus `(h_vs//7) mod 4` với `h_vs`=Σ code-point `slugA+slugB` sort a→z; forum 3 post = `s,(s+1)%4,(s+2)%4`). Archetype đổi **trình tự section + ẩn/dời info-table & mục "Giải đáp tò mò" + persona (4 giọng pin theo archetype) + họ title**; 8 góc review vẫn định nội dung H2 thân (xoay độc lập). Announce dòng "Archetype: …" ngoài HTML. **Bất biến mọi archetype:** câu định nghĩa entity sớm, ≥1 table/list, backlink-unique + self-link theo contract subtype (H2 thân KHÔNG `<a>` webnovel.vn — **review-scoped**, `versus` đặt backlink ở block "Nên đọc cái nào?"/verdict là hợp lệ kể cả khi archetype #2 đổi block đó thành H2 câu hỏi), freshness năm ≥1 lần/bài (H1 hoặc intro), không JSON-LD, guard không-bịa (SUMMARY/chương-sourced), 1000-1500 chữ. blog20 kế thừa archetype y hệt pbn. Xem section "Archetype khung bài".
 - **Category-class:** trước khi sinh title/entity/CTA/alt, phân loại fiction / non-fiction (set non-fiction = Phát triển bản thân, Tâm linh). Non-fiction → danh từ "sách", tránh "cày/nghiện". Áp mọi touchpoint (xem section Category-class).
 - **Subtype mới:** `genre` (định nghĩa thể loại) / `versus` (so 2 truyện, scrape cả 2, table text-only, resolve 2-tên qua `tu_khoa`, fail tường minh → DỪNG) / `guide` (advisory người mới, KHÔNG block "…là gì"). genre+guide pool nhỏ: 1-2 vẫn viết; pool==0 + tên (không URL) → DỪNG + báo crawl. CTA link danh mục chỉ khi có URL thật, KHÔNG bịa URL.
 - **Author KHÔNG phải subtype:** xử lý trong toplist author-mode (biến thể intro "dấu ấn qua các tác phẩm" từ `danh_muc` thật; cấm bịa tiểu sử).
