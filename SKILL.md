@@ -127,13 +127,34 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
    - `story` → **bio tentruyen**
 3. **pbn subtype** do user khai báo (`review` / `review-short` / `toplist` / `faq` / `genre` / `versus` / `guide`). Không có → hỏi lại.
    - `review` / `review-short` + `faq` yêu cầu đúng loại trang phù hợp (1 URL truyện); `toplist` / `genre` / `guide` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay; `versus` nhận 2 URL truyện / 2 tên / URL danh mục.
-   - **`review-short` chỉ chạy fiction** (đọc chương thật). Input non-fiction (`danh_muc` ∈ {Phát triển bản thân, Tâm linh}) → announce + tự route sang `review` intro (xem **LOẠI pbn → pbn review-short**).
+   - **`review-short` chỉ chạy fiction** (đọc chương thật). Input non-fiction (theo Category-class — xem section đó) → announce + tự route sang `review` intro (xem **LOẠI pbn → pbn review-short**).
    - Mọi subtype pbn cần `--site`. Thiếu → hỏi lại (không đoán).
 4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → post hỏi đáp về truyện; category → post hỏi đáp về thể loại). Keyword tuỳ chọn (xem **LOẠI forum**).
 5. **blog20 subtype** do user khai báo (`review` / `review-short` / `toplist` / `genre` / `versus` / `guide` — **KHÔNG** có `faq`). Không có → hỏi lại.
    - `review` / `review-short` nhận 1 URL truyện (`review-short` chỉ fiction, non-fiction → route `review` intro); `toplist` / `genre` / `guide` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay; `versus` nhận 2 URL truyện / 2 tên / URL danh mục.
    - Các subtype đọc toàn bộ `data/truyen-data.json` khi cần tìm record hoặc lọc pool.
    - **KHÔNG** yêu cầu, hỏi hoặc suy luận `--site` hay domain đăng bài ở bất kỳ nhánh nào.
+
+---
+
+## BƯỚC 2.5 — Chọn biến thể qua script (BẮT BUỘC cho pbn/blog20 review/review-short/toplist/genre/versus/guide + forum)
+
+**KHÔNG tự tính hash trong đầu.** Toàn bộ số học chọn archetype / góc review / title index / verdict / category-class dễ sai khi tính tay (Σ code-point chuỗi tiếng Việt có dấu → chia lấy dư). `scripts/pick-variant.py` tính chính xác và in sẵn mọi slot — chỉ việc viết theo output.
+
+```bash
+py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
+  --subtype <review|review-short|toplist|genre|guide|versus|forum> \
+  [--slug <slug-truyện>] [--target "<tên thể loại/tác giả chuẩn hoá>"] \
+  [--slug-a <slugA> --slug-b <slugB>] [--genres "Tiên Hiệp|Huyền Huyễn"] \
+  [--site <domain>] [--year 2026]
+```
+
+- **Seed nào cần gì:** review/review-short → `--slug`; toplist/genre/guide → `--target`; versus → `--slug-a` + `--slug-b`; forum → `--slug` (story) hoặc `--target` (category).
+- **`--genres`** (story) hoặc target giúp script tự in `CATEGORY_CLASS` + `NOUN` — dùng thẳng, khỏi phán đoán.
+- **`--site` (CHỈ pbn):** salt chống trùng across-domain — cùng truyện, khác `--site` → khác archetype/góc/title, tránh 2 domain PBN đăng bài giống hệt. **blog20/forum KHÔNG truyền `--site`** (giữ seed thuần theo spec gốc).
+- Script in các dòng `KEY<TAB>value`: `ARCHETYPE`, `ARCHETYPE_NAME`, `PERSONA`, `TITLE_INDEX`, `VERDICT`, `GOC_CHINH`, `GOC_PHU`, và các dòng `ANNOUNCE_*` (copy thẳng ra ngoài block HTML). Viết bài theo đúng các slot này.
+
+> `bio` và `faq` không cần pick-variant (bio không archetype; faq toàn bài Q&A cố định).
 
 ---
 
@@ -172,10 +193,14 @@ Chung cho cả 3 subtype:
 
 ## Category-class — fiction vs non-fiction (danh từ "truyện" / "sách")
 
-~48% pool là **sách non-fiction** (self-help / tâm linh), không phải "truyện". Trước khi sinh title/entity/CTA cho **mọi** subtype pbn/blog20, xác định category-class từ `danh_muc` (hoặc `CAT_TITLE` scrape):
+~48% pool là **sách non-fiction** (self-help / tâm linh / kinh doanh), không phải "truyện". Trước khi sinh title/entity/CTA cho **mọi** subtype pbn/blog20, xác định category-class từ `danh_muc` (hoặc `CAT_TITLE` scrape).
 
-- **Non-fiction set** (mở rộng khi crawl thêm): `Phát triển bản thân`, `Tâm linh`.
-- **Còn lại = fiction** (default khi không rõ / nhiều thể loại lẫn).
+> **`danh_muc` LUÔN là LIST** (vd `["Tiên Hiệp","Huyền Huyễn"]`) — không phải string. Mọi thao tác đọc `danh_muc` phải xử lý như mảng: "chứa thể loại X" = X ∈ list; "thể loại đầu" = phần tử [0]; "join" = nối các phần tử bằng dấu phẩy.
+
+- **Non-fiction set** (mở rộng khi crawl thêm): `Phát triển bản thân`, `Tâm linh`, `Kinh doanh`.
+- **Category-class:** non-fiction **chỉ khi TẤT CẢ phần tử** `danh_muc` ∈ non-fiction set. Có **≥1** phần tử fiction → **fiction** (default; cũng là default khi `danh_muc` rỗng/không rõ).
+
+> **Khỏi tự tính:** `scripts/pick-variant.py` (xem "Chọn biến thể qua script") đã in sẵn `CATEGORY_CLASS` + `NOUN` khi truyền `--genres` (story) / suy từ target. Dùng output đó, không phán đoán tay.
 
 **Noun-swap áp cho TẤT CẢ touchpoint:**
 
@@ -540,7 +565,7 @@ Biến thể review **đọc thật các chương free đầu** rồi phân tíc
 **Archetype:** seed lệch `A = ((h//7)+1) mod 4` (khác review intro cùng truyện → khác hình hài). Áp cùng 4 archetype (dời/ẩn info-table, đổi vị trí "Giải đáp tò mò", persona, họ title review-short). Guardrail chương-sourced giữ nguyên ở mọi archetype: mọi chi tiết H2 thân phải có trong text chương đã fetch; persona "người đọc kể lại" chỉ đổi giọng, KHÔNG dựng tình tiết ngoài text.
 
 **Điều kiện & routing:**
-- **Chỉ fiction.** Category-class non-fiction (`danh_muc` ∈ {Phát triển bản thân, Tâm linh}) → **announce + route `pbn review` intro** (không chạy chapter-scrape). Dòng announce: `review-short: input non-fiction "[Tên]" → chuyển pbn review intro.`
+- **Chỉ fiction.** `CATEGORY_CLASS=non-fiction` (theo `pick-variant.py` / Category-class set = {Phát triển bản thân, Tâm linh, Kinh doanh}) → **announce + route `pbn review` intro** (không chạy chapter-scrape). Dòng announce: `review-short: input non-fiction "[Tên]" → chuyển pbn review intro.`
 - Vẫn chạy `scrape.sh` lấy `TITLE/AUTHOR/GENRES/STATUS/SUMMARY` + record JSON (ảnh) **như review intro** — `scrape-chapters.sh` là **bổ sung**, không thay.
 
 **Đọc chương (BẮT BUỘC trước khi viết thân giữa):**
@@ -818,6 +843,24 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 
 ---
 
+## BƯỚC CUỐI (pbn/blog20) — Verify output BẮT BUỘC trước khi giao
+
+Sau khi viết xong HTML **mọi bài `pbn` / `blog20`** (mọi subtype), chạy verify để đếm lại contract cứng (backlink unique, self-link, JSON-LD, word count, năm, table/list) — KHÔNG tự tuyên bố "đã tuân thủ" mà không đếm:
+
+```bash
+python3 "~/.claude/skills/content-webnovel/scripts/verify-output.py" \
+  --type <pbn|blog20> --subtype <review|review-short|toplist|faq|genre|versus|guide> \
+  [--site <domain>] < bai.html
+```
+
+- Truyền `--site` với **pbn** để verify đếm đúng self-link (self-link = `<a>` trỏ về domain PBN). Blog20 không truyền `--site`.
+- Đọc HTML bài từ stdin (lưu tạm ra file hoặc pipe thẳng).
+- **Exit 0 = PASS** (không lỗi) → mới được giao bài cho user. **Exit 1 = FAIL** → đọc các dòng `FAIL`, sửa HTML đúng chỗ, chạy lại tới khi PASS. WARN (word > max, backlink > kỳ vọng) → cân nhắc, không bắt buộc chặn.
+- Verify **không** kiểm forum/bio (khác format) — chỉ pbn/blog20 HTML.
+- Verify là lưới an toàn cuối, KHÔNG thay việc bám contract khi viết.
+
+---
+
 ## Rules
 
 - **Luôn scrape trước khi viết** (trừ `pbn toplist` / `blog20 toplist` lấy pool từ JSON — scrape chỉ khi fallback `pool=0`, cần `CAT_TITLE` từ URL danh mục, hoặc auto-switch review 1 truyện). Không đoán nội dung từ slug.
@@ -831,20 +874,26 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 - **URL bài PBN:** sinh slug từ title, in `URL` + `Slug` trước HTML; 1 self-link internal trong đoạn mở. **Blog20 không có URL/Slug hoặc self-link.**
 - **Không schema/JSON-LD** trong output pbn/blog20.
 - **`blog20` là tên type, không phải số lượng:** không ép đủ 20 truyện; dùng N theo pool như PBN toplist.
-- **Góc review (mọi dạng review):** `pbn review` / `blog20 review` / auto-switch pool=1 phải chọn góc deterministic theo hash slug (xem "Góc review"), câu mở + 2-3 H2 thân giữa theo góc, verdict xoay `h mod 3`, announce góc ngoài HTML. H2 thân giữa KHÔNG chứa `<a>` webnovel.vn / self-link; đếm backlink giữ nguyên contract. **Carve-out `review-short`:** KHÔNG áp 8 Góc + KHÔNG guard SUMMARY-only — thay bằng đọc chương thật (`scrape-chapters.sh`) + guard chương-sourced + verdict "ấn tượng ban đầu"; H2 thân giữa vẫn KHÔNG chứa `<a>` webnovel.vn, backlink giữ contract review (self-link đoạn mở + 1 CTA; blog20 review-short bỏ self-link).
+- **Chọn biến thể QUA SCRIPT (BẮT BUỘC):** archetype / góc / title-index / verdict / category-class **KHÔNG tính tay** — chạy `scripts/pick-variant.py` (xem "BƯỚC 2.5") và dùng đúng slot script in ra. Công thức hash trong các section dưới là *tài liệu* để hiểu, không phải để tự tính. Salt `--site` khiến cùng truyện đăng 2 domain PBN khác nhau → khác archetype/góc/title (chống duplicate across-domain); blog20 (không site) dùng hash thuần.
+- **Góc review (mọi dạng review):** `pbn review` / `blog20 review` / auto-switch pool=1 dùng góc chính+phụ + verdict script in ra (deterministic theo hash slug), câu mở + 2-3 H2 thân giữa theo góc, announce góc ngoài HTML. H2 thân giữa KHÔNG chứa `<a>` webnovel.vn / self-link; đếm backlink giữ nguyên contract. **Carve-out `review-short`:** KHÔNG áp 8 Góc + KHÔNG guard SUMMARY-only — thay bằng đọc chương thật (`scrape-chapters.sh`) + guard chương-sourced + verdict "ấn tượng ban đầu"; H2 thân giữa vẫn KHÔNG chứa `<a>` webnovel.vn, backlink giữ contract review (self-link đoạn mở + 1 CTA; blog20 review-short bỏ self-link).
 - **Title pool (review + toplist):** H1 chọn từ pool theo hash (review `(h//3) mod 6`; **review-short `((h//3)+1) mod 6`** trên cùng pool 6 + neo trải-nghiệm-chương, slug ≠ review intro cùng truyện; toplist `(h_top//3) mod 5`) — giữ primary keyword slot đầu; `[năm]` là slot **optional** ở H1 (giữ năm ≥1 lần trong bài — H1 hoặc intro); announce dòng "Title pool: …" ngoài HTML. Câu mở review/review-short CẤM bắt đầu bằng "Review"/"Top". Auto-switch dual-entity H1 thắng pool khi ở nhánh auto-switch.
 - **Archetype khung bài (chống "một màu" tầng HÌNH HÀI):** review/review-short/toplist/genre/versus/guide + forum chọn archetype deterministic theo hash lát cắt `//7` (review `(h//7) mod 4`; review-short lệch `+1`; toplist/genre/guide `(h_top//7) mod 4`; versus `(h_vs//7) mod 4` với `h_vs`=Σ code-point `slugA+slugB` sort a→z; forum 3 post = `s,(s+1)%4,(s+2)%4`). Archetype đổi **trình tự section + ẩn/dời info-table & mục "Giải đáp tò mò" + persona (4 giọng pin theo archetype) + họ title**; 8 góc review vẫn định nội dung H2 thân (xoay độc lập). Announce dòng "Archetype: …" ngoài HTML. **Bất biến mọi archetype:** câu định nghĩa entity sớm, ≥1 table/list, backlink-unique + self-link theo contract subtype (H2 thân KHÔNG `<a>` webnovel.vn — **review-scoped**, `versus` đặt backlink ở block "Nên đọc cái nào?"/verdict là hợp lệ kể cả khi archetype #2 đổi block đó thành H2 câu hỏi), freshness năm ≥1 lần/bài (H1 hoặc intro), không JSON-LD, guard không-bịa (SUMMARY/chương-sourced), 1000-1500 chữ. blog20 kế thừa archetype y hệt pbn. Xem section "Archetype khung bài".
-- **Category-class:** trước khi sinh title/entity/CTA/alt, phân loại fiction / non-fiction (set non-fiction = Phát triển bản thân, Tâm linh). Non-fiction → danh từ "sách", tránh "cày/nghiện". Áp mọi touchpoint (xem section Category-class).
+- **Category-class:** trước khi sinh title/entity/CTA/alt, phân loại fiction / non-fiction (set non-fiction = Phát triển bản thân, Tâm linh, Kinh doanh). `danh_muc` **là LIST** — non-fiction chỉ khi **tất cả** phần tử ∈ non-fiction set; có ≥1 phần tử fiction → fiction. `pick-variant.py` in sẵn `CATEGORY_CLASS`/`NOUN`. Non-fiction → danh từ "sách", tránh "cày/nghiện". Áp mọi touchpoint (xem section Category-class).
 - **Subtype mới:** `genre` (định nghĩa thể loại) / `versus` (so 2 truyện, scrape cả 2, table text-only, resolve 2-tên qua `tu_khoa`, fail tường minh → DỪNG) / `guide` (advisory người mới, KHÔNG block "…là gì"). genre+guide pool nhỏ: 1-2 vẫn viết; pool==0 + tên (không URL) → DỪNG + báo crawl. CTA link danh mục chỉ khi có URL thật, KHÔNG bịa URL.
 - **Author KHÔNG phải subtype:** xử lý trong toplist author-mode (biến thể intro "dấu ấn qua các tác phẩm" từ `danh_muc` thật; cấm bịa tiểu sử).
 - Toàn bộ content **tiếng Việt**.
 - Type do user khai báo; subtype bio auto-detect; subtype pbn (review/review-short/toplist/faq/genre/versus/guide) / blog20 (review/review-short/toplist/genre/versus/guide — KHÔNG faq) do user khai báo — **ngoại lệ:** toplist/versus pool=1 tự chuyển review cùng type; review-short non-fiction / chương-1-khóa / <2-chương-free tự chuyển review intro cùng type (mọi auto-switch phải announce).
 - bio: plain text 10 biến thể trong chat. **forum: plain text 3 post** (hook Q + body 500–1000 chữ + CTA URL trần). pbn: HTML thuần + meta URL/Slug. blog20: HTML thuần, không meta URL/Slug/self-link.
+- **Chọn biến thể qua script (BẮT BUỘC, thay tính hash tay):** với review/review-short/toplist/genre/guide/versus/forum, chạy `scripts/pick-variant.py` để lấy sẵn `ARCHETYPE / GÓC / TITLE_INDEX / VERDICT / CATEGORY_CLASS / NOUN`. LLM tính tổng code-point + chia lấy dư không đáng tin → **không phán đoán tay**, dùng đúng output script. Xem BƯỚC 2.5.
+- **Salt chống trùng across-domain (chỉ pbn):** truyền `--site` vào `pick-variant.py` → `h` cộng thêm hash domain nên cùng truyện đăng 2 domain PBN khác nhau ra archetype/góc/title khác → tránh duplicate-content. **blog20 KHÔNG có site → seed thuần** (giữ đúng spec gốc).
+- **Verify output (BẮT BUỘC pbn/blog20):** sau khi viết HTML, chạy `scripts/verify-output.py`; chỉ giao bài khi exit 0 (PASS). Xem "BƯỚC CUỐI — Verify output".
 - Sau khi tạo content xong: hỏi user có muốn push skill lên repo không (nếu vừa sửa skill).
 
 ## Scripts & Data
 - `scripts/scrape.sh` — live-scrape webnovel.vn (curl browser-UA), auto-detect loại trang, in field dạng `KEY<TAB>value`. Fail rõ ràng rc 2/3/4/5.
 - `scripts/imgbb-upload.sh` — upload 1 ảnh lên ImgBB, stdout = direct URL. Key: `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`. rc 2/3/4 khi lỗi.
+- `scripts/pick-variant.py` — tính sẵn (deterministic) archetype / góc chính+phụ / title index / verdict / category-class + noun cho 1 bài, thay việc tính hash tay. Truyền `--subtype` + `--slug`/`--target`/`--slug-a`+`--slug-b` + `--genres` + `--site` (pbn: salt chống trùng across-domain). In khối `KEY<TAB>value` + các dòng `ANNOUNCE_*` để dán ngoài HTML.
+- `scripts/verify-output.py` — kiểm HTML pbn/blog20 trước khi giao: backlink unique, self-link, JSON-LD, word count 1000-1500, năm, table/list. `--type` + `--subtype` (+`--site` cho pbn), HTML qua stdin. Exit 0 PASS / 1 FAIL / 2 lỗi tham số.
 - `data/truyen-data.json` — pool truyện đã crawl (đồng bộ từ `/crawl-webnovel`). Có `anh_imgbb`; toàn bộ record được xét khi tra cứu/lọc.
 - `data/pbn-domains.txt` — domain PBN hợp lệ (đối chiếu `--site`). Dùng ghép URL bài, **không** host ảnh.
 - `CHEATSHEET.md` — input cheat sheet (update cùng SKILL khi đổi Usage).

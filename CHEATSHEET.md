@@ -275,6 +275,8 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 10. Chỉ URL thuộc `webnovel.vn`.
 11. **Title pool:** H1 review/toplist xoay theo hash slug/target (chống nhàm) — vẫn giữ keyword + `[năm]`.
 11b. **Archetype khung bài:** chống "một màu" ở tầng *hình hài* — 4 archetype (Chuẩn / Kể trải nghiệm / Hỏi-đáp / Chốt trước) chọn deterministic theo hash (`//7`, tách pha khỏi title/góc/verdict), đổi trình tự section + ẩn/dời bảng-info & "Giải đáp tò mò" + 4 persona (pin theo 4 archetype) + họ title. Forum: 3 post = 3 archetype khác nhau. **Giữ nguyên contract:** nếu ẩn table phải có list thay thế (≥1 table/list); pbn giữ self-link đoạn mở, blog20 bỏ self-link; versus luôn giữ bảng so sánh; forum plain text không HTML/table, mỗi post 1 URL trần.
-12. **Non-fiction:** danh mục Phát triển bản thân / Tâm linh → danh từ "sách" thay "truyện".
+12. **Non-fiction:** danh mục Phát triển bản thân / Tâm linh / Kinh doanh → danh từ "sách" thay "truyện". `danh_muc` LUÔN là **list** — non-fiction chỉ khi TẤT CẢ phần tử ∈ set này.
 13. **Tác giả** KHÔNG phải subtype riêng → dùng `pbn toplist "<Tên tác giả>"` (author-mode có biến thể intro "dấu ấn qua các tác phẩm").
 14. `versus`: 2 truyện; scrape cả 2; 2 tên → match `tu_khoa`; bảng so sánh text-only.
+15. **`pick-variant.py` (BẮT BUỘC review/review-short/toplist/genre/guide/versus/forum):** in sẵn archetype/góc/title-index/verdict/category-class theo hash — KHÔNG tự tính hash bằng tay. Truyền `--site` với pbn (salt chống trùng across-domain); blog20 không truyền.
+16. **`verify-output.py` (BẮT BUỘC pbn/blog20):** pipe HTML vào `--type <pbn|blog20> --subtype <...> [--site <domain>]`; chỉ giao khi exit 0 (PASS). Đếm backlink unique / self-link / JSON-LD / word count / năm / table-list.

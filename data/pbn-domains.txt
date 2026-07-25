@@ -1,8 +1,8 @@
 # Danh sách domain PBN dùng cho content-webnovel (pbn).
 # Khi viết pbn kèm --site <domain>, đối chiếu domain với list này.
-# Ảnh bìa nằm CÙNG domain đăng bài (--site), ghép theo công thức:
-#   https://{site}/wp-content/uploads/{img-month}/{slug}.webp
-# (site = --site, img-month = --img dạng YYYY/MM, slug = slug truyện trong truyen-data.json)
+# --site chỉ dùng để ghép URL bài: https://{site}/{slug}/
+# Ảnh KHÔNG host trên domain này — dùng ImgBB (anh_imgbb trong truyen-data.json
+# hoặc upload qua scripts/imgbb-upload.sh). Không còn tham số --img.
 
 www.tntp.org.vn
 tonghoixaydungvn.org.vn
