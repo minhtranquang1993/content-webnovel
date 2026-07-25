@@ -373,25 +373,25 @@ Dù hình hài nào, mọi bài vẫn phải:
 
 ## LOẠI pbn — HTML thuần, 1000-1500 chữ (KHÔNG JSON-LD)
 
-Nguyên tắc chung SEO/GEO/AEO (áp cho **mọi** subtype):
-- **Câu định nghĩa entity dứt khoát ở đầu bài** (ngay sau/trong đoạn mở) — cho **ENTITY CHÍNH** của bài:
+**Contract bất biến pbn (C1–C9)** — nguồn chuẩn, áp cho **mọi** subtype. Các subtype bên dưới nhắc lại vài điểm cho tiện đọc; khi lệch, **mục này thắng**. `verify-output.py` (BƯỚC CUỐI) đếm lại C3/C4/C7/C8/C9.
+
+- **C1 — Câu định nghĩa entity** dứt khoát ở đầu bài (ngay sau/trong đoạn mở), cho **ENTITY CHÍNH**:
   - review / review-short / toplist / faq: truyện hoặc thể loại — "*[Tên] là [noun] [thể loại] của tác giả [X], [đặc điểm]*".
   - genre: thể loại — "*[Thể loại] là dòng [noun] [đặc trưng cốt lõi]…*".
   - versus: cả 2 truyện — mỗi truyện 1 câu định nghĩa.
   - guide: thể loại (góc người mới) — "*[Thể loại] là dòng [noun]… phù hợp người mới vì…*".
   Đây là câu AI dễ trích dẫn nhất — BẮT BUỘC có ở mọi subtype.
-- **Answer-first** chỉ ở: đoạn intro, mỗi câu FAQ, đầu mỗi mục toplist. KHÔNG nhồi answer-first vào mọi đoạn (đọc như bot → mất E-E-A-T).
-- Có **bảng hoặc list** (dễ ăn featured snippet + AI trích).
-- **Freshness:** năm hiện tại (2026) xuất hiện **≥1 lần trong bài** — ở H1 **HOẶC** intro. **KHÔNG bắt buộc dán đuôi H1**; có thể để năm trong câu mở nếu H1 tự nhiên hơn khi bỏ năm.
-- **Brand tiết chế:** "Webnovel.vn" xuất hiện tối đa 2-3 lần/bài **dạng text**, chủ yếu ở CTA. Giữ giọng blogger bên thứ 3, KHÔNG nhồi quảng cáo.
-- **Backlink unique (BẮT BUỘC):** mỗi URL `webnovel.vn` (bất kỳ path) chỉ được chèn **đúng 1 lần** dưới dạng `<a href="...">` trong toàn bộ HTML. Trùng URL = vi phạm.
+- **C2 — Answer-first** chỉ ở: đoạn intro, mỗi câu FAQ, đầu mỗi mục toplist. KHÔNG nhồi answer-first vào mọi đoạn (đọc như bot → mất E-E-A-T).
+- **C3 — ≥1 bảng hoặc list** (dễ ăn featured snippet + AI trích).
+- **C4 — Freshness:** năm hiện tại (2026) xuất hiện **≥1 lần trong bài** — ở H1 **HOẶC** intro. **KHÔNG bắt buộc dán đuôi H1**; có thể để năm trong câu mở nếu H1 tự nhiên hơn khi bỏ năm.
+- **C5 — Brand tiết chế:** "Webnovel.vn" xuất hiện tối đa 2-3 lần/bài **dạng text**, chủ yếu ở CTA. Giữ giọng blogger bên thứ 3, KHÔNG nhồi quảng cáo.
+- **C6 — Tone:** blogger review khách quan, đáng tin, tự nhiên.
+- **C7 — Backlink unique (BẮT BUỘC):** mỗi URL `webnovel.vn` (bất kỳ path) chỉ được chèn **đúng 1 lần** dưới dạng `<a href="...">` trong toàn bộ HTML. Trùng URL = vi phạm.
   - `review` / `faq`: đúng **1** backlink — đặt ở **CTA cuối**. Chỗ khác (bảng info, đoạn giữa) chỉ text "Webnovel.vn", không bọc `<a>`.
   - `toplist`: mỗi truyện **1** link `link_truyen` riêng (N URL khác nhau → N thẻ `<a>`, mỗi URL 1 lần). Bảng so sánh **không** lặp lại link đã dùng ở mục truyện (chỉ text tên hoặc "xem ở mục trên"). CTA cuối: 1 link danh mục **nếu URL đó chưa dùng** ở item nào.
   - Auto-switch review từ danh mục (pool=1): cho phép **2** backlink webnovel khác nhau — 1 link truyện (CTA) + 1 link danh mục (**chỉ trong intro** — không đặt trong H2 thân giữa theo góc). Mỗi URL vẫn chỉ 1 lần.
-- **Self-link internal (BẮT BUỘC):** đúng **1** thẻ `<a href="{URL bài PBN}">` trong **đoạn mở** (sau câu định nghĩa entity). Anchor text = biến thể title ngắn (tên truyện / "review [tên]" / "top truyện [thể loại]") — **không** dùng raw URL làm anchor. **Không** `rel="nofollow"` (internal cùng site PBN).
-- Tone: blogger review khách quan, đáng tin, tự nhiên.
-- Xuất **HTML thuần** (thẻ `<h1><h2><p><table><ul><img><a>`). **KHÔNG** xuất `<script type="application/ld+json">` hay bất kỳ schema/JSON-LD nào.
-- Hiển thị trực tiếp trong chat để user copy.
+- **C8 — Self-link internal (BẮT BUỘC, chỉ pbn):** đúng **1** thẻ `<a href="{URL bài PBN}">` trong **đoạn mở** (sau câu định nghĩa entity). Anchor text = biến thể title ngắn (tên truyện / "review [tên]" / "top truyện [thể loại]") — **không** dùng raw URL làm anchor. **Không** `rel="nofollow"` (internal cùng site PBN). *(blog20 bỏ C8 — xem "Contract kế thừa".)*
+- **C9 — HTML thuần, KHÔNG JSON-LD:** chỉ thẻ `<h1><h2><p><table><ul><img><a>`. **KHÔNG** `<script type="application/ld+json">` hay bất kỳ schema/JSON-LD nào. Độ dài **1000–1500 chữ**. Hiển thị trực tiếp trong chat để user copy.
 
 ### URL + Slug bài PBN (mọi subtype pbn)
 

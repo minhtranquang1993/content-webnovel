@@ -39,17 +39,22 @@ else
 fi
 
 PYTHONUTF8=1 PYTHONIOENCODING=utf-8 $PY - "$URL" <<'PYEOF'
-import sys, re, html, subprocess, time
+import sys, re, html, subprocess, time, os
 
 URL = sys.argv[1].rstrip('/')
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-CEIL = 20          # trần paywall fiction đã verify
+# Trần paywall fiction (đã verify = 20). Override khi site đổi chính sách:
+#   WEBNOVEL_FREE_CEIL=30 bash scrape-chapters.sh "<url>"
+try:
+    CEIL = max(2, int(os.environ.get("WEBNOVEL_FREE_CEIL", "20")))
+except ValueError:
+    CEIL = 20
 K = 10             # số candidate rải trong [1, CEIL]
 STRIDE = 7         # coprime với 20 -> 10 số phân biệt, mixed-parity, đổi theo hash
 WORD_MIN = 200     # >WORD_MIN từ = FREE; ~11 từ = teaser (locked)
-EXPAND = [30, 40]  # probe mở rộng khi chương 20 free (ý user: free >20 -> chương cao)
+EXPAND = [CEIL + 10, CEIL + 20]  # probe mở rộng khi chương CEIL free (free >CEIL -> chương cao)
 
 def err(msg, code):
     print(f"ERROR: {msg}", file=sys.stderr)
@@ -114,9 +119,15 @@ def classify(n, retry=True):
         return ('locked', words2, text2)
     return ('locked', words, text)
 
-# --- Sinh candidate: stride-7 theo hash slug, luôn ép {1, 20} ---
+# --- Sinh candidate: stride theo hash slug, luôn ép {1, CEIL} ---
+# STRIDE muốn = 7; nếu CEIL (override) chia sẻ ước với 7 (vd 21, 28) thì residue-walk
+# lặp lại → candidate co lại. Chọn stride coprime với CEIL runtime để giữ ~K số phân biệt.
+import math
+stride = STRIDE
+if math.gcd(stride, CEIL) != 1:
+    stride = next((s for s in range(STRIDE, STRIDE + CEIL) if math.gcd(s, CEIL) == 1), 1)
 h = sum(ord(c) for c in slug)
-cands = [1 + ((h + STRIDE * i) % CEIL) for i in range(K)]
+cands = [1 + ((h + stride * i) % CEIL) for i in range(K)]
 cands = sorted(set(cands) | {1, CEIL})
 
 # --- Probe chương 1 TRƯỚC (fail-fast) ---

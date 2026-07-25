@@ -82,6 +82,12 @@ if [ "$PAGE_TYPE" = "story" ]; then
     exit 5
   fi
 
+  # Cảnh báo drift (stderr, KHÔNG đổi stdout): có TITLE nhưng rỗng cả 3 field
+  # phụ → markup có thể đã đổi, field bóc bằng regex đã lệch.
+  if [ -z "$AUTHOR" ] && [ -z "$GENRES" ] && [ -z "$SUMMARY" ]; then
+    echo "WARN: story bóc được TITLE nhưng thiếu AUTHOR+GENRES+SUMMARY — webnovel.vn có thể đã đổi layout, kiểm lại selector trong scrape.sh." >&2
+  fi
+
   printf 'PAGE_TYPE\tstory\n'
   printf 'URL\t%s\n' "$URL"
   printf 'TITLE\t%s\n' "$TITLE"
@@ -109,11 +115,17 @@ if [ "$PAGE_TYPE" = "category" ]; then
   printf 'CAT_DESC\t%s\n' "$CAT_DESC"
 
   # Danh sách truyện: catx-card__title > a (tên + link), kèm desc nếu có
-  printf '%s' "$HTML" | tr '\n' ' ' \
+  STORIES="$(printf '%s' "$HTML" | tr '\n' ' ' \
     | grep -o '<h2 class="catx-card__title"[^>]*><a href="[^"]*" title="[^"]*">[^<]*</a>' \
     | sed -E 's#.*href="([^"]*)" title="[^"]*">([^<]*)</a>#STORY\t\2\t\1#' \
     | awk '!seen[$0]++' \
-    | head -30
+    | head -30)"
+  [ -n "$STORIES" ] && printf '%s\n' "$STORIES"
+
+  # Cảnh báo drift: có tiêu đề danh mục nhưng 0 STORY → selector catx-card có thể đã đổi.
+  if [ -z "$STORIES" ]; then
+    echo "WARN: category '$CAT_TITLE' bóc được 0 truyện (STORY) — webnovel.vn có thể đã đổi layout danh sách, kiểm lại selector catx-card__title trong scrape.sh." >&2
+  fi
 
   exit 0
 fi
