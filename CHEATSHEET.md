@@ -1,7 +1,7 @@
 # Cheat sheet — `/content-webnovel`
 
 Cách input nhanh cho skill content marketing Webnovel.vn.  
-**Skill active:** `~/.commandcode/skills/content-webnovel/`  
+**Skill active:** `~/.claude/skills/content-webnovel/` (git repo mirror: `~/.commandcode/skills/content-webnovel/`)  
 **Repo:** https://github.com/minhtranquang1993/content-webnovel  
 **Chi tiết đầy đủ:** xem `SKILL.md`.
 
@@ -253,7 +253,7 @@ Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viế
 2. Thiếu → upload:
 
 ```bash
-bash "~/.commandcode/skills/content-webnovel/scripts/imgbb-upload.sh" \
+bash "~/.claude/skills/content-webnovel/scripts/imgbb-upload.sh" \
   "$HOME/Downloads/webnovel/{anh_local}" "{slug}"
 ```
 

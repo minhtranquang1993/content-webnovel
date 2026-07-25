@@ -14,8 +14,8 @@ Tạo content marketing cho **Webnovel.vn** (website đọc truyện chữ có b
 ## Repo
 
 Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/content-webnovel** (branch `main`).
-- **Push:** commit + push ngay trong `~/.commandcode/skills/content-webnovel/` (chính là git repo).
-- **Pull:** `git pull` tại thư mục skill.
+- **Push:** commit + push ngay trong `~/.commandcode/skills/content-webnovel/` (đây là git repo). Bản đang chạy là `~/.claude/skills/content-webnovel/` — sau khi sửa ở `~/.claude` phải copy sang `~/.commandcode` rồi mới commit/push.
+- **Pull:** `git pull` tại `~/.commandcode/skills/content-webnovel/`, rồi copy về `~/.claude/skills/content-webnovel/`.
 
 ## Usage
 
@@ -99,7 +99,7 @@ Nếu file không tồn tại hoặc **pool = 0** sau lọc theo tiêu chí → 
 Với `pbn toplist` / `blog20 toplist` lấy pool từ JSON: scrape chỉ khi cần `CAT_TITLE` từ URL danh mục, khi fallback `pool=0`, hoặc khi auto-switch review 1 truyện. Các type khác: luôn scrape trước, KHÔNG tự đoán nội dung từ slug URL.
 
 ```bash
-bash "~/.commandcode/skills/content-webnovel/scripts/scrape.sh" "<url>"
+bash "~/.claude/skills/content-webnovel/scripts/scrape.sh" "<url>"
 ```
 
 Script tự nhận diện loại trang từ HTML markers và in ra các dòng `KEY<TAB>value`:
@@ -395,7 +395,7 @@ Self-link trong body dùng đúng full URL này.
 2. Nếu `anh_imgbb` trống/thiếu → upload từ file local rồi (nên) ghi ngược URL vào JSON:
 
 ```bash
-bash "~/.commandcode/skills/content-webnovel/scripts/imgbb-upload.sh" \
+bash "~/.claude/skills/content-webnovel/scripts/imgbb-upload.sh" \
   "$HOME/Downloads/webnovel/{anh_local}" "{slug}"
 ```
 
@@ -545,7 +545,7 @@ Biến thể review **đọc thật các chương free đầu** rồi phân tíc
 
 **Đọc chương (BẮT BUỘC trước khi viết thân giữa):**
 ```bash
-bash "C:\Users\Admin\.claude\skills\content-webnovel\scripts\scrape-chapters.sh" "<url truyện>"
+bash "~/.claude/skills/content-webnovel/scripts/scrape-chapters.sh" "<url truyện>"
 ```
 - Script tự: sinh ~10 chương candidate rải trong [1,20] (stride-7 theo hash slug, ép `{1,20}`), fetch + classify từng chương, in `SLUG/URL/CANDIDATES/FREE_CHAPTERS/FREE_COUNT` + các block `<<<CHAP\tN\twords>>> … <<<ENDCHAP>>>`.
 - **EXPAND:** nếu chương 20 free → probe thêm 30/40 (free >20 nghĩa là truyện mở nhiều chương). Vì vậy `FREE_CHAPTERS` **có thể chứa số >20** không nằm trong `CANDIDATES` — vẫn dùng bình thường, dẫn "chương [N]" theo đúng số in ra.
