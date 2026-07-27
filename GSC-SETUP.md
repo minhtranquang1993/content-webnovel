@@ -2,15 +2,24 @@
 
 Bulk mode chỉ có **1 keyword gốc** nhưng cần **N keyword phân biệt**. Keyword lấy theo 3 tầng:
 
-| Tier | Nguồn | Cờ | Trạng thái |
+| Tier | Nguồn | Cờ | Cần quyền gì |
 |---|---|---|---|
-| **A** | GSC API — script tự pull, không export tay | `--gsc-api` | ✅ dùng được |
-| **B** | CSV/ZIP export GSC anh gửi tay | `--gsc-csv <file>` | ✅ dùng được |
-| **C** | Tự sinh từ `data/truyen-data.json` + pool biến thể | (mặc định) | ✅ luôn có |
+| **A** | GSC API — script tự pull, không export tay | `--gsc-api` | tài khoản có quyền đọc property |
+| **B** | CSV/ZIP export GSC anh gửi tay | `--gsc-csv <file>` | ai có quyền export hộ cũng được |
+| **S** | Autocomplete Google/Bing/DDG/YouTube | `--suggest` | **không cần gì** |
+| **C** | Tự sinh từ `data/truyen-data.json` + pool biến thể | (mặc định) | không cần gì |
 
-Chạy được cùng lúc. Thứ tự ưu tiên **A → B → C**, tier sau chỉ bù chỗ còn thiếu. Tier A lỗi (hết hạn, mất mạng, sai quyền) thì **rơi mềm** xuống B/C — batch không bao giờ chết vì GSC.
+Chạy được cùng lúc. Ưu tiên **A → B → S → C**, tier sau chỉ bù chỗ còn thiếu. Tier nào lỗi (hết hạn, mất mạng, sai quyền) thì **rơi mềm** xuống tier dưới — batch không bao giờ chết vì keyword.
 
-Không cấu hình gì cả vẫn chạy được (tier C). Cấu hình tier A một lần thì từ đó khỏi phải export tay nữa.
+Không cấu hình gì vẫn chạy được (tier C). Muốn keyword **thật** mà không có quyền GSC → dùng **tier S**, xem mục riêng ở dưới.
+
+## Không có quyền add email vào GSC thì làm gì?
+
+Quyền thêm user vào property là của **Owner**. Nhưng có 3 đường không cần quyền đó:
+
+1. **OAuth thay vì service account** *(vẫn là tier A, dữ liệu thật, có volume)* — OAuth chạy bằng **chính tài khoản Google của anh**, nên nó thừa hưởng đúng quyền anh đang có. **Mở được property trong Search Console bằng mắt là API đọc được** — không phải thêm ai vào đâu cả. Đây là lý do service account cần add email mà OAuth thì không: service account là *danh tính thứ ba*, còn OAuth là *anh*. Xem "Cách 2: OAuth" ở dưới.
+2. **Nhờ người có quyền export hộ** *(tier B)* — họ vào Search Console → Performance → Export → tải file về gửi anh. Anh chỉ cần nói đường dẫn file, không cần quyền gì trên property.
+3. **Bỏ GSC hẳn, dùng tier S** — keyword từ autocomplete, không credential, không quyền, không đăng nhập. Mất phần search volume nhưng vẫn là nhu cầu tìm kiếm thật.
 
 ---
 
@@ -26,9 +35,12 @@ Lib nằm trong venv riêng ở `~/.local/share/webnovel-gsc/venv`, **không** c
 
 ## Bước 2: credential — **cần anh làm phần này**
 
-Chọn 1 trong 2. **Service account** gọn hơn: không mở browser, không hết hạn.
+Chọn 1 trong 2:
 
-### Cách 1 — Service account (khuyến nghị)
+- **Không phải Owner của property** (không add được email vào GSC) → **bắt buộc dùng Cách 2 (OAuth)**. Cách 1 sẽ chết ở bước cuối.
+- **Là Owner** → Cách 1 gọn hơn: không mở browser, token không hết hạn.
+
+### Cách 1 — Service account (chỉ khi anh là Owner)
 
 1. Vào [Google Cloud Console](https://console.cloud.google.com/) → tạo project mới (hoặc dùng project có sẵn).
 2. **APIs & Services → Library** → tìm **Google Search Console API** → **Enable**.
@@ -42,15 +54,25 @@ Chọn 1 trong 2. **Service account** gọn hơn: không mở browser, không h�
 
 Không làm bước 6 thì API trả HTTP 403 — service account tự nó không thấy property nào.
 
-### Cách 2 — OAuth (dùng account Google của anh)
+### Cách 2 — OAuth (không cần quyền Owner)
 
-1. Cloud Console → bước 1-2 như trên.
+1. Cloud Console → bước 1-2 như trên. Project này là **của riêng anh**, tạo mới được, không liên quan quyền trên property.
 2. **Credentials → Create credentials → OAuth client ID** → Application type **Desktop app** → tải JSON về.
 3. Đổi tên thành `oauth-client.json`, đặt vào `~/.config/webnovel-gsc/oauth-client.json`.
 4. Nếu consent screen ở chế độ Testing thì thêm email của anh vào **Test users**.
 5. Lần chạy đầu script mở browser để anh đồng ý. Token cache ở `~/.config/webnovel-gsc/token.json` (chmod 600).
 
-Cách này không cần bước "add user" vì account của anh đã là owner property. Đổi lại: app chưa verify thì refresh token có thể hết hạn sau ~7 ngày, phải đồng ý lại. Script tự phát hiện và xin lại quyền.
+**Không cần bước "add user"** — OAuth chạy dưới danh tính của chính anh, nên nó đọc được **đúng những property anh đang mở được** trong Search Console. Không cần Owner, không cần Full: quyền **Restricted** cũng đọc được Performance data. Ngược lại, service account là một danh tính thứ ba nên bắt buộc phải được add vào — đó là chỗ Cách 1 chết nếu anh không phải Owner.
+
+Đổi lại: app chưa verify thì refresh token có thể hết hạn sau ~7 ngày, phải đồng ý lại. Script tự phát hiện và xin lại quyền.
+
+Kiểm nhanh xem có đọc được property nào:
+
+```bash
+python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites
+```
+
+Danh sách trả về rỗng → account của anh thật sự không có quyền trên property nào. Lúc đó đi tier B (nhờ export hộ) hoặc tier S.
 
 > Credential nằm ở `~/.config/webnovel-gsc/` (chmod 700), **ngoài** skill dir — repo `content-webnovel` là public, không được để key lọt vào đó.
 
@@ -150,6 +172,67 @@ Chi tiết khác script tự lo:
 - **Số** `3,450` (EN) và `3.450` (VI) đều ra 3450.
 - **Dấu phân cách** phẩy, chấm phẩy, tab đều được.
 - Không thấy header quen → cảnh báo rồi đọc cột 1 làm query, **bỏ impressions** thay vì đoán sai số.
+
+---
+
+# Tier S — autocomplete, không cần credential
+
+Dùng khi **không có quyền GSC** (hoặc chỉ muốn bù thêm keyword). Không cài gì, không đăng nhập, không credential — chỉ cần mạng.
+
+```bash
+/content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/ --suggest
+```
+
+## Nó lấy dữ liệu ở đâu
+
+Gõ dở một cụm vào Google thì hộp gợi ý rơi xuống — đó là **query người thật đang gõ**, do chính Google thống kê. Tier S hỏi thẳng cái hộp đó qua endpoint autocomplete, 4 nguồn:
+
+| Nguồn | Vì sao có mặt |
+|---|---|
+| Google | nguồn chính, kèm điểm xếp hạng nội bộ |
+| Bing | trả bộ **khác** Google (`mỹ thực`, `làm ruộng`, `cổ đại`) → phủ rộng hơn |
+| DuckDuckGo | đối chiếu (proxy index Bing nên **tính chung 1 phiếu với Bing**) |
+| YouTube | corpus khác → ra cách gọi khác của cùng chủ đề |
+
+Để lấy nhiều hơn 10 gợi ý/lần, script hỏi thêm seed ghép hậu tố/tiền tố hay đi với truyện Việt (`hay`, `hoàn`, `full`, `xuyên không`, `gia đấu`, `top …`, `review …`) — mặc định 72 request, xong trong ~3 giây. `--suggest-depth 2` thêm a-z, nhiều gợi ý đuôi dài hơn nhưng ~160 request.
+
+## Xếp hạng — đọc kỹ chỗ này
+
+**Autocomplete không cho search volume.** Không suy ra lượt tìm kiếm từ nó được, và script không bịa: cột `impressions` của tier S **luôn = 0**.
+
+Thay vào đó xếp theo 2 tín hiệu thật:
+
+1. **Vị trí** trong danh sách gợi ý (Google/Bing tự xếp phổ biến trước).
+2. **Số nhóm nguồn đồng thuận** — keyword mà cả Google + Bing + YouTube đều gợi thì chắc hơn keyword chỉ 1 nguồn có. Xem cột `kw_source`: `tierS:bing+google+google-yt` = 3 nhóm.
+
+Muốn chỉ lấy loại chắc: `scripts/suggest.py --seed "..." --min-groups 2`.
+
+## Nó tự bỏ những gì
+
+- **Lạc đề** — autocomplete drift rất mạnh: hỏi `truyện điền văn nữ chính`, Bing trả `nhận định về truyện ngắn`. Keyword phải chứa **đủ** token lõi mới giữ.
+- **Đối thủ / nền tảng khác** — `wattpad`, `dtruyen`, `truyenfull`, `nettruyen`… Không lọc thì bài viết đi quảng cáo hộ họ.
+- **Định dạng site không có** — `audio`, `mp3`, `nghe truyện`, `truyện tranh`, `pdf`, `epub`, `phim`, `anime`.
+- **Lệch nhóm** — `sắc`, `18+`, `đam mỹ`, `bách hợp`.
+- **Keyword đóng năm đã qua** — tháng 7/2026 mà viết bài nhắm `truyện ngôn tình mới nhất 2025` là nhắm nhu cầu năm ngoái. Năm nay và năm sau thì giữ; số năm trong **tên truyện** (`Trở Về Làng Chài Nhỏ 1982`) không bị đụng.
+
+Số bị bỏ báo ở `note: tier S: +N keyword từ autocomplete (bỏ … lạc đề, … đối thủ, … năm cũ)`.
+
+## Dùng riêng để xem keyword
+
+```bash
+python3 ~/.claude/skills/content-webnovel/scripts/suggest.py --seed "truyện điền văn"
+python3 ~/.claude/skills/content-webnovel/scripts/suggest.py --seed "tiên nghịch" --min-groups 2
+python3 ~/.claude/skills/content-webnovel/scripts/suggest.py --seed "sách Osho" --depth 2 -n 60
+```
+
+Kết quả cache 6 giờ ở `/tmp/webnovel-suggest-cache` (autocomplete không đổi theo phút). Ép gọi lại: `--no-cache`.
+
+## Giới hạn thật
+
+- **Không có volume.** Cần con số để quyết định thì phải đi tier A/B, không có đường khác.
+- **Chỉ có keyword đã phổ biến đủ để vào autocomplete.** Đuôi dài rất hẹp sẽ không xuất hiện.
+- **Không phải data của site anh** — là nhu cầu của thị trường. Muốn biết site anh *đang* hiển thị với query nào thì chỉ GSC trả lời được.
+- Endpoint không phải API công bố. Google có thể đổi format hoặc chặn IP gọi quá dày; script gọi vừa phải + cache, và tier S lỗi thì **rơi mềm xuống tier C**, batch không chết.
 
 ---
 

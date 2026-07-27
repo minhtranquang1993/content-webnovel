@@ -153,6 +153,11 @@ def main():
                     help="tier A: filter page. Bỏ = tự suy từ --url/--category")
     ap.add_argument("--gsc-key-file", dest="gsc_key_file", default="",
                     help="tier A: service account JSON")
+    ap.add_argument("--suggest", action="store_true",
+                    help="tier S: keyword liên quan/LSI từ autocomplete Google/Bing/"
+                         "DDG/YouTube. Không cần credential — dùng khi không có quyền GSC")
+    ap.add_argument("--suggest-depth", dest="suggest_depth", type=int, default=1,
+                    choices=(1, 2), help="tier S: 1 = hậu/tiền tố, 2 = thêm a-z")
     ap.add_argument("--seed-keyword", dest="seed_kw", default="",
                     help="primary keyword user ép (không có → auto-resolve)")
     ap.add_argument("--dry-run", action="store_true",
@@ -280,6 +285,29 @@ def main():
                 continue
             push_kw(kw, "tierB:gsc", imp)
 
+    # Seed chốt slot 1 trước tier S/C (tier S loại seed khỏi gợi ý — nó là input).
+    push_kw(seed_kw, "tierC:primary", 0)
+
+    # tier S: autocomplete thật, không cần credential. Trên tier C (query người ta
+    # đang gõ) nhưng dưới A/B (không có volume). Lỗi mạng → rơi mềm, không dừng bulk.
+    if args.suggest:
+        try:
+            import suggest as sgmod
+            s_rows, s_drop = sgmod.collect(seed_kw, depth=args.suggest_depth,
+                                           category=category)
+            n_kept = 0
+            for kw, score, grp in s_rows:
+                if not kwmod.is_relevant(kw, cores, category):
+                    dropped += 1
+                    continue
+                push_kw(kw, f"tierS:{'+'.join(grp)}", 0)   # imp=0: không có volume
+                n_kept += 1
+            notes.append(f"tier S: +{n_kept} keyword từ autocomplete "
+                         f"(bỏ {s_drop['drift']} lạc đề, {s_drop['block']} đối thủ, "
+                         f"{s_drop['stale']} năm cũ)")
+        except Exception as e:  # noqa — tier S chết không được làm sập bulk
+            notes.append(f"tier S bỏ qua: {type(e).__name__}: {e}")
+
     if dropped:
         notes.append(f"loại {dropped} query lạc đề")
 
@@ -289,8 +317,11 @@ def main():
 
     # keyword cho bài cấp-danh-mục (toplist/genre/guide/faq/forum-category): không phải
     # keyword tên truyện (những bài đó dùng tên truyện làm keyword riêng).
+    # tierS:* khớp bằng PREFIX — source của nó động ("tierS:bing+google-yt"), so
+    # khớp chuỗi chính xác sẽ trượt sạch và cat_queue rỗng.
     cat_queue = [(k, s, i) for k, s, i in kw_rows
-                 if s in ("tierA:api", "tierB:gsc", "tierC:primary", "tierC:variant",
+                 if s.startswith("tierS:")
+                 or s in ("tierA:api", "tierB:gsc", "tierC:primary", "tierC:variant",
                           "tierC:intent", "tierC:author")]
     n_keywords = len(kw_rows)
 

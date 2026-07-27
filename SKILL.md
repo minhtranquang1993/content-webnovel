@@ -169,7 +169,7 @@ py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
 ### Luồng 5 bước
 
 ```
-1. Mở rộng keyword  → scripts/keywords.py (tier A GSC API / B export user gửi / C tự sinh)
+1. Mở rộng keyword  → scripts/keywords.py (tier A GSC API / B export user gửi / S autocomplete / C tự sinh)
 2. Tính capacity    → N_thực = min(N, #keyword, capacity, 20)
 3. Lập ma trận      → scripts/bulk-plan.py in N dòng (keyword, subtype, archetype, …)
 4. Sinh + ghi NGAY  → xong bài nào ghi file + 1 dòng manifest bài đó, DROP khỏi context
@@ -185,14 +185,16 @@ python3 "~/.claude/skills/content-webnovel/scripts/bulk-plan.py" \
   [--subtype <review|…>] [--site <domain>] [--cat-desc "<CAT_DESC scrape>"] \
   [--seed-keyword "<keyword user ép>"] \
   [--gsc-api [--gsc-site <property>] [--gsc-days N] [--gsc-page-filter <str>]] \
-  [--gsc-csv <file.csv|.zip>]
+  [--gsc-csv <file.csv|.zip>] [--suggest [--suggest-depth 2]]
 ```
 
-**Keyword theo tầng A → B → C.** Chạy được cùng lúc, tier sau bù chỗ thiếu:
+**Keyword theo tầng A → B → S → C.** Chạy được cùng lúc, tier sau bù chỗ thiếu:
 
-- **`--gsc-api` (tier A):** user nói *"dùng gsc"* / *"pull gsc"* / *"lấy keyword từ search console"* → **tự thêm `--gsc-api`**. Script tự chọn property và tự suy filter page từ `--url`/`--category`. Tier A lỗi (thiếu lib/credential/403) → `bulk-plan.py` in `note: tier A bỏ qua: …` rồi **chạy tiếp bằng B/C**; announce note đó cho user, **không dừng bulk**. Chưa cấu hình bao giờ → chỉ user vào `GSC-SETUP.md`, đừng tự chạy `gsc-install.sh` hay đòi credential.
+- **`--gsc-api` (tier A):** user nói *"dùng gsc"* / *"pull gsc"* / *"lấy keyword từ search console"* → **tự thêm `--gsc-api`**. Script tự chọn property và tự suy filter page từ `--url`/`--category`. Tier A lỗi (thiếu lib/credential/403) → `bulk-plan.py` in `note: tier A bỏ qua: …` rồi **chạy tiếp bằng B/S/C**; announce note đó cho user, **không dừng bulk**. Chưa cấu hình bao giờ → chỉ user vào `GSC-SETUP.md`, đừng tự chạy `gsc-install.sh` hay đòi credential.
 - **`--gsc-csv` (tier B):** user nhắc file/đường dẫn kiểu nào — `GSC: ~/Downloads/x.zip`, *"gsc ở ..."*, hay chỉ dán path — thì **tự ghép `--gsc-csv <path>`**, không hỏi lại. Nhận CSV/TSV và **cả `.zip` tải thẳng từ GSC** (tự chọn sheet query, không cần giải nén).
-- **Không nhắc gì → chạy không cờ nào.** Tier C gánh, **không đòi user export cũng không tự bật tier A**.
+- **`--suggest` (tier S):** user nói *"lấy keyword liên quan"* / *"LSI"* / *"từ đồng nghĩa"* / *"không có quyền gsc"* / *"keyword thật mà khỏi cần gsc"* → **tự thêm `--suggest`**. Lấy từ autocomplete Google/Bing/DDG/YouTube, **không cần credential**. Lỗi mạng → note `tier S bỏ qua: …` rồi chạy tiếp bằng C.
+  - **Cột `impressions` của tier S = 0 và đó là đúng** — autocomplete không cho search volume. **Không được báo cho user như thể có volume**, cũng không suy ra con số. Muốn nói độ tin thì đọc số nhóm nguồn trong `kw_source` (`tierS:bing+google+google-yt` = 3 nhóm đồng thuận).
+- **Không nhắc gì → chạy không cờ nào.** Tier C gánh, **không đòi user export, không tự bật tier A, không tự bật tier S** (tier S gọi mạng ~72 request, phải do user quyết).
 
 - Script in TSV `idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index` (stdout) + dòng `[bulk-plan] …` announce (stderr, gồm `OUT_DIR`).
 - **Dùng đúng slot script in ra.** Không tự tính hash, không tự đổi subtype, không tự thêm keyword.

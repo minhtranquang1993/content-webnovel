@@ -29,6 +29,8 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 | `--dry-run` | Tuỳ chọn | chỉ kèm `--bulk` | In ma trận kế hoạch rồi DỪNG — không sinh bài, không ghi file |
 | `--gsc-api` | Tuỳ chọn | chỉ kèm `--bulk` | **Tier A** — tự pull query thật từ GSC API, khỏi export tay. Cài 1 lần: `scripts/gsc-install.sh` + credential |
 | `--gsc-csv <file>` | Tuỳ chọn | chỉ kèm `--bulk` | **Tier B** — export Search Console (CSV/TSV/**ZIP tải thẳng**) anh gửi tay |
+| `--suggest` | Tuỳ chọn | chỉ kèm `--bulk` | **Tier S** — keyword liên quan/LSI từ autocomplete Google/Bing/DDG/YouTube. **Không cần credential, không cần quyền GSC** |
+| `--suggest-depth 2` | Tuỳ chọn | chỉ kèm `--suggest` | Thêm mở rộng a-z → nhiều keyword đuôi dài hơn (~160 request thay vì 72) |
 
 **Tương thích input cũ:** nếu vẫn truyền `--lo <nhãn>`, skill bỏ qua cả flag và giá trị; không hỏi lại, không báo lỗi, không dùng để lọc dữ liệu.
 
@@ -281,33 +283,41 @@ Sinh **N bài, mỗi bài 1 keyword riêng**, ghi ra file `.txt` + 1 manifest TS
 # Tier B — gửi file export tay (nói đường dẫn là đủ, khỏi gõ flag)
 /content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/
 GSC: ~/Downloads/webnovel-vn-performance.zip
+
+# Tier S — keyword thật từ autocomplete, KHÔNG cần credential/quyền GSC
+/content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/ --suggest
 ```
 
-### Search Console (tuỳ chọn, nên dùng)
+### Nguồn keyword (tuỳ chọn, nên dùng)
 
-Keyword theo 3 tầng, chạy được cùng lúc, tier sau bù chỗ thiếu:
+Keyword theo 4 tầng, chạy được cùng lúc, tier sau bù chỗ thiếu:
 
-| Tier | Nguồn | Cờ |
-|---|---|---|
-| **A** | GSC API tự pull | `--gsc-api` |
-| **B** | Export CSV/ZIP gửi tay | `--gsc-csv <file>` |
-| **C** | Tự sinh từ JSON | mặc định |
+| Tier | Nguồn | Cờ | Có volume? | Cần quyền? |
+|---|---|---|---|---|
+| **A** | GSC API tự pull | `--gsc-api` | ✅ | account đọc được property |
+| **B** | Export CSV/ZIP gửi tay | `--gsc-csv <file>` | ✅ | nhờ ai export hộ cũng được |
+| **S** | Autocomplete Google/Bing/DDG/YouTube | `--suggest` | ❌ | **không** |
+| **C** | Tự sinh từ JSON | mặc định | ❌ | không |
 
-Không cấu hình gì vẫn chạy (tier C). Tier A lỗi → tự rơi xuống B/C, **batch không chết vì GSC**.
+Không cấu hình gì vẫn chạy (tier C). Tier nào lỗi → tự rơi xuống tier dưới, **batch không chết vì keyword**.
+
+**Không có quyền add email vào GSC?** Quyền đó là của Owner, nhưng không cần nó: dùng **OAuth** (chạy dưới account của anh, mở được property trong GSC là API đọc được), hoặc **nhờ export hộ** (tier B), hoặc **`--suggest`** (tier S, khỏi GSC).
 
 **Cài tier A (1 lần):**
 
 ```bash
 bash ~/.claude/skills/content-webnovel/scripts/gsc-install.sh   # lib vào venv riêng
-# rồi đặt credential vào ~/.config/webnovel-gsc/service-account.json
-# + add email service account vào GSC → Settings → Users and permissions
+# Owner  → ~/.config/webnovel-gsc/service-account.json + add email vào GSC Users
+# KHÔNG Owner → ~/.config/webnovel-gsc/oauth-client.json (Desktop app), khỏi add ai
 python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # kiểm
 ```
 
 - Tier A tự chọn property + tự suy filter page từ URL/danh mục (`/dien-van/`). Ép: `--gsc-site`, `--gsc-page-filter`, `--gsc-days 365`.
 - Tier B: lưu file rồi **nói đường dẫn** (script cần path, không đọc được nội dung dán chat). **ZIP khỏi giải nén.**
 - Header EN/VI đều nhận; `3,450` và `3.450` đều ra 3450; query **không dấu** vẫn khớp seed có dấu.
-- Xem keyword nào vào bài nào: thêm `--dry-run`, đọc cột `kw_source` (`tierA:api` / `tierB:gsc` / `tierC:*`).
+- **Tier S không có search volume** — `impressions` = 0 là đúng, autocomplete không cho volume. Độ tin đọc ở số nhóm nguồn: `tierS:bing+google+google-yt` = 3 nhóm đồng thuận. Tự bỏ keyword lạc đề, đối thủ (`wattpad`, `dtruyen`), định dạng không có (`audio`, `truyện tranh`), và keyword đóng năm đã qua.
+- Xem keyword riêng: `python3 scripts/suggest.py --seed "truyện điền văn" --min-groups 2`
+- Xem keyword nào vào bài nào: thêm `--dry-run`, đọc cột `kw_source` (`tierA:api` / `tierB:gsc` / `tierS:*` / `tierC:*`).
 
 **Chi tiết đầy đủ + cách lấy credential: `GSC-SETUP.md`.**
 

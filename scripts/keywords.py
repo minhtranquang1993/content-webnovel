@@ -440,6 +440,13 @@ def main():
                     help="tier A: filter page. Bỏ = tự suy từ --url/--category")
     ap.add_argument("--gsc-key-file", dest="gsc_key_file", default="",
                     help="tier A: service account JSON (mặc định đọc ~/.config/webnovel-gsc)")
+    ap.add_argument("--suggest", action="store_true",
+                    help="tier S: lấy keyword liên quan/LSI từ autocomplete Google/"
+                         "Bing/DDG/YouTube. KHÔNG cần credential — dùng khi không "
+                         "có quyền GSC")
+    ap.add_argument("--suggest-depth", dest="suggest_depth", type=int, default=1,
+                    choices=(1, 2), help="tier S: 1 = hậu/tiền tố (72 request), "
+                                         "2 = thêm a-z (~160 request)")
     ap.add_argument("-n", "--limit", type=int, default=20,
                     help="số keyword tối đa in ra (default 20 = cap bulk)")
     args = ap.parse_args()
@@ -481,6 +488,10 @@ def main():
     dropped = 0        # query lạc đề bị loại (tier A + B)
     tier_a_err = ""
 
+    # Seed chốt slot 1 TRƯỚC mọi tier. Tier S loại seed khỏi gợi ý (đúng, nó là
+    # input), tier A/B/S mà ăn hết limit thì seed rớt khỏi batch — không được.
+    push(args.seed, "tierC:primary", 0)
+
     # tier A trước nhất: pull thẳng API. Lỗi → rơi mềm xuống B/C.
     if args.gsc_api:
         pf = args.gsc_page_filter or derive_page_filter(args.url, category, args.slug)
@@ -506,6 +517,31 @@ def main():
                 continue
             push(kw, "tierB:gsc", imp)
 
+    # tier S: autocomplete thật. Trên tier C vì là query người ta ĐANG gõ, không
+    # phải template ghép. Dưới A/B vì không có volume. Lỗi mạng → rơi mềm xuống C.
+    n_s_req = 0
+    if args.suggest:
+        try:
+            sys.path.insert(0, str(Path(__file__).resolve().parent))
+            import suggest as _sg
+            s_rows, s_drop = _sg.collect(args.seed, depth=args.suggest_depth,
+                                         category=category)
+            n_s_req = len(_sg.SOURCES) * len(_sg.variants(args.seed, args.suggest_depth))
+            for kw, score, grp in s_rows:
+                if len(rows) >= args.limit:
+                    break
+                if not is_relevant(kw, cores, category):
+                    dropped += 1
+                    continue
+                # impressions = 0: autocomplete KHÔNG cho volume, không bịa số.
+                push(kw, f"tierS:{'+'.join(grp)}", 0)
+            print(f"[keywords] tier S: {len(s_rows)} gợi ý từ {n_s_req} request "
+                  f"(bỏ {s_drop['drift']} lạc đề + {s_drop['block']} đối thủ/định dạng"
+                  f" + {s_drop['stale']} năm cũ)", file=sys.stderr)
+        except Exception as e:  # noqa — tier S chết không được làm sập batch
+            print(f"[keywords] tier S BỎ QUA: {type(e).__name__}: {e} → dùng tier C",
+                  file=sys.stderr)
+
     # tier C bù cho đủ limit
     for kw, src in gen_tier_c(records, args.seed, category, args.cat_desc,
                              args.slug, args.author, noun):
@@ -521,8 +557,10 @@ def main():
 
     n_a = sum(1 for r in rows if r[1].startswith("tierA"))
     n_b = sum(1 for r in rows if r[1].startswith("tierB"))
+    n_s = sum(1 for r in rows if r[1].startswith("tierS"))
     print(f"[keywords] {len(rows)} keyword phân biệt "
-          f"(tierA={n_a}, tierB={n_b}, tierC={len(rows) - n_a - n_b}, "
+          f"(tierA={n_a}, tierB={n_b}, tierS={n_s}, "
+          f"tierC={len(rows) - n_a - n_b - n_s}, "
           f"limit={args.limit}) · category={category or '-'} · noun={noun}"
           + (f" · loại {dropped} query lạc đề" if dropped else ""),
           file=sys.stderr)
