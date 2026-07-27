@@ -12,7 +12,7 @@ Cách input nhanh cho skill content marketing Webnovel.vn.
 ## Cú pháp chuẩn
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--bulk N] [--dry-run]
 ```
 
 Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
@@ -25,6 +25,10 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 |---|---|---|---|
 | `--site <domain>` | **Có** với mọi `pbn`; **không dùng** cho `blog20` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
 | `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | `pbn toplist` / `blog20 toplist` (chủ yếu) + `forum` | Primary keyword. **Chỉ để viết**, không đổi list truyện |
+| `--bulk N` | Tuỳ chọn | `pbn` / `blog20` / `forum` (**không** `bio`) | Sinh N bài, mỗi bài 1 keyword riêng, **ghi file `.txt`** thay vì in chat. Xem **BULK MODE** |
+| `--dry-run` | Tuỳ chọn | chỉ kèm `--bulk` | In ma trận kế hoạch rồi DỪNG — không sinh bài, không ghi file |
+| `--gsc-api` | Tuỳ chọn | chỉ kèm `--bulk` | **Tier A** — tự pull query thật từ GSC API, khỏi export tay. Cài 1 lần: `scripts/gsc-install.sh` + credential |
+| `--gsc-csv <file>` | Tuỳ chọn | chỉ kèm `--bulk` | **Tier B** — export Search Console (CSV/TSV/**ZIP tải thẳng**) anh gửi tay |
 
 **Tương thích input cũ:** nếu vẫn truyền `--lo <nhãn>`, skill bỏ qua cả flag và giá trị; không hỏi lại, không báo lỗi, không dùng để lọc dữ liệu.
 
@@ -247,6 +251,107 @@ Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viế
 
 ---
 
+## BULK MODE — `--bulk N`
+
+Sinh **N bài, mỗi bài 1 keyword riêng**, ghi ra file `.txt` + 1 manifest TSV. Chỉ `pbn` / `blog20` / `forum`.
+**Không truyền `--bulk` → hành vi y hệt trước: in ra chat, KHÔNG tạo file nào.**
+
+```bash
+# Xem kế hoạch trước (KHÔNG sinh bài) — nên chạy trước mỗi batch
+/content-webnovel blog20 --bulk 3 https://webnovel.vn/dien-van/ --dry-run
+
+# blog20 — 3 bài, tự trộn subtype
+/content-webnovel blog20 --bulk 3 https://webnovel.vn/dien-van/
+
+# pbn — 3 bài, cần --site
+/content-webnovel pbn --bulk 3 https://webnovel.vn/tien-hiep/ --site fbu.vn
+
+# forum — 3 post, mỗi post 1 keyword riêng, mỗi post 1 file
+/content-webnovel forum --bulk 3 https://webnovel.vn/ngon-tinh/
+
+# Ép 1 subtype cho cả batch
+/content-webnovel pbn toplist --bulk 5 https://webnovel.vn/tien-hiep/ --site fbu.vn
+
+# Ép keyword gốc để mở rộng từ đó
+/content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn"
+
+# Tier A — tự pull query thật từ GSC API (nói "dùng gsc" là đủ)
+/content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/ --gsc-api
+
+# Tier B — gửi file export tay (nói đường dẫn là đủ, khỏi gõ flag)
+/content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/
+GSC: ~/Downloads/webnovel-vn-performance.zip
+```
+
+### Search Console (tuỳ chọn, nên dùng)
+
+Keyword theo 3 tầng, chạy được cùng lúc, tier sau bù chỗ thiếu:
+
+| Tier | Nguồn | Cờ |
+|---|---|---|
+| **A** | GSC API tự pull | `--gsc-api` |
+| **B** | Export CSV/ZIP gửi tay | `--gsc-csv <file>` |
+| **C** | Tự sinh từ JSON | mặc định |
+
+Không cấu hình gì vẫn chạy (tier C). Tier A lỗi → tự rơi xuống B/C, **batch không chết vì GSC**.
+
+**Cài tier A (1 lần):**
+
+```bash
+bash ~/.claude/skills/content-webnovel/scripts/gsc-install.sh   # lib vào venv riêng
+# rồi đặt credential vào ~/.config/webnovel-gsc/service-account.json
+# + add email service account vào GSC → Settings → Users and permissions
+python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # kiểm
+```
+
+- Tier A tự chọn property + tự suy filter page từ URL/danh mục (`/dien-van/`). Ép: `--gsc-site`, `--gsc-page-filter`, `--gsc-days 365`.
+- Tier B: lưu file rồi **nói đường dẫn** (script cần path, không đọc được nội dung dán chat). **ZIP khỏi giải nén.**
+- Header EN/VI đều nhận; `3,450` và `3.450` đều ra 3450; query **không dấu** vẫn khớp seed có dấu.
+- Xem keyword nào vào bài nào: thêm `--dry-run`, đọc cột `kw_source` (`tierA:api` / `tierB:gsc` / `tierC:*`).
+
+**Chi tiết đầy đủ + cách lấy credential: `GSC-SETUP.md`.**
+
+### Luồng
+
+| Bước | Việc | Script |
+|---|---|---|
+| 1-3 | Mở rộng keyword → tính capacity → in ma trận | `bulk-plan.py` (tự gọi `keywords.py`) |
+| 4 | Sinh + ghi NGAY từng bài (file + 1 dòng manifest) | — |
+| 5 | Verify batch | `verify-bulk.py` |
+
+### Capacity (N thực = min(N, #keyword, capacity, 20))
+
+| Input | Capacity |
+|---|---|
+| Danh mục pool P truyện | **P** (P = 1 → **chặn** bulk, rc=3) |
+| 1 URL truyện | 6 |
+| Tác giả có A truyện | A + 2 |
+| Có khai subtype | số slot của riêng subtype đó |
+
+- **N bị cắt** → skill announce nguyên văn lý do, làm đúng N thực. **Không pad** bằng keyword gần trùng.
+- **Pool = 1** → announce + dừng bulk, gợi ý chạy không `--bulk`.
+
+### File output
+
+```
+<Downloads>/webnovel/content-{pbn|blog20|forum}/{keyword-slug}__{YYYYMMDD-HHmmss}.txt
+<Downloads>/webnovel/content-{...}/manifest-{YYYYMMDD-HHmmss}.tsv
+```
+
+Mỗi file = **header metadata** + `---------- NỘI DUNG ĐĂNG ----------` + **nội dung dán đăng được ngay**.
+pbn có `URL`/`Slug`/`site` ở header (không lọt body); blog20 không có; forum plain text 1 URL trần.
+
+### Verify batch
+
+```bash
+python3 "~/.claude/skills/content-webnovel/scripts/verify-bulk.py" \
+  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv> [--site <domain>]
+```
+
+Loop từng file qua `verify-output.py` + check cấp-batch: đủ N file, filename khớp manifest, H1 phân biệt, keyword phân biệt, versus không trùng cặp, toplist không trùng >80% list. Exit 0 PASS / 1 FAIL / 2 lỗi tham số. **forum** verify riêng tại đây (plain text, đúng 1 URL trần, 500-1000 chữ, có năm) vì `verify-output.py` chỉ nhận pbn/blog20.
+
+---
+
 ## Ảnh (ImgBB) — không nhập tháng
 
 1. Ưu tiên field `anh_imgbb` trong `data/truyen-data.json`.
@@ -280,3 +385,4 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 14. `versus`: 2 truyện; scrape cả 2; 2 tên → match `tu_khoa`; bảng so sánh text-only.
 15. **`pick-variant.py` (BẮT BUỘC review/review-short/toplist/genre/guide/versus/forum):** in sẵn archetype/góc/title-index/verdict/category-class theo hash — KHÔNG tự tính hash bằng tay. Truyền `--site` với pbn (salt chống trùng across-domain); blog20 không truyền.
 16. **`verify-output.py` (BẮT BUỘC pbn/blog20):** pipe HTML vào `--type <pbn|blog20> --subtype <...> [--site <domain>]`; chỉ giao khi exit 0 (PASS). Đếm backlink unique / self-link / JSON-LD / word count / năm / table-list.
+17. **`--bulk N` (pbn/blog20/forum):** ghi file `.txt` + manifest TSV thay vì in chat; `--dry-run` chỉ in ma trận. Xem **BULK MODE**. Không truyền `--bulk` → hành vi cũ y hệt, không tạo file. Sau batch chạy `verify-bulk.py` (BẮT BUỘC), chỉ giao khi exit 0.

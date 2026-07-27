@@ -1,0 +1,24 @@
+# Credential Search Console — KHÔNG BAO GIỜ commit (repo này public).
+# Chỗ đúng để đặt: ~/.config/webnovel-gsc/  (xem GSC-SETUP.md)
+service-account.json
+oauth-client.json
+token.json
+client_secret*.json
+*credentials*.json
+*-key.json
+
+# venv tier A (nằm ở ~/.local/share/webnovel-gsc/venv, chặn cho chắc)
+venv/
+.venv/
+
+# backup data sinh tự động
+*.bak
+*.bak-*
+data/*.bak-*
+
+# python
+__pycache__/
+*.pyc
+
+# rác macOS
+.DS_Store
