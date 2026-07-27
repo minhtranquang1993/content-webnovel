@@ -95,7 +95,7 @@ Với pool thật: 13 danh mục lớn chạy `--bulk 10` thoải mái · 7 danh
 
 ## Hai điểm nhỏ hơn đã sửa
 
-- **GSC tier A hoãn lại.** Không có credential GSC nào trên máy (đã tìm `~/.config`, `~/.claude`, không có `~/.config/gcloud`); MCP đang bật chỉ Gmail/Drive/Docs/Sheets/Calendar, **không** có Search Console API. `google-api-python-client` đã cài nên script khả thi — nhưng đừng làm OAuth cho thứ chưa biết có quyền property `webnovel.vn` không. **Ship tier B + C trước**, thêm A sau khi user xác nhận.
+- **GSC tier A: user đã xác nhận có quyền property `webnovel.vn`.** Setup chưa làm — hướng dẫn ở [`GSC-SETUP.md`](GSC-SETUP.md) (dùng **Service Account**, không dùng OAuth desktop, vì OAuth ở chế độ Testing hết hạn refresh token sau 7 ngày — đúng chỗ setup Workspace MCP trước đây bị tắc). 4 thư viện `google-*` đã cài sẵn trên máy Windows, không cần cài gì. **Vẫn ship tier B + C trước** để bulk không phụ thuộc setup xong.
 - **Manifest ghi từng dòng ngay sau mỗi file**, không dồn cuối batch — để bài 7/10 chết vì hết context thì 6 bài trước vẫn còn vết và resume được.
 
 ## Thiết kế
@@ -185,5 +185,5 @@ Bước 4 ghi ngay là điều kiện để `--bulk 10` không ngập context �
 
 ## Còn mở
 
-- Tier A (GSC API) cần user xác nhận có quyền property `webnovel.vn` + OAuth scope `webmasters.readonly`. Chưa có thì tier C vẫn chạy được ngay.
+- Tier A: quyền đã có. Còn 2 thứ chưa biết, cả hai đều xác định được bằng snippet kiểm tra ở bước 5 của [`GSC-SETUP.md`](GSC-SETUP.md): (1) property là dạng **Domain** (`sc-domain:webnovel.vn`) hay **URL-prefix** (`https://webnovel.vn/`) — sai dạng thì API trả 404; (2) URL truyện lẻ có đủ impression để lọc theo `page` không, hay phải fallback query toàn site rồi lọc theo tên danh mục.
 - SKILL.md đang lẫn 2 path convention: `~/.claude/skills/content-webnovel` (7 chỗ) và `~/.commandcode/skills/content-webnovel` (2 chỗ); CHEATSHEET.md 2 vs 1. Chỉ báo lại, chưa sửa (ngoài phạm vi task này).

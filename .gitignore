@@ -1,0 +1,5 @@
+# Credential — service account key GSC không bao giờ được commit.
+# Chỗ đúng để lưu là ~/.config/gsc/service-account.json (ngoài repo). Xem GSC-SETUP.md.
+*service-account*.json
+*.credentials.json
+client_secret*.json
