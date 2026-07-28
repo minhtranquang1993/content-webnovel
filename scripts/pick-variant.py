@@ -31,6 +31,14 @@ import sys
 import unicodedata
 from datetime import date
 
+# Console Windows mặc định cp1252 → in tên thể loại/truyện tiếng Việt là
+# UnicodeEncodeError, script chết giữa đường. Ép UTF-8 cho stdout/stderr.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 NONFIC_SET = {"phát triển bản thân", "tâm linh", "kinh doanh"}
 
 ARCHETYPE_NAME = {0: "Chuẩn (classic)", 1: "Kể trải nghiệm (narrative)",

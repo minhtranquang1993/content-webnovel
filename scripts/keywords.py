@@ -45,6 +45,14 @@ import zipfile
 from collections import Counter
 from pathlib import Path
 
+# Console Windows mặc định cp1252 → in keyword tiếng Việt là UnicodeEncodeError.
+# Ép UTF-8 cho stdout/stderr.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 # Khớp NONFIC_SET của pick-variant.py (giữ đồng bộ tay — 2 script không import nhau).
 NONFIC_SET = {"phát triển bản thân", "tâm linh", "kinh doanh"}
 
@@ -307,7 +315,8 @@ def fetch_tier_a(site, days, page_filter, key_file, limit):
     if key_file:
         cmd += ["--key-file", key_file]
     try:
-        p = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        p = subprocess.run(cmd, capture_output=True, text=True, timeout=180,
+                           encoding="utf-8")
     except subprocess.TimeoutExpired:
         return [], "gsc-api.py quá 180s"
     except Exception as e:

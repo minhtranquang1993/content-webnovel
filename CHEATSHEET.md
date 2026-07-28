@@ -12,7 +12,7 @@ Cách input nhanh cho skill content marketing Webnovel.vn.
 ## Cú pháp chuẩn
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--bulk N] [--dry-run]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>[,<domain2>,…] | --site-pool] [--bulk N] [--dry-run]
 ```
 
 Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
@@ -23,7 +23,8 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 
 | Flag / form | Bắt buộc? | Dùng cho | Ý nghĩa |
 |---|---|---|---|
-| `--site <domain>` | **Có** với mọi `pbn`; **không dùng** cho `blog20` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/` |
+| `--site <domain>` | **Có** với mọi `pbn`; **không dùng** cho `blog20` | PBN | Domain đăng bài → ghép `https://{site}/{slug}/`. **Kèm `--bulk`: nhiều domain cách nhau bằng phẩy** → 1 bài 1 domain theo thứ tự |
+| `--site-pool` | Tuỳ chọn | chỉ kèm `--bulk` + `pbn` | Tự lấy N domain từ `data/pbn-domains.txt` — khỏi gõ tay. Nói *"5 bài 5 domain"* là đủ |
 | `keyword="..."` hoặc `--kw "..."` | Tuỳ chọn | `pbn toplist` / `blog20 toplist` (chủ yếu) + `forum` | Primary keyword. **Chỉ để viết**, không đổi list truyện |
 | `--bulk N` | Tuỳ chọn | `pbn` / `blog20` / `forum` (**không** `bio`) | Sinh N bài, mỗi bài 1 keyword riêng, **ghi file `.txt`** thay vì in chat. Xem **BULK MODE** |
 | `--dry-run` | Tuỳ chọn | chỉ kèm `--bulk` | In ma trận kế hoạch rồi DỪNG — không sinh bài, không ghi file |
@@ -37,6 +38,7 @@ Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
 **Không còn `--img`.** Ảnh = ImgBB (`anh_imgbb` trong JSON / `scripts/imgbb-upload.sh`).
 
 **Không cần** `--site`: `bio`, `forum`.
+**`pbn` + `--bulk`:** mặc định 1 bài 1 domain → dùng `--site-pool` hoặc `--site a.vn,b.vn,…`. Xem **Domain PBN**.
 **`pbn faq`:** cần `--site`.
 **`blog20`:** không nhận/hỏi/suy luận `--site` hay domain; không URL/Slug hoặc self-link.
 
@@ -265,14 +267,20 @@ Sinh **N bài, mỗi bài 1 keyword riêng**, ghi ra file `.txt` + 1 manifest TS
 # blog20 — 3 bài, tự trộn subtype
 /content-webnovel blog20 --bulk 3 https://webnovel.vn/dien-van/
 
-# pbn — 3 bài, cần --site
+# pbn — 5 bài lên 5 DOMAIN khác nhau, tự chọn domain (khuyến nghị)
+/content-webnovel pbn --bulk 5 https://webnovel.vn/tien-hiep/ --site-pool
+
+# pbn — 5 bài lên 5 domain do anh chỉ định, theo thứ tự
+/content-webnovel pbn --bulk 5 https://webnovel.vn/tien-hiep/ --site fbu.vn,viap.org.vn,clst.ac.vn,www.tntp.org.vn,tonghoixaydungvn.org.vn
+
+# pbn — cả batch đăng chung 1 domain (chỉ khi anh CHỦ Ý muốn vậy)
 /content-webnovel pbn --bulk 3 https://webnovel.vn/tien-hiep/ --site fbu.vn
 
 # forum — 3 post, mỗi post 1 keyword riêng, mỗi post 1 file
 /content-webnovel forum --bulk 3 https://webnovel.vn/ngon-tinh/
 
 # Ép 1 subtype cho cả batch
-/content-webnovel pbn toplist --bulk 5 https://webnovel.vn/tien-hiep/ --site fbu.vn
+/content-webnovel pbn toplist --bulk 5 https://webnovel.vn/tien-hiep/ --site-pool
 
 # Ép keyword gốc để mở rộng từ đó
 /content-webnovel blog20 --bulk 5 https://webnovel.vn/dien-van/ keyword="truyện điền văn hoàn"
@@ -323,6 +331,23 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 
 **Chi tiết đầy đủ + cách lấy credential: `GSC-SETUP.md`.**
 
+### Domain PBN — 1 bài 1 domain (chỉ `pbn`)
+
+**Mặc định N bài = N domain khác nhau.** Cả batch chung 1 domain để lại footprint: 1 domain nhận N bài cùng thể loại, cùng cụm keyword, cùng ngày.
+
+| Cách khai | Kết quả |
+|---|---|
+| `--site-pool` | Tự lấy N domain từ `data/pbn-domains.txt`. **Khuyến nghị** — nói *"5 bài 5 domain"* là đủ, khỏi gõ |
+| `--site a.vn,b.vn,c.vn` | Dùng đúng list đó, **theo thứ tự** (bài 1 → `a.vn`, bài 2 → `b.vn`…) |
+| `--site a.vn` (1 domain) | Cả batch chung `a.vn` — script note lại để anh biết |
+| Ít domain hơn N | Xoay vòng + note rõ bao nhiêu bài dùng lại domain |
+
+- **Chọn domain của `--site-pool` là deterministic theo scope** (danh mục / slug truyện / tên tác giả): chạy lại cùng scope ra y cũ, scope khác thì thường lệch cụm. **"Thường" chứ không phải "luôn"** — pool chỉ 38 domain nên 2 scope khác nhau vẫn có thể rút trùng cụm (đã đo, đổi hàm băm không khá hơn). Cần chắc chắn cụm nào thì chỉ định tay bằng `--site`. Bất biến luôn giữ: **trong cùng 1 batch, N bài = N domain khác nhau.**
+- Domain không có trong `data/pbn-domains.txt` → **vẫn chạy** nhưng script cảnh báo (bắt lỗi chính tả). Muốn thêm domain mới thì sửa file đó.
+- Domain của từng bài cũng là **salt biến thể**: khác domain → khác archetype/góc/title, nên 5 bài trên 5 domain phân hoá mạnh hơn 5 bài chung 1 domain.
+- Xem domain nào vào bài nào: `--dry-run`, đọc **cột `site`** trong TSV + dòng `[bulk-plan] domain: …`.
+- Verify **khỏi truyền `--site`** — `verify-bulk.py` đọc domain theo từng dòng manifest. Domain bị dùng lại → WARN; header `site` ≠ manifest → FAIL.
+
 ### Luồng
 
 | Bước | Việc | Script |
@@ -358,8 +383,10 @@ pbn có `URL`/`Slug`/`site` ở header (không lọt body); blog20 không có; f
 
 ```bash
 python3 "~/.claude/skills/content-webnovel/scripts/verify-bulk.py" \
-  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv> [--site <domain>]
+  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv>
 ```
+
+**Khỏi truyền `--site`** — domain đọc theo từng dòng manifest (bulk pbn 1 bài 1 domain). `--site` chỉ là fallback cho manifest cũ không có cột `site`.
 
 Loop từng file qua `verify-output.py` + check cấp-batch: đủ N file, filename khớp manifest, H1 phân biệt, keyword phân biệt, versus không trùng cặp, toplist không trùng >80% list. Exit 0 PASS / 1 FAIL / 2 lỗi tham số. **forum** verify riêng tại đây (plain text, đúng 1 URL trần, 500-1000 chữ, có năm) vì `verify-output.py` chỉ nhận pbn/blog20.
 
@@ -383,7 +410,7 @@ Key: env `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`.
 
 1. Type: `bio` | `pbn` | `forum` | `blog20`. Thiếu → skill hỏi lại.
 2. `pbn` cần subtype: `review` | `review-short` | `toplist` | `faq` | `genre` | `versus` | `guide`; `blog20` cần subtype: `review` | `review-short` | `toplist` | `genre` | `versus` | `guide` (**không** `faq`). `review-short` chỉ fiction (đọc chương thật); non-fiction/chương-khóa/<2-free → tự route `review` intro cùng type.
-3. Mọi `pbn` cần `--site`; `blog20` không dùng domain. Review/toplist/genre/versus/guide tra cứu hoặc lọc trên toàn bộ JSON.
+3. Mọi `pbn` cần `--site` (kèm `--bulk`: **1 bài 1 domain** — `--site-pool` hoặc list phẩy); `blog20` không dùng domain. Review/toplist/genre/versus/guide tra cứu hoặc lọc trên toàn bộ JSON.
 4. **Không** truyền `--img` (đã bỏ).
 5. Keyword khuyến nghị form: `keyword="..."`. Cũng nhận `--kw` / freeform. Dùng cho `pbn` + `blog20` + `forum`.
 6. Output pbn: HTML thuần + `URL`/`Slug` meta — **không** JSON-LD.

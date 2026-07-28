@@ -26,6 +26,14 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Console Windows mặc định cp1252 → in keyword/H1 tiếng Việt trong report là
+# UnicodeEncodeError. Ép UTF-8 cho stdout/stderr.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 SCRIPTS = Path(__file__).resolve().parent
 VERIFY_ONE = SCRIPTS / "verify-output.py"
 
@@ -161,7 +169,8 @@ def run_verify_one(body, type_, subtype, year, site):
            "--subtype", subtype, "--year", str(year)]
     if site:
         cmd += ["--site", site]
-    p = subprocess.run(cmd, input=body, capture_output=True, text=True)
+    p = subprocess.run(cmd, input=body, capture_output=True, text=True,
+                       encoding="utf-8")
     return p.returncode == 0, (p.stdout + p.stderr).strip()
 
 
@@ -169,7 +178,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--type", required=True, choices=["pbn", "blog20", "forum"])
     ap.add_argument("--manifest", required=True, help="đường dẫn manifest-*.tsv")
-    ap.add_argument("--site", default="", help="domain PBN (bắt buộc để verify self-link)")
+    ap.add_argument("--site", default="",
+                    help="domain PBN fallback cho dòng manifest KHÔNG có cột site. "
+                         "Bulk 1-bài-1-domain thì khỏi truyền — đọc từ manifest")
     ap.add_argument("--year", type=int, default=datetime.date.today().year)
     ap.add_argument("--expect", type=int, default=0,
                     help="số bài kỳ vọng (0 = lấy theo số dòng manifest)")
@@ -199,9 +210,14 @@ def main():
     versus_pairs = {}      # frozenset(slug,slug) → filename
     toplists = []          # (filename, [slug])
 
+    sites_seen = []        # domain theo từng dòng (bulk pbn = 1 domain/bài)
+
     for row in rows:
         fname = (row.get("filename") or "").strip()
         subtype = (row.get("subtype") or "").strip()
+        # Site đọc THEO DÒNG: bulk pbn phân 1 domain/bài nên self-link mỗi file trỏ
+        # domain riêng. --site chỉ là fallback cho manifest cũ (không có cột site).
+        row_site = (row.get("site") or "").strip() or args.site
         fails, oks = [], []
         path = folder / fname
 
@@ -225,7 +241,7 @@ def main():
             fails += f2
             oks += o2
         else:
-            ok1, out1 = run_verify_one(body, args.type, subtype, args.year, args.site)
+            ok1, out1 = run_verify_one(body, args.type, subtype, args.year, row_site)
             if ok1:
                 oks.append("verify-output.py PASS")
             else:
@@ -249,6 +265,14 @@ def main():
                 batch_fails.append(f"keyword TRÙNG giữa {kw_map[kw]} và {fname}: \"{kw}\"")
             else:
                 kw_map[kw] = fname
+
+        if args.type == "pbn":
+            sites_seen.append(row_site)
+            if not row_site:
+                fails.append("thiếu domain (manifest không có cột site, cũng không "
+                             "truyền --site) → không verify được self-link")
+            elif header.get("site") and header["site"].strip().lower() != row_site.lower():
+                fails.append(f"header site '{header['site']}' ≠ manifest '{row_site}'")
 
         slugs = webnovel_slugs(body)
         if subtype == "versus":
@@ -281,6 +305,21 @@ def main():
                     f"({inter}/{min(len(sa), len(sb))} truyện) — max "
                     f"{TOPLIST_OVERLAP_MAX:.0%}")
 
+    # ----- domain per-bài (pbn) -----
+    # Mục tiêu bulk pbn: N bài → N domain khác nhau. Trùng domain không phải lỗi cứng
+    # (user có thể chủ ý, hoặc pool không đủ) nhưng phải báo để thấy footprint.
+    n_sites = len({s for s in sites_seen if s})
+    if args.type == "pbn" and sites_seen:
+        if n_sites and n_sites < len(sites_seen):
+            dup = {}
+            for s in sites_seen:
+                if s:
+                    dup[s] = dup.get(s, 0) + 1
+            rep = [f"{s} ×{c}" for s, c in dup.items() if c > 1]
+            batch_warns.append(f"{n_sites} domain cho {len(sites_seen)} bài — dùng lại: "
+                               f"{', '.join(rep)}. Muốn 1 bài 1 domain thì truyền đủ "
+                               f"domain (hoặc --site-pool) khi lập ma trận")
+
     # ----- đủ N -----
     expect = args.expect or len(rows)
     n_ok_files = len(per_file)
@@ -300,6 +339,9 @@ def main():
     # ----- report -----
     print(f"=== VERIFY BULK — {args.type} · {len(rows)} bài · {man.name} ===")
     print(f"folder: {folder}")
+    if args.type == "pbn" and sites_seen:
+        print(f"domain: {n_sites} domain phân biệt cho {len(sites_seen)} bài"
+              f"{' (1 bài 1 domain)' if n_sites == len(sites_seen) else ''}")
     print()
     n_fail_files = 0
     for fname, subtype, fails, oks in per_file:

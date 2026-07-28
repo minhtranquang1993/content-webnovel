@@ -24,7 +24,10 @@
 #   bulk-plan.py --type pbn --bulk 5 --author "Osho" --site fbu.vn
 #
 # Out: TSV header + N dòng:
-#   idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index
+#   idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index site
+#
+# site (chỉ pbn): 1 domain/bài. --site a,b,c → theo thứ tự; --site-pool → tự lấy N
+# domain từ data/pbn-domains.txt; --site a → cả batch chung 1 domain (hành vi cũ).
 #
 # Exit: 0 OK · 2 thiếu/sai tham số · 3 chặn bulk (pool=1 / không đủ dữ liệu)
 
@@ -35,10 +38,87 @@ from pathlib import Path
 
 import keywords as kwmod  # cùng thư mục scripts/
 
+# Console Windows mặc định cp1252 → in keyword/tên truyện tiếng Việt là
+# UnicodeEncodeError. Ép UTF-8 cho stdout/stderr.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 SCRIPTS = Path(__file__).resolve().parent
 PICK = SCRIPTS / "pick-variant.py"
+DOMAINS_TXT = SCRIPTS.parent / "data" / "pbn-domains.txt"
 
 HARD_CAP = 20  # cap tuyệt đối theo brief
+
+
+def load_domains():
+    """Đọc data/pbn-domains.txt → list domain (bỏ comment `#` + dòng trống)."""
+    try:
+        with open(DOMAINS_TXT, encoding="utf-8") as f:
+            return [ln.strip() for ln in f
+                    if ln.strip() and not ln.lstrip().startswith("#")]
+    except OSError:
+        return []
+
+
+def resolve_sites(raw_site, use_pool, n, type_, scope, notes):
+    """Trả list n domain, 1 domain/bài (index i → sites[i]).
+
+    PBN đăng N bài lên N domain khác nhau: nếu tất cả bài dùng chung 1 domain thì
+    domain đó nhận cả batch cùng thể loại → dấu vết footprint. Nên mặc định là
+    phân N domain phân biệt.
+
+      --site a,b,c  → dùng đúng list đó, theo thứ tự (thiếu thì xoay vòng).
+      --site-pool   → lấy n domain từ data/pbn-domains.txt, offset deterministic
+                      theo (type, scope) để 2 batch khác scope không đè cùng cụm
+                      domain, mà chạy lại cùng scope vẫn ra y cũ. scope = danh mục
+                      (category mode) / slug truyện (story) / tên tác giả (author) —
+                      dùng category không đủ vì story/author mode có category rỗng
+                      nên MỌI batch story/author sẽ rút cùng cụm.
+                      Offset chỉ dàn cụm theo kiểu best-effort: pool 38 domain mà
+                      scope thì hàng trăm nên 2 scope khác nhau VẪN có thể trùng
+                      offset (đã đo: crc32 không khá hơn cộng codepoint, trùng bị ép
+                      bởi pool nhỏ). Cần chắc chắn cụm nào thì chỉ định tay --site.
+                      Bất biến luôn giữ: trong CÙNG 1 batch, n bài = n domain khác
+                      nhau (miễn pool đủ n).
+      --site a      → 1 domain cho cả batch (hành vi cũ, giữ nguyên).
+
+    blog20/forum KHÔNG dùng domain → trả list rỗng.
+    """
+    if type_ != "pbn":
+        return [""] * n
+    picked = [s.strip() for s in (raw_site or "").replace(";", ",").split(",") if s.strip()]
+    pool = load_domains()
+
+    if use_pool and not picked:
+        if not pool:
+            notes.append(f"--site-pool: không đọc được {DOMAINS_TXT.name} → site để trống")
+            return [""] * n
+        off = sum(ord(c) for c in f"{type_}|{kwmod.norm(scope or '')}") % len(pool)
+        picked = [pool[(off + k) % len(pool)] for k in range(min(n, len(pool)))]
+        notes.append(f"--site-pool: lấy {len(picked)} domain từ {DOMAINS_TXT.name} "
+                     f"(offset {off} theo danh mục)")
+
+    if not picked:
+        return [""] * n
+
+    if pool:
+        unknown = [s for s in picked if s not in pool]
+        if unknown:
+            notes.append(f"CẢNH BÁO: {len(unknown)} domain KHÔNG có trong "
+                         f"{DOMAINS_TXT.name}: {', '.join(unknown)} — kiểm lại chính tả")
+
+    if len(picked) < n:
+        if len(picked) == 1:
+            notes.append(f"chỉ 1 domain cho {n} bài → cả batch đăng chung "
+                         f"'{picked[0]}'. Muốn 1 bài 1 domain thì truyền đủ {n} domain "
+                         f"hoặc dùng --site-pool")
+        else:
+            notes.append(f"chỉ {len(picked)} domain cho {n} bài → xoay vòng, "
+                         f"{n - len(picked)} bài dùng lại domain đã có")
+    return [picked[i % len(picked)] for i in range(n)]
 
 
 def downloads_dir() -> Path:
@@ -81,7 +161,7 @@ def run_pick(subtype, bulk_index, slug="", target="", slug_a="", slug_b="",
         cmd += ["--genres", genres]
     if site:
         cmd += ["--site", site]
-    p = subprocess.run(cmd, capture_output=True, text=True)
+    p = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8")
     if p.returncode != 0:
         print(f"ERROR: pick-variant.py fail ({subtype}): {p.stderr.strip()}",
               file=sys.stderr)
@@ -141,7 +221,11 @@ def main():
     ap.add_argument("--cat-desc", dest="cat_desc", default="")
     ap.add_argument("--slug", default="", help="story mode")
     ap.add_argument("--author", default="")
-    ap.add_argument("--site", default="", help="pbn: domain đăng (salt pick-variant)")
+    ap.add_argument("--site", default="",
+                    help="pbn: domain đăng. Nhiều domain cách nhau bằng dấu phẩy "
+                         "→ 1 bài 1 domain theo thứ tự. 1 domain → cả batch chung")
+    ap.add_argument("--site-pool", dest="site_pool", action="store_true",
+                    help="pbn: tự lấy N domain từ data/pbn-domains.txt (khỏi gõ tay)")
     ap.add_argument("--gsc-csv", dest="gsc_csv", default="", help="tier B: CSV/ZIP export GSC")
     ap.add_argument("--gsc-api", dest="gsc_api", action="store_true",
                     help="tier A: pull thẳng GSC API (cần scripts/gsc-install.sh)")
@@ -361,6 +445,15 @@ def main():
         n = len(mix)
         reasons.append("hết slot subtype hợp lệ")
 
+    # ----- domain per-bài (sau khi n chốt) -----
+    # Site per-row cũng làm salt pick-variant: khác domain → khác archetype/góc/title,
+    # nên 5 bài trên 5 domain phân hoá mạnh hơn 5 bài chung 1 domain.
+    site_scope = category or args.slug or args.author
+    sites = resolve_sites(args.site, args.site_pool, n, args.type, site_scope, notes)
+    if args.type == "pbn" and not any(sites):
+        notes.append("pbn chưa có domain — cột site để trống, skill phải HỎI user "
+                     "trước khi ghi file (URL bài cần domain)")
+
     # ----- dựng từng dòng -----
     used_bi = {}       # subtype → set bulk_index đã dùng
     arch_seen = []     # archetype 4 dòng đầu (giữ acceptance: 4 bài đầu 4 archetype khác)
@@ -447,7 +540,7 @@ def main():
                 if cand_bi in used_bi.get(st, set()):
                     continue
                 d = run_pick(st, cand_bi, slug=slug, target=target, slug_a=slug_a,
-                             slug_b=slug_b, genres=gen_str, site=args.site)
+                             slug_b=slug_b, genres=gen_str, site=sites[i])
                 a = d.get("ARCHETYPE") or first_int(d.get("FORUM_ARCHETYPES", ""))
                 picked = (cand_bi, d, a)
                 if fallback is None:
@@ -467,11 +560,11 @@ def main():
             if i < 4 and arch != "-":
                 arch_seen.append(arch)
 
-        rows_out.append((i, kw, src, st, anchor, arch, ti, goc, vd, bi))
+        rows_out.append((i, kw, src, st, anchor, arch, ti, goc, vd, bi, sites[i]))
 
     n = len(rows_out)
 
-    print("idx\tkeyword\tkw_source\tsubtype\tanchor\tarchetype\ttitle_idx\tgoc\tverdict\tbulk_index")
+    print("idx\tkeyword\tkw_source\tsubtype\tanchor\tarchetype\ttitle_idx\tgoc\tverdict\tbulk_index\tsite")
     for r in rows_out:
         print("\t".join(str(x) for x in r))
 
@@ -483,6 +576,12 @@ def main():
             f"pool={pool_size} capacity={capacity} keyword={n_keywords} noun={noun}")
     print(head, file=sys.stderr)
     print(f"[bulk-plan] OUT_DIR: {out_dir(args.type)}", file=sys.stderr)
+    if args.type == "pbn":
+        used_sites = [r[10] for r in rows_out]
+        nd = len({s for s in used_sites if s})
+        print(f"[bulk-plan] domain: {nd} domain phân biệt cho {n} bài"
+              f"{' — ' + ', '.join(used_sites) if any(used_sites) else ' (chưa có domain)'}",
+              file=sys.stderr)
     if n < n_req:
         uniq = []
         for r in reasons:

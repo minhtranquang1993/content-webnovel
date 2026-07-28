@@ -22,7 +22,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 > **Cheat sheet input nhanh:** [`CHEATSHEET.md`](CHEATSHEET.md) — copy lệnh + bảng tham số. Đổi cú pháp/tham số skill → update cả file đó.
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--bulk N] [--dry-run]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>[,<domain2>,…] | --site-pool] [--bulk N] [--dry-run]
 ```
 
 | type | subtype | input | output |
@@ -34,6 +34,8 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn (review/review-short/toplist/faq/genre/versus/guide) → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
+  - **Kèm `--bulk N`: mặc định N bài = N domain KHÁC NHAU** (1 bài 1 domain). Cả batch đăng chung 1 domain là để lại footprint — cùng domain nhận N bài cùng thể loại, cùng cụm keyword, cùng ngày. Cách khai: `--site a.vn,b.vn,c.vn` (theo thứ tự) hoặc `--site-pool` (tự lấy N domain từ `data/pbn-domains.txt`). Truyền 1 domain vẫn được nhưng cả batch dùng chung — script note lại.
+- `--site-pool` — chỉ kèm `--bulk` + `pbn`: tự lấy N domain từ `data/pbn-domains.txt`, khỏi gõ tay. Offset deterministic theo scope (danh mục / slug truyện / tên tác giả) → chạy lại cùng scope ra y cũ, scope khác thường lệch cụm. **Best-effort thôi:** pool 38 domain nên 2 scope khác nhau vẫn có thể trùng cụm — **không hứa với user là "chắc chắn khác cụm"**. Bất biến luôn giữ: trong cùng 1 batch, N bài = N domain khác nhau. User nói *"mỗi bài 1 domain"* / *"tự chọn domain"* / *"5 bài 5 domain"* mà không kể tên domain → **tự thêm `--site-pool`**, không hỏi lại.
 - `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` / `blog20` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn/blog20: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
 - `--bulk N` — sinh **N bài** cho `pbn` / `blog20` / `forum`, mỗi bài 1 keyword riêng, **ghi ra file `.txt`** thay vì in chat. Xem **"BULK MODE"**. **Không truyền `--bulk` → hành vi y hệt trước: in ra chat, KHÔNG tạo file nào.** `bio` không có bulk (10 biến thể sẵn đã là bulk).
 - `--dry-run` — chỉ dùng kèm `--bulk`: in ma trận kế hoạch rồi DỪNG, không sinh bài, không ghi file.
@@ -130,7 +132,7 @@ Script tự nhận diện loại trang từ HTML markers và in ra các dòng `K
 3. **pbn subtype** do user khai báo (`review` / `review-short` / `toplist` / `faq` / `genre` / `versus` / `guide`). Không có → hỏi lại.
    - `review` / `review-short` + `faq` yêu cầu đúng loại trang phù hợp (1 URL truyện); `toplist` / `genre` / `guide` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay; `versus` nhận 2 URL truyện / 2 tên / URL danh mục.
    - **`review-short` chỉ chạy fiction** (đọc chương thật). Input non-fiction (theo Category-class — xem section đó) → announce + tự route sang `review` intro (xem **LOẠI pbn → pbn review-short**).
-   - Mọi subtype pbn cần `--site`. Thiếu → hỏi lại (không đoán).
+   - Mọi subtype pbn cần `--site`. Thiếu → hỏi lại (không đoán). **Kèm `--bulk N`:** hỏi *"N bài đăng N domain khác nhau hay chung 1 domain?"* — muốn khác nhau mà không kể tên domain → `--site-pool`; kể tên → `--site a.vn,b.vn,…`.
 4. **forum**: không subtype, bám theo `PAGE_TYPE` (story → post hỏi đáp về truyện; category → post hỏi đáp về thể loại). Keyword tuỳ chọn (xem **LOẠI forum**).
 5. **blog20 subtype** do user khai báo (`review` / `review-short` / `toplist` / `genre` / `versus` / `guide` — **KHÔNG** có `faq`). Không có → hỏi lại.
    - `review` / `review-short` nhận 1 URL truyện (`review-short` chỉ fiction, non-fiction → route `review` intro); `toplist` / `genre` / `guide` nhận URL danh mục **hoặc** tên thể loại/tác giả gõ tay; `versus` nhận 2 URL truyện / 2 tên / URL danh mục.
@@ -153,7 +155,7 @@ py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
 
 - **Seed nào cần gì:** review/review-short → `--slug`; toplist/genre/guide → `--target`; versus → `--slug-a` + `--slug-b`; forum → `--slug` (story) hoặc `--target` (category).
 - **`--genres`** (story) hoặc target giúp script tự in `CATEGORY_CLASS` + `NOUN` — dùng thẳng, khỏi phán đoán.
-- **`--site` (CHỈ pbn):** salt chống trùng across-domain — cùng truyện, khác `--site` → khác archetype/góc/title, tránh 2 domain PBN đăng bài giống hệt. **blog20/forum KHÔNG truyền `--site`** (giữ seed thuần theo spec gốc).
+- **`--site` (CHỈ pbn):** salt chống trùng across-domain — cùng truyện, khác `--site` → khác archetype/góc/title, tránh 2 domain PBN đăng bài giống hệt. **blog20/forum KHÔNG truyền `--site`** (giữ seed thuần theo spec gốc). **Bulk:** `bulk-plan.py` tự truyền domain của **từng dòng** làm salt, nên N bài trên N domain phân hoá mạnh hơn N bài chung 1 domain.
 - Script in các dòng `KEY<TAB>value`: `ARCHETYPE`, `ARCHETYPE_NAME`, `PERSONA`, `TITLE_INDEX`, `VERDICT`, `GOC_CHINH`, `GOC_PHU`, và các dòng `ANNOUNCE_*` (copy thẳng ra ngoài block HTML). Viết bài theo đúng các slot này.
 
 > `bio` và `faq` không cần pick-variant (bio không archetype; faq toàn bài Q&A cố định).
@@ -182,7 +184,7 @@ py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
 python3 "~/.claude/skills/content-webnovel/scripts/bulk-plan.py" \
   --type <pbn|blog20|forum> --bulk N \
   [--url <URL danh mục> | --category "<Tên thể loại>" | --slug <slug truyện> | --author "<Tác giả>"] \
-  [--subtype <review|…>] [--site <domain>] [--cat-desc "<CAT_DESC scrape>"] \
+  [--subtype <review|…>] [--site <domain>[,<domain2>,…] | --site-pool] [--cat-desc "<CAT_DESC scrape>"] \
   [--seed-keyword "<keyword user ép>"] \
   [--gsc-api [--gsc-site <property>] [--gsc-days N] [--gsc-page-filter <str>]] \
   [--gsc-csv <file.csv|.zip>] [--suggest [--suggest-depth 2]]
@@ -196,7 +198,7 @@ python3 "~/.claude/skills/content-webnovel/scripts/bulk-plan.py" \
   - **Cột `impressions` của tier S = 0 và đó là đúng** — autocomplete không cho search volume. **Không được báo cho user như thể có volume**, cũng không suy ra con số. Muốn nói độ tin thì đọc số nhóm nguồn trong `kw_source` (`tierS:bing+google+google-yt` = 3 nhóm đồng thuận).
 - **Không nhắc gì → chạy không cờ nào.** Tier C gánh, **không đòi user export, không tự bật tier A, không tự bật tier S** (tier S gọi mạng ~72 request, phải do user quyết).
 
-- Script in TSV `idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index` (stdout) + dòng `[bulk-plan] …` announce (stderr, gồm `OUT_DIR`).
+- Script in TSV `idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index site` (stdout) + dòng `[bulk-plan] …` announce (stderr, gồm `OUT_DIR` và `domain:`).
 - **Dùng đúng slot script in ra.** Không tự tính hash, không tự đổi subtype, không tự thêm keyword.
 - **`--dry-run`:** in ma trận rồi **DỪNG** — không sinh bài, không ghi file.
 - **Exit 3 = BLOCKED** (pool = 1 hoặc 0 truyện): announce lý do, **DỪNG bulk**, gợi ý chạy không `--bulk`.
@@ -249,6 +251,7 @@ tạo lúc    : 2026-07-27 18:52:03
 ```
 
 - **pbn:** `URL` + `Slug` + `site` ở **header**, KHÔNG lọt vào body. **blog20:** không `URL`/`Slug`/`site`, không self-link. **forum:** plain text, đúng 1 URL trần, không thẻ HTML.
+- **`site` lấy từ CỘT `site` của chính dòng TSV đó** (bulk pbn phân 1 domain/bài) — KHÔNG dùng 1 domain chung cho cả batch, KHÔNG tự đổi domain. `URL` header = `https://{site dòng đó}/{slug}/`, và **self-link trong body phải trỏ đúng domain của dòng đó**. Cột `site` rỗng → **DỪNG, hỏi user domain** trước khi ghi file.
 - Phần sau separator phải **dán đăng được ngay**, không kèm dòng announce nào.
 
 ### Manifest
@@ -271,10 +274,13 @@ Sau khi ghi hết N file:
 
 ```bash
 python3 "~/.claude/skills/content-webnovel/scripts/verify-bulk.py" \
-  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv> [--site <domain>]
+  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv>
 ```
 
 Wrapper loop từng file qua `verify-output.py` + check cấp-batch (đủ N, H1 phân biệt, keyword phân biệt, versus không trùng cặp, toplist không trùng >80% list, filename khớp manifest). **FAIL → sửa file đó rồi verify lại**, không giao khi còn FAIL.
+
+- **KHÔNG truyền `--site`** khi manifest đã có cột `site`: script đọc domain **theo từng dòng** để verify self-link đúng domain của bài đó. `--site` chỉ là fallback cho manifest cũ (không có cột `site`).
+- Report in dòng `domain: N domain phân biệt cho N bài`. Domain bị dùng lại → **WARN** (không phải FAIL) — announce cho user. Header `site` ≠ manifest → **FAIL**.
 
 ---
 
@@ -520,7 +526,7 @@ Sinh **sau khi chốt H1/title**, trước khi viết body:
 1. Lấy chuỗi title (thường = nội dung H1).
 2. Bỏ dấu tiếng Việt → lowercase → thay khoảng trắng/ký tự không phải `[a-z0-9]` bằng `-` → gộp `-` liên tiếp → trim `-` đầu/cuối.
    - VD: `Review Ai Bảo Hắn Tu Tiên – Tiên Hiệp 2026` → `review-ai-bao-han-tu-tien-tien-hiep-2026`
-3. Full URL: `https://{site}/{slug}/` (trailing slash; `{site}` = giá trị `--site`, không thêm `www.` nếu user không truyền).
+3. Full URL: `https://{site}/{slug}/` (trailing slash; `{site}` = giá trị `--site`, không thêm `www.` nếu user không truyền). **Bulk:** `{site}` = cột `site` của **chính dòng TSV đang viết**, không phải domain của dòng khác.
 4. **In block meta trước HTML** (bắt buộc):
 
 ```

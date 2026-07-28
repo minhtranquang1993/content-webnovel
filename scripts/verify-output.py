@@ -21,6 +21,14 @@ import re
 import argparse
 import datetime
 
+# Console Windows mặc định cp1252 → in H1/keyword tiếng Việt trong report là
+# UnicodeEncodeError. Ép UTF-8 cho stdout/stderr.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 WEBNOVEL_HOST = "webnovel.vn"
 
 # Số backlink webnovel.vn kỳ vọng theo subtype (min, max). None = không cố định (toplist/genre/guide: theo pool).
