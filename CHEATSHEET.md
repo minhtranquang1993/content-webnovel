@@ -271,7 +271,7 @@ Sinh **N bài, mỗi bài 1 keyword riêng**, ghi ra file `.txt` + 1 manifest TS
 /content-webnovel pbn --bulk 5 https://webnovel.vn/tien-hiep/ --site-pool
 
 # pbn — 5 bài lên 5 domain do anh chỉ định, theo thứ tự
-/content-webnovel pbn --bulk 5 https://webnovel.vn/tien-hiep/ --site fbu.vn,viap.org.vn,clst.ac.vn,www.tntp.org.vn,tonghoixaydungvn.org.vn
+/content-webnovel pbn --bulk 5 https://webnovel.vn/tien-hiep/ --site fbu.vn,viap.org.vn,clst.ac.vn,vnptyenbai.vn,tonghoixaydungvn.org.vn
 
 # pbn — cả batch đăng chung 1 domain (chỉ khi anh CHỦ Ý muốn vậy)
 /content-webnovel pbn --bulk 3 https://webnovel.vn/tien-hiep/ --site fbu.vn
@@ -342,7 +342,7 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 | `--site a.vn` (1 domain) | Cả batch chung `a.vn` — script note lại để anh biết |
 | Ít domain hơn N | Xoay vòng + note rõ bao nhiêu bài dùng lại domain |
 
-- **Chọn domain của `--site-pool` là deterministic theo scope** (danh mục / slug truyện / tên tác giả): chạy lại cùng scope ra y cũ, scope khác thì thường lệch cụm. **"Thường" chứ không phải "luôn"** — pool chỉ 38 domain nên 2 scope khác nhau vẫn có thể rút trùng cụm (đã đo, đổi hàm băm không khá hơn). Cần chắc chắn cụm nào thì chỉ định tay bằng `--site`. Bất biến luôn giữ: **trong cùng 1 batch, N bài = N domain khác nhau.**
+- **Chọn domain của `--site-pool` là deterministic theo scope** (danh mục / slug truyện / tên tác giả): chạy lại cùng scope ra y cũ, scope khác thì thường lệch cụm. **"Thường" chứ không phải "luôn"** — pool chỉ 29 domain nên 2 scope khác nhau vẫn có thể rút trùng cụm (đã đo, đổi hàm băm không khá hơn). Cần chắc chắn cụm nào thì chỉ định tay bằng `--site`. Bất biến luôn giữ: **trong cùng 1 batch, N bài = N domain khác nhau.**
 - Domain không có trong `data/pbn-domains.txt` → **vẫn chạy** nhưng script cảnh báo (bắt lỗi chính tả). Muốn thêm domain mới thì sửa file đó.
 - Domain của từng bài cũng là **salt biến thể**: khác domain → khác archetype/góc/title, nên 5 bài trên 5 domain phân hoá mạnh hơn 5 bài chung 1 domain.
 - Xem domain nào vào bài nào: `--dry-run`, đọc **cột `site`** trong TSV + dòng `[bulk-plan] domain: …`.
@@ -356,7 +356,7 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 | 4 | Sinh + ghi NGAY từng bài (file + 1 dòng manifest) | — |
 | 5 | Verify batch | `verify-bulk.py` |
 
-### Capacity (N thực = min(N, #keyword, capacity, 20))
+### Capacity (N thực = min(N, #keyword, capacity); `--bulk` > 29 = BLOCKED)
 
 | Input | Capacity |
 |---|---|

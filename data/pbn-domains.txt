@@ -3,24 +3,21 @@
 # --site chỉ dùng để ghép URL bài: https://{site}/{slug}/
 # Ảnh KHÔNG host trên domain này — dùng ImgBB (anh_imgbb trong truyen-data.json
 # hoặc upload qua scripts/imgbb-upload.sh). Không còn tham số --img.
+#
+# Đây cũng là pool mà `--site-pool` rút domain (chỉ đọc dòng không phải comment).
+# Bỏ domain khỏi đây là cách duy nhất để --site-pool ngừng chọn nó.
+# Cập nhật lần cuối: 2026-07-28 — 29 domain còn dùng được (bỏ 9 domain không còn dùng).
 
-www.tntp.org.vn
 tonghoixaydungvn.org.vn
 www.rced.com.vn
 www.quehuong.org.vn
 www.dhxd.edu.vn
 www.dhyhp.edu.vn
-www.ecoeco.org.vn
-www.halong.org.vn
 fbu.vn
 www.halongbay.net.vn
-www.hcmc-cordbloodbank.org.vn
 www.hwru.edu.vn
-www.ioit-hcm.ac.vn
 www.megavnn.vn
 www.mxbank.com.vn
-www.nhahocotton.org.vn
-www.pedc.org.vn
 www.povertyandenvironment.vn
 www.quangbawebs.com
 www.vyic.org.vn
@@ -30,7 +27,6 @@ www.vnuitp.edu.vn
 www.vnrc.org.vn
 vnptyenbai.vn
 www.vngender.edu.vn
-www.vnfineartsmuseum.org.vn
 www.viwrr.ac.vn
 www.vietlex.com.vn
 viap.org.vn
@@ -41,4 +37,3 @@ www.bca.org.vn
 www.bvtttw1.com.vn
 clst.ac.vn
 www.dhnh.edu.vn
-www.thuvienluanvan.com

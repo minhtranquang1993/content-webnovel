@@ -456,8 +456,8 @@ def main():
     ap.add_argument("--suggest-depth", dest="suggest_depth", type=int, default=1,
                     choices=(1, 2), help="tier S: 1 = hậu/tiền tố (72 request), "
                                          "2 = thêm a-z (~160 request)")
-    ap.add_argument("-n", "--limit", type=int, default=20,
-                    help="số keyword tối đa in ra (default 20 = cap bulk)")
+    ap.add_argument("-n", "--limit", type=int, default=29,
+                    help="số keyword tối đa in ra (default 29 = cap bulk)")
     args = ap.parse_args()
 
     if not (args.category or args.url or args.slug or args.author):

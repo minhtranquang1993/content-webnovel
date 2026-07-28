@@ -248,5 +248,5 @@ Kết quả cache 6 giờ ở `/tmp/webnovel-suggest-cache` (autocomplete không
 ## Giới hạn
 
 - **GSC chỉ có query site đã từng hiển thị.** Danh mục mới hoặc chưa index thì gần như rỗng → tier C gánh. Không phải lỗi.
-- **Export tay giới hạn 1.000 dòng** (tier A mặc định cũng 1.000, đổi bằng `--limit`). Bulk nhiều nhất 20 bài nên thừa sức.
+- **Export tay giới hạn 1.000 dòng** (tier A mặc định cũng 1.000, đổi bằng `--limit`). Bulk nhiều nhất 29 bài nên thừa sức.
 - **Data GSC trễ 2-3 ngày.** Cần cả phần chưa chốt thì `--data-state all`.

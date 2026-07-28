@@ -35,7 +35,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn (review/review-short/toplist/faq/genre/versus/guide) → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
   - **Kèm `--bulk N`: mặc định N bài = N domain KHÁC NHAU** (1 bài 1 domain). Cả batch đăng chung 1 domain là để lại footprint — cùng domain nhận N bài cùng thể loại, cùng cụm keyword, cùng ngày. Cách khai: `--site a.vn,b.vn,c.vn` (theo thứ tự) hoặc `--site-pool` (tự lấy N domain từ `data/pbn-domains.txt`). Truyền 1 domain vẫn được nhưng cả batch dùng chung — script note lại.
-- `--site-pool` — chỉ kèm `--bulk` + `pbn`: tự lấy N domain từ `data/pbn-domains.txt`, khỏi gõ tay. Offset deterministic theo scope (danh mục / slug truyện / tên tác giả) → chạy lại cùng scope ra y cũ, scope khác thường lệch cụm. **Best-effort thôi:** pool 38 domain nên 2 scope khác nhau vẫn có thể trùng cụm — **không hứa với user là "chắc chắn khác cụm"**. Bất biến luôn giữ: trong cùng 1 batch, N bài = N domain khác nhau. User nói *"mỗi bài 1 domain"* / *"tự chọn domain"* / *"5 bài 5 domain"* mà không kể tên domain → **tự thêm `--site-pool`**, không hỏi lại.
+- `--site-pool` — chỉ kèm `--bulk` + `pbn`: tự lấy N domain từ `data/pbn-domains.txt`, khỏi gõ tay. Offset deterministic theo scope (danh mục / slug truyện / tên tác giả) → chạy lại cùng scope ra y cũ, scope khác thường lệch cụm. **Best-effort thôi:** pool 29 domain nên 2 scope khác nhau vẫn có thể trùng cụm — **không hứa với user là "chắc chắn khác cụm"**. Bất biến luôn giữ: trong cùng 1 batch, N bài = N domain khác nhau. User nói *"mỗi bài 1 domain"* / *"tự chọn domain"* / *"5 bài 5 domain"* mà không kể tên domain → **tự thêm `--site-pool`**, không hỏi lại.
 - `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` / `blog20` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn/blog20: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
 - `--bulk N` — sinh **N bài** cho `pbn` / `blog20` / `forum`, mỗi bài 1 keyword riêng, **ghi ra file `.txt`** thay vì in chat. Xem **"BULK MODE"**. **Không truyền `--bulk` → hành vi y hệt trước: in ra chat, KHÔNG tạo file nào.** `bio` không có bulk (10 biến thể sẵn đã là bulk).
 - `--dry-run` — chỉ dùng kèm `--bulk`: in ma trận kế hoạch rồi DỪNG, không sinh bài, không ghi file.
@@ -172,7 +172,7 @@ py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
 
 ```
 1. Mở rộng keyword  → scripts/keywords.py (tier A GSC API / B export user gửi / S autocomplete / C tự sinh)
-2. Tính capacity    → N_thực = min(N, #keyword, capacity, 20)
+2. Tính capacity    → N_thực = min(N, #keyword, capacity)
 3. Lập ma trận      → scripts/bulk-plan.py in N dòng (keyword, subtype, archetype, …)
 4. Sinh + ghi NGAY  → xong bài nào ghi file + 1 dòng manifest bài đó, DROP khỏi context
 5. Verify + báo     → scripts/verify-bulk.py, in bảng tổng kết
@@ -213,7 +213,7 @@ python3 "~/.claude/skills/content-webnovel/scripts/bulk-plan.py" \
 | Tác giả có A truyện | A + 2 |
 | Có khai `--subtype` | số slot của riêng subtype đó (review = P · versus = P//2 · toplist = 2 nếu P≥16 ngược lại 1 · genre/guide/faq/review-short = 1) |
 
-Cap tuyệt đối **20 bài**/lần chạy. Pool thật: 13 danh mục ≥10 truyện chạy `--bulk 10` thoải mái; 7 danh mục pool 2-9 bị cắt; 3 danh mục pool 1 bị chặn.
+Cap tuyệt đối **29 bài**/lần chạy = số domain trong `data/pbn-domains.txt` (1 keyword → 1 bài → 1 domain riêng). Xin `--bulk` > 29 → **BLOCKED, script bắt chỉnh lại**, không tự cắt xuống 29 — báo user hạ số hoặc thêm domain vào pool. Pool thật: 13 danh mục ≥10 truyện chạy `--bulk 10` thoải mái; 7 danh mục pool 2-9 bị cắt; 3 danh mục pool 1 bị chặn.
 
 ### Trộn subtype
 

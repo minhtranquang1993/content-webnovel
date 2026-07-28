@@ -4,8 +4,11 @@
 #
 # Đây LÀ --dry-run: script chỉ in ma trận, KHÔNG ghi file bài, KHÔNG sinh nội dung.
 #
-# N_thực = min(N_yêu_cầu, số_keyword_phân_biệt, capacity, 20). Bị cắt → in lý do ra
+# N_thực = min(N_yêu_cầu, số_keyword_phân_biệt, capacity). Bị cắt → in lý do ra
 # stderr (announce), KHÔNG pad bằng keyword gần trùng.
+#
+# Ngưỡng trên của --bulk = số domain trong data/pbn-domains.txt (nay 29): 1 keyword →
+# 1 bài → 1 domain riêng. Xin quá ngưỡng → BLOCKED yêu cầu chỉnh lại, KHÔNG tự cắt.
 #
 # Capacity (chốt với user: category mode = P, KHÔNG phải P+7+versus như bảng brief —
 # bảng cho pool 5 ra 13 nên --bulk 10 không cắt, ngược Verify bước 3; và 2 toplist trên
@@ -50,7 +53,11 @@ SCRIPTS = Path(__file__).resolve().parent
 PICK = SCRIPTS / "pick-variant.py"
 DOMAINS_TXT = SCRIPTS.parent / "data" / "pbn-domains.txt"
 
-HARD_CAP = 20  # cap tuyệt đối theo brief
+# Cap tuyệt đối = size pool domain PBN: 1 keyword → 1 bài → 1 domain riêng, nên
+# không thể bulk quá số domain đang có (xoay vòng = 2 bài chung domain = footprint).
+# Đọc động từ data/pbn-domains.txt, fallback 29 nếu file lỗi. Vượt cap → BLOCKED,
+# không cắt âm thầm (user phải tự hạ --bulk để biết mình đang lấy ít hơn đã xin).
+HARD_CAP_FALLBACK = 29
 
 
 def load_domains():
@@ -61,6 +68,11 @@ def load_domains():
                     if ln.strip() and not ln.lstrip().startswith("#")]
     except OSError:
         return []
+
+
+def hard_cap():
+    """Cap tuyệt đối cho --bulk = số domain trong pool (xem HARD_CAP_FALLBACK)."""
+    return len(load_domains()) or HARD_CAP_FALLBACK
 
 
 def resolve_sites(raw_site, use_pool, n, type_, scope, notes):
@@ -77,12 +89,12 @@ def resolve_sites(raw_site, use_pool, n, type_, scope, notes):
                       (category mode) / slug truyện (story) / tên tác giả (author) —
                       dùng category không đủ vì story/author mode có category rỗng
                       nên MỌI batch story/author sẽ rút cùng cụm.
-                      Offset chỉ dàn cụm theo kiểu best-effort: pool 38 domain mà
+                      Offset chỉ dàn cụm theo kiểu best-effort: pool 29 domain mà
                       scope thì hàng trăm nên 2 scope khác nhau VẪN có thể trùng
                       offset (đã đo: crc32 không khá hơn cộng codepoint, trùng bị ép
                       bởi pool nhỏ). Cần chắc chắn cụm nào thì chỉ định tay --site.
                       Bất biến luôn giữ: trong CÙNG 1 batch, n bài = n domain khác
-                      nhau (miễn pool đủ n).
+                      nhau — n <= len(pool) là bảo đảm bởi hard_cap() chặn ở main().
       --site a      → 1 domain cho cả batch (hành vi cũ, giữ nguyên).
 
     blog20/forum KHÔNG dùng domain → trả list rỗng.
@@ -214,7 +226,9 @@ def build_mix(cap, allowed, pool_size):
 def main():
     ap = argparse.ArgumentParser(add_help=True)
     ap.add_argument("--type", required=True, choices=["pbn", "blog20", "forum"])
-    ap.add_argument("--bulk", required=True, type=int, help="N bài yêu cầu")
+    ap.add_argument("--bulk", required=True, type=int,
+                    help="N bài yêu cầu (tối đa = số domain trong "
+                         "data/pbn-domains.txt, nay 29 — vượt là BLOCKED)")
     ap.add_argument("--subtype", default="", help="khai tường minh → N bài cùng subtype")
     ap.add_argument("--category", default="")
     ap.add_argument("--url", default="")
@@ -250,6 +264,17 @@ def main():
 
     if args.bulk < 1:
         ap.error("--bulk phải >= 1")
+    cap = hard_cap()
+    if args.bulk > cap:
+        why = (f"1 keyword → 1 bài → 1 domain riêng, quá {cap} là 2 bài phải chung "
+               f"1 domain (footprint)"
+               if args.type == "pbn" else
+               "cap dùng chung cho mọi type, lấy theo size pool domain PBN")
+        print(f"BLOCKED: --bulk {args.bulk} vượt ngưỡng {cap}. Ngưỡng = số domain "
+              f"trong {DOMAINS_TXT.name} — {why}. Chỉnh lại --bulk xuống <= {cap}, "
+              f"hoặc thêm domain vào {DOMAINS_TXT.name} rồi chạy lại.",
+              file=sys.stderr)
+        raise SystemExit(3)
     if not (args.category or args.url or args.slug or args.author):
         ap.error("cần 1 trong: --category / --url / --slug / --author")
 
@@ -411,14 +436,13 @@ def main():
 
     # ----- N_thực -----
     n_req = args.bulk
-    n = min(n_req, n_keywords, capacity, HARD_CAP)
+    # HARD_CAP đã chặn ở đầu main() bằng BLOCKED nên không tham gia min() nữa.
+    n = min(n_req, n_keywords, capacity)
     reasons = []
     if n_keywords < n_req:
         reasons.append(f"chỉ có {n_keywords} keyword phân biệt")
     if capacity < n_req:
         reasons.append(f"capacity pool = {capacity} ({mode} mode, pool {pool_size})")
-    if HARD_CAP < n_req:
-        reasons.append(f"cap tuyệt đối {HARD_CAP}")
 
     # ----- mix subtype -----
     if args.subtype:
