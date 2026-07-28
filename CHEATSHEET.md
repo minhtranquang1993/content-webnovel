@@ -314,6 +314,8 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 
 - Tier A tự chọn property + tự suy filter page từ URL/danh mục (`/dien-van/`). Ép: `--gsc-site`, `--gsc-page-filter`, `--gsc-days 365`.
 - Tier B: lưu file rồi **nói đường dẫn** (script cần path, không đọc được nội dung dán chat). **ZIP khỏi giải nén.**
+- **Trong GSC bấm Export → CSV, KHÔNG chọn Excel** — script không đọc `.xlsx`. Đã mở bằng Excel rồi thì Save As → **CSV UTF-8**.
+- **Bao lâu gửi 1 lần: export ngay trước mỗi batch, không cần theo lịch.** Cửa sổ 90 ngày mỗi tuần chỉ xoay ~8% dữ liệu → top keyword sau khi sort gần như y hệt, gửi dày không đổi được thứ tự bài. Muốn nhịp cố định thì **~1 tháng/lần** (khớp cửa sổ 90 ngày). Vừa publish batch xong thì **chờ 3–4 tuần** cho trang mới tích đủ impressions rồi hãy export lại.
 - Header EN/VI đều nhận; `3,450` và `3.450` đều ra 3450; query **không dấu** vẫn khớp seed có dấu.
 - **Tier S không có search volume** — `impressions` = 0 là đúng, autocomplete không cho volume. Độ tin đọc ở số nhóm nguồn: `tierS:bing+google+google-yt` = 3 nhóm đồng thuận. Tự bỏ keyword lạc đề, đối thủ (`wattpad`, `dtruyen`), định dạng không có (`audio`, `truyện tranh`), và keyword đóng năm đã qua.
 - Xem keyword riêng: `python3 scripts/suggest.py --seed "truyện điền văn" --min-groups 2`
@@ -340,6 +342,7 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 
 - **N bị cắt** → skill announce nguyên văn lý do, làm đúng N thực. **Không pad** bằng keyword gần trùng.
 - **Pool = 1** → announce + dừng bulk, gợi ý chạy không `--bulk`.
+- **Dedup chỉ trong 1 batch, KHÔNG nhớ batch trước.** `bulk-plan.py` không ghi state ra disk (`used_kw_slug` / `used_bi` / `arch_seen` chỉ sống trong 1 lần chạy) và `verify-bulk.py` chỉ đọc manifest của batch đang verify. Chạy lại cùng input + cùng nguồn keyword → **ra trùng bài**, file GSC mới hơn cũng không cứu được. Muốn batch sau không đụng batch trước: nói rõ keyword/bài đã dùng (hoặc đưa manifest cũ) để loại tay, hoặc đổi `keyword=` / subtype / danh mục.
 
 ### File output
 
