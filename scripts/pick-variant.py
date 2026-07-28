@@ -18,6 +18,12 @@
 # --site: CHỈ dùng cho pbn (salt chống trùng across-domain). Cùng truyện + khác --site
 #         => khác archetype/góc/title. blog20/forum KHÔNG truyền --site.
 #
+# --bulk-index i: CHỈ dùng cho bulk mode (bài thứ i trong batch, 0-based). Offset cộng
+#         SAU phép chia (archetype //7, title //3) — cộng vào seed thì phải tới 7 seed
+#         mới đổi được archetype, i=2..8 rơi cùng archetype. Cộng sau chia => phép đếm
+#         vòng: 4 bài đầu chắc chắn 4 archetype khác. Seed CỐ ĐỊNH cho cả batch, chỉ i
+#         chạy. Không truyền (default 0) => output y hệt đường chạy đơn.
+#
 # Exit: 0 OK · 2 thiếu/sai tham số.
 
 import argparse
@@ -117,6 +123,9 @@ def main():
     ap.add_argument("--genres", default="")
     ap.add_argument("--site", default="")
     ap.add_argument("--year", default=str(date.today().year))
+    ap.add_argument("--bulk-index", dest="bulk_index", type=int, default=0,
+                    metavar="i",
+                    help="bài thứ i trong batch bulk (0-based); offset cộng SAU phép chia")
     args = ap.parse_args()
 
     st = args.subtype
@@ -128,6 +137,7 @@ def main():
     cls = category_class(genres)
     noun = "truyện" if cls == "fiction" else "sách"
     salt = codepoint_sum(args.site) if args.site else 0
+    bi = args.bulk_index  # offset bulk: cộng SAU phép chia, KHÔNG cộng vào seed
 
     # ----- Tính seed gốc theo subtype -----
     if st in ("review", "review-short"):
@@ -160,14 +170,16 @@ def main():
         emit("SITE_SALT", f"{salt} (site={args.site}; salt đã cộng vào {seed_name})")
     emit("CATEGORY_CLASS", cls)
     emit("NOUN", noun)
+    if bi:
+        emit("BULK_INDEX", f"{bi} (offset cộng sau phép chia; seed giữ nguyên)")
 
     # ----- Archetype -----
     if st == "review":
-        arch = (seed // 7) % 4
+        arch = ((seed // 7) + bi) % 4
     elif st == "review-short":
-        arch = ((seed // 7) + 1) % 4
+        arch = ((seed // 7) + 1 + bi) % 4
     else:
-        arch = (seed // 7) % 4
+        arch = ((seed // 7) + bi) % 4
 
     if st == "forum":
         s0 = arch
@@ -186,34 +198,34 @@ def main():
     # ----- Title index -----
     if st == "review":
         if arch == 0:
-            ti = (seed // 3) % 6
+            ti = ((seed // 3) + bi) % 6
             emit("TITLE_INDEX", f"{ti} (pool review gốc, 6 công thức)")
         else:
-            ti = (seed // 3) % 2
+            ti = ((seed // 3) + bi) % 2
             emit("TITLE_INDEX", f"{ti} (họ archetype #{arch}, 2 công thức)")
         print(f"ANNOUNCE_TITLE\tTitle pool: review #{ti} (archetype #{arch})")
     elif st == "review-short":
         if arch == 0:
-            ti = ((seed // 3) + 1) % 6
+            ti = ((seed // 3) + 1 + bi) % 6
             emit("TITLE_INDEX", f"{ti} (pool review lệch +1, 6 công thức) + neo trải-nghiệm-chương")
         else:
-            ti = (seed // 3) % 2
+            ti = ((seed // 3) + bi) % 2
             emit("TITLE_INDEX", f"{ti} (họ archetype #{arch}, 2 công thức) + neo trải-nghiệm-chương")
         print(f"ANNOUNCE_TITLE\tTitle pool: review-short #{ti} (archetype #{arch})")
     elif st == "toplist":
         if arch == 0:
-            ti = (seed // 3) % 5
+            ti = ((seed // 3) + bi) % 5
             emit("TITLE_INDEX", f"{ti} (pool toplist gốc, 5 công thức)")
         else:
-            ti = (seed // 3) % 2
+            ti = ((seed // 3) + bi) % 2
             emit("TITLE_INDEX", f"{ti} (họ archetype #{arch}, 2 công thức)")
         print(f"ANNOUNCE_TITLE\tTitle pool: toplist #{ti} (archetype #{arch})")
     elif st == "versus":
-        ti = (seed // 3) % 5
+        ti = ((seed // 3) + bi) % 5
         emit("TITLE_INDEX", f"{ti} (pool versus, 5 công thức — archetype KHÔNG đổi họ title)")
         print(f"ANNOUNCE_TITLE\tTitle pool: versus #{ti}")
     elif st in ("genre", "guide"):
-        ti = (seed // 3) % 4
+        ti = ((seed // 3) + bi) % 4
         emit("TITLE_INDEX", f"{ti} (pool {st}, 4 công thức — archetype KHÔNG đổi họ title)")
         print(f"ANNOUNCE_TITLE\tTitle pool: {st} #{ti}")
 
@@ -221,9 +233,9 @@ def main():
     # review: verdict xoay h mod 3 + 8 Góc. review-short: verdict CỐ ĐỊNH "ấn tượng
     # ban đầu" (đọc chương thật, không kế thừa 8 Góc — xem carve-out review-short).
     if st == "review":
-        verdict = seed % 3
+        verdict = (seed + bi) % 3
         emit("VERDICT", f"{verdict} — {VERDICT_NAME[verdict]}")
-        chinh, phu = pick_goc(seed, genres)
+        chinh, phu = pick_goc(seed + bi, genres)
         emit("GOC_CHINH", f"#{chinh} {GOC_NAME[chinh]}")
         emit("GOC_PHU", f"#{phu} {GOC_NAME[phu]}")
         glabel = genres[0] if genres else "pool chung"

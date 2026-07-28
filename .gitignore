@@ -1,5 +1,25 @@
-# Credential — service account key GSC không bao giờ được commit.
-# Chỗ đúng để lưu là ~/.config/gsc/service-account.json (ngoài repo). Xem GSC-SETUP.md.
+# Credential Search Console — KHÔNG BAO GIỜ commit (repo này public).
+# Chỗ đúng để đặt: ~/.config/webnovel-gsc/  (xem GSC-SETUP.md)
+service-account.json
 *service-account*.json
-*.credentials.json
+oauth-client.json
+token.json
 client_secret*.json
+*credentials*.json
+*-key.json
+
+# venv tier A (nằm ở ~/.local/share/webnovel-gsc/venv, chặn cho chắc)
+venv/
+.venv/
+
+# backup data sinh tự động
+*.bak
+*.bak-*
+data/*.bak-*
+
+# python
+__pycache__/
+*.pyc
+
+# rác macOS
+.DS_Store

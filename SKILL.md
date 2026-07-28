@@ -22,7 +22,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 > **Cheat sheet input nhanh:** [`CHEATSHEET.md`](CHEATSHEET.md) — copy lệnh + bảng tham số. Đổi cú pháp/tham số skill → update cả file đó.
 
 ```
-/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>]
+/content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>] [--bulk N] [--dry-run]
 ```
 
 | type | subtype | input | output |
@@ -35,6 +35,8 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn (review/review-short/toplist/faq/genre/versus/guide) → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
 - `keyword="..."` **hoặc** `--kw "..."` **hoặc** freeform (`keyword là …`, `viết cho kw …`) — primary keyword do user ép (vd `keyword="truyện điền văn hoàn"`). **Chỉ ảnh hưởng cách viết** (H1/title/body/hook forum); **KHÔNG** đổi pool truyện. List vẫn bám URL danh mục / filter JSON. Dùng cho `pbn` / `blog20` (chủ yếu toplist) và `forum` (tuỳ chọn). Không có → skill auto-resolve (pbn/blog20: xem **"Resolve SEO keyword"**; forum: từ scrape — tên truyện / thể loại).
+- `--bulk N` — sinh **N bài** cho `pbn` / `blog20` / `forum`, mỗi bài 1 keyword riêng, **ghi ra file `.txt`** thay vì in chat. Xem **"BULK MODE"**. **Không truyền `--bulk` → hành vi y hệt trước: in ra chat, KHÔNG tạo file nào.** `bio` không có bulk (10 biến thể sẵn đã là bulk).
+- `--dry-run` — chỉ dùng kèm `--bulk`: in ma trận kế hoạch rồi DỪNG, không sinh bài, không ghi file.
 
 > **Tương thích input cũ:** nếu user vẫn truyền `--lo <nhãn>`, bỏ qua cả flag và giá trị; không hỏi lại, không báo lỗi và không dùng để lọc dữ liệu.
 
@@ -155,6 +157,124 @@ py -3 "~/.claude/skills/content-webnovel/scripts/pick-variant.py" \
 - Script in các dòng `KEY<TAB>value`: `ARCHETYPE`, `ARCHETYPE_NAME`, `PERSONA`, `TITLE_INDEX`, `VERDICT`, `GOC_CHINH`, `GOC_PHU`, và các dòng `ANNOUNCE_*` (copy thẳng ra ngoài block HTML). Viết bài theo đúng các slot này.
 
 > `bio` và `faq` không cần pick-variant (bio không archetype; faq toàn bài Q&A cố định).
+
+---
+
+## BULK MODE — `--bulk N` (chỉ pbn / blog20 / forum)
+
+**Không truyền `--bulk` → BỎ QUA TOÀN BỘ section này.** Đường chạy đơn giữ nguyên: in ra chat, KHÔNG ghi file, KHÔNG gọi `bulk-plan.py`, KHÔNG truyền `--bulk-index` cho pick-variant.
+
+`--bulk N` = sinh **N bài**, mỗi bài **1 keyword riêng**, ghi ra **file `.txt`** thay vì in chat. Chỉ có 1 keyword gốc nên phải mở rộng thêm keyword liên quan/LSI trước khi lập kế hoạch.
+
+### Luồng 5 bước
+
+```
+1. Mở rộng keyword  → scripts/keywords.py (tier A GSC API / B export user gửi / S autocomplete / C tự sinh)
+2. Tính capacity    → N_thực = min(N, #keyword, capacity, 20)
+3. Lập ma trận      → scripts/bulk-plan.py in N dòng (keyword, subtype, archetype, …)
+4. Sinh + ghi NGAY  → xong bài nào ghi file + 1 dòng manifest bài đó, DROP khỏi context
+5. Verify + báo     → scripts/verify-bulk.py, in bảng tổng kết
+```
+
+**Bước 1-3 gộp trong 1 lệnh** (`bulk-plan.py` tự gọi `keywords.py`):
+
+```bash
+python3 "~/.claude/skills/content-webnovel/scripts/bulk-plan.py" \
+  --type <pbn|blog20|forum> --bulk N \
+  [--url <URL danh mục> | --category "<Tên thể loại>" | --slug <slug truyện> | --author "<Tác giả>"] \
+  [--subtype <review|…>] [--site <domain>] [--cat-desc "<CAT_DESC scrape>"] \
+  [--seed-keyword "<keyword user ép>"] \
+  [--gsc-api [--gsc-site <property>] [--gsc-days N] [--gsc-page-filter <str>]] \
+  [--gsc-csv <file.csv|.zip>] [--suggest [--suggest-depth 2]]
+```
+
+**Keyword theo tầng A → B → S → C.** Chạy được cùng lúc, tier sau bù chỗ thiếu:
+
+- **`--gsc-api` (tier A):** user nói *"dùng gsc"* / *"pull gsc"* / *"lấy keyword từ search console"* → **tự thêm `--gsc-api`**. Script tự chọn property và tự suy filter page từ `--url`/`--category`. Tier A lỗi (thiếu lib/credential/403) → `bulk-plan.py` in `note: tier A bỏ qua: …` rồi **chạy tiếp bằng B/S/C**; announce note đó cho user, **không dừng bulk**. Chưa cấu hình bao giờ → chỉ user vào `GSC-SETUP.md`, đừng tự chạy `gsc-install.sh` hay đòi credential.
+- **`--gsc-csv` (tier B):** user nhắc file/đường dẫn kiểu nào — `GSC: ~/Downloads/x.zip`, *"gsc ở ..."*, hay chỉ dán path — thì **tự ghép `--gsc-csv <path>`**, không hỏi lại. Nhận CSV/TSV và **cả `.zip` tải thẳng từ GSC** (tự chọn sheet query, không cần giải nén).
+- **`--suggest` (tier S):** user nói *"lấy keyword liên quan"* / *"LSI"* / *"từ đồng nghĩa"* / *"không có quyền gsc"* / *"keyword thật mà khỏi cần gsc"* → **tự thêm `--suggest`**. Lấy từ autocomplete Google/Bing/DDG/YouTube, **không cần credential**. Lỗi mạng → note `tier S bỏ qua: …` rồi chạy tiếp bằng C.
+  - **Cột `impressions` của tier S = 0 và đó là đúng** — autocomplete không cho search volume. **Không được báo cho user như thể có volume**, cũng không suy ra con số. Muốn nói độ tin thì đọc số nhóm nguồn trong `kw_source` (`tierS:bing+google+google-yt` = 3 nhóm đồng thuận).
+- **Không nhắc gì → chạy không cờ nào.** Tier C gánh, **không đòi user export, không tự bật tier A, không tự bật tier S** (tier S gọi mạng ~72 request, phải do user quyết).
+
+- Script in TSV `idx keyword kw_source subtype anchor archetype title_idx goc verdict bulk_index` (stdout) + dòng `[bulk-plan] …` announce (stderr, gồm `OUT_DIR`).
+- **Dùng đúng slot script in ra.** Không tự tính hash, không tự đổi subtype, không tự thêm keyword.
+- **`--dry-run`:** in ma trận rồi **DỪNG** — không sinh bài, không ghi file.
+- **Exit 3 = BLOCKED** (pool = 1 hoặc 0 truyện): announce lý do, **DỪNG bulk**, gợi ý chạy không `--bulk`.
+- **N bị cắt** (dòng `[bulk-plan] CẮT:`): **announce nguyên văn lý do cho user**, làm đúng N_thực. **CẤM pad** thêm bài bằng keyword gần trùng.
+
+### Capacity
+
+| Input | Capacity |
+|---|---|
+| Danh mục pool P truyện | **P** (P = 1 → chặn bulk) |
+| 1 URL truyện | 6 — review, review-short, faq + 3 versus ghép 3 truyện cùng thể loại |
+| Tác giả có A truyện | A + 2 |
+| Có khai `--subtype` | số slot của riêng subtype đó (review = P · versus = P//2 · toplist = 2 nếu P≥16 ngược lại 1 · genre/guide/faq/review-short = 1) |
+
+Cap tuyệt đối **20 bài**/lần chạy. Pool thật: 13 danh mục ≥10 truyện chạy `--bulk 10` thoải mái; 7 danh mục pool 2-9 bị cắt; 3 danh mục pool 1 bị chặn.
+
+### Trộn subtype
+
+- **Không khai subtype → tự trộn** theo thứ tự round-robin `review → toplist → versus → review-short → genre → guide → faq`; `faq` luôn xếp cuối (không có archetype).
+- **Khai subtype → N bài cùng subtype đó.**
+- `faq` chỉ có ở `pbn`. `forum` không có subtype (mọi bài đều `forum`).
+- **Bài `versus` trong 1 batch phải ghép cặp RỜI NHAU** (category/author mode) — trùng cặp là trùng thân bài dù khác keyword/H1. Story mode thì truyện input làm neo, đổi truyện đối chiếu.
+
+### File output
+
+```
+<Downloads>/webnovel/content-{pbn|blog20|forum}/{keyword-slug}__{YYYYMMDD-HHmmss}.txt
+```
+
+- Lấy `OUT_DIR` từ dòng `[bulk-plan] OUT_DIR:` — **KHÔNG hardcode path**. Thiếu folder → tạo.
+- `keyword-slug` = keyword bỏ dấu → lowercase → non-alnum thành `-`. Trùng slug → thêm `-2`, `-3`.
+- Nội dung file = **header metadata** + separator + **nội dung đăng**:
+
+```
+keyword    : truyện điền văn hoàn
+subtype    : toplist
+type       : pbn
+site       : fbu.vn
+URL        : https://fbu.vn/top-truyen-dien-van-hoan-2026/
+Slug       : top-truyen-dien-van-hoan-2026
+archetype  : 2 — Hỏi–đáp (Q&A-led)
+title_idx  : 1
+goc        : -
+verdict    : -
+bulk_index : 2
+số chữ     : 1187
+tạo lúc    : 2026-07-27 18:52:03
+---------- NỘI DUNG ĐĂNG ----------
+<h1>…
+```
+
+- **pbn:** `URL` + `Slug` + `site` ở **header**, KHÔNG lọt vào body. **blog20:** không `URL`/`Slug`/`site`, không self-link. **forum:** plain text, đúng 1 URL trần, không thẻ HTML.
+- Phần sau separator phải **dán đăng được ngay**, không kèm dòng announce nào.
+
+### Manifest
+
+`manifest-{YYYYMMDD-HHmmss}.tsv` cùng folder, cột:
+
+```
+idx  keyword  kw_source  subtype  archetype  title_idx  goc  verdict  site  url  slug  so_chu  filename  created_at
+```
+
+**Ghi từng dòng NGAY sau mỗi file**, không dồn cuối batch — bài 7/10 chết vì hết context thì 6 bài trước vẫn còn vết và resume được.
+
+### Chống ngập context
+
+Sinh xong 1 bài → ghi file + ghi 1 dòng manifest → **bỏ nội dung bài đó khỏi context** rồi mới sang bài kế. KHÔNG giữ cả N bài × 1200 chữ trong đầu. Không in toàn văn bài ra chat khi ở bulk mode (chỉ in dòng tiến độ ngắn: `[i/N] <keyword> → <filename> (<số chữ> chữ)`).
+
+### Verify
+
+Sau khi ghi hết N file:
+
+```bash
+python3 "~/.claude/skills/content-webnovel/scripts/verify-bulk.py" \
+  --type <pbn|blog20|forum> --manifest <đường dẫn manifest .tsv> [--site <domain>]
+```
+
+Wrapper loop từng file qua `verify-output.py` + check cấp-batch (đủ N, H1 phân biệt, keyword phân biệt, versus không trùng cặp, toplist không trùng >80% list, filename khớp manifest). **FAIL → sửa file đó rồi verify lại**, không giao khi còn FAIL.
 
 ---
 
