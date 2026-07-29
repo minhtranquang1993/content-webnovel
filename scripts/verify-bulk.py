@@ -11,10 +11,13 @@
 # forum KHÔNG đi qua verify-output.py (script đó chỉ nhận --type pbn|blog20). Check riêng
 # tại đây theo contract forum: plain text, đúng 1 URL trần, 500-1000 chữ, có năm.
 #
+# Manifest nằm CÙNG folder với file bài (mỗi batch 1 folder riêng theo stamp), nên
+# folder = manifest.parent — không cần truyền path folder.
+#
 # Usage:
-#   verify-bulk.py --type pbn    --manifest <...>/manifest-20260727-185203.tsv --site fbu.vn
-#   verify-bulk.py --type blog20 --manifest <...>/manifest-20260727-185203.tsv
-#   verify-bulk.py --type forum  --manifest <...>/manifest-20260727-185203.tsv
+#   verify-bulk.py --type pbn    --manifest <...>/2026-07-28_12h07/manifest-2026-07-28_12h07.tsv --site fbu.vn
+#   verify-bulk.py --type blog20 --manifest <...>/2026-07-28_12h07/manifest-2026-07-28_12h07.tsv
+#   verify-bulk.py --type forum  --manifest <...>/2026-07-28_12h07/manifest-2026-07-28_12h07.tsv
 #
 # Exit: 0 = PASS (không FAIL) · 1 = có FAIL · 2 = lỗi tham số / không đọc được manifest
 
@@ -327,7 +330,10 @@ def main():
         batch_fails.append(f"chỉ verify được {n_ok_files} file, kỳ vọng {expect}")
 
     # ----- file lạ trong folder (cùng batch timestamp) -----
-    stamp = re.search(r"manifest-(\d{8}-\d{6})\.tsv$", man.name)
+    # Nhận 2 format stamp: mới 2026-07-28_12h07 (kèm -2 nếu batch trùng phút) và cũ
+    # 20260728-120732 — batch cũ trên disk vẫn phải verify được.
+    stamp = re.search(r"manifest-(\d{4}-\d{2}-\d{2}_\d{2}h\d{2}(?:-\d+)?|\d{8}-\d{6})\.tsv$",
+                      man.name)
     if stamp:
         listed = {(r.get("filename") or "").strip() for r in rows}
         stray = [p.name for p in folder.glob(f"*__{stamp.group(1)}.txt")

@@ -371,10 +371,25 @@ python3 ~/.claude/skills/content-webnovel/scripts/gsc-api.py --list-sites   # ki
 
 ### File output
 
+**Mỗi batch 1 folder riêng** theo ngày-giờ, file bên trong cũng mang ngày-giờ:
+
 ```
-<Downloads>/webnovel/content-{pbn|blog20|forum}/{keyword-slug}__{YYYYMMDD-HHmmss}.txt
-<Downloads>/webnovel/content-{...}/manifest-{YYYYMMDD-HHmmss}.tsv
+<Downloads>/webnovel/content-{pbn|blog20|forum}/{YYYY-MM-DD_HHhMM}/{keyword-slug}__{YYYY-MM-DD_HHhMM}.txt
+<Downloads>/webnovel/content-{...}/{YYYY-MM-DD_HHhMM}/manifest-{YYYY-MM-DD_HHhMM}.tsv
 ```
+
+Ví dụ — batch chạy 12h07 ngày 28/07/2026:
+
+```
+content-pbn/2026-07-28_12h07/
+    truyen-ngon-tinh-full__2026-07-28_12h07.txt
+    thap-nien-60-lam-giau-nuoi-con__2026-07-28_12h07.txt
+    manifest-2026-07-28_12h07.tsv
+```
+
+Stamp = dòng `[bulk-plan] STAMP:`, **cả batch dùng 1 stamp** (giờ lập ma trận), không phải giờ ghi từng bài — giờ thật từng bài nằm ở header `tạo lúc`.
+
+Chạy 2 batch trùng phút → folder thứ 2 thành `2026-07-28_12h07-2`, không ghi đè. Chốt nằm ở bước **tạo folder** (fail-nếu-đã-có rồi bump `-2`), không phải ở path `bulk-plan.py` in ra: stamp không có giây nên 2 lệnh lập ma trận trùng phút vẫn nhận cùng path.
 
 Mỗi file = **header metadata** + `---------- NỘI DUNG ĐĂNG ----------` + **nội dung dán đăng được ngay**.
 pbn có `URL`/`Slug`/`site` ở header (không lọt body); blog20 không có; forum plain text 1 URL trần.

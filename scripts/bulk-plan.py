@@ -35,6 +35,7 @@
 # Exit: 0 OK · 2 thiếu/sai tham số · 3 chặn bulk (pool=1 / không đủ dữ liệu)
 
 import argparse
+import datetime
 import subprocess
 import sys
 from pathlib import Path
@@ -141,9 +142,32 @@ def downloads_dir() -> Path:
     return d if d.is_dir() else home
 
 
-def out_dir(type_: str) -> Path:
-    """<Downloads>/webnovel/content-{pbn|blog20|forum}. KHÔNG tạo (đây là dry-run)."""
-    return downloads_dir() / "webnovel" / f"content-{type_}"
+def batch_stamp() -> str:
+    """Stamp batch dạng 2026-07-28_12h07 (YYYY-MM-DD_HHhMM): đọc ra ngày/tháng/năm/giờ
+    ngay trên tên folder + tên file, mà sort theo tên vẫn ra đúng thứ tự thời gian."""
+    return datetime.datetime.now().strftime("%Y-%m-%d_%Hh%M")
+
+
+def out_dir(type_: str, stamp: str) -> Path:
+    """<Downloads>/webnovel/content-{type}/{stamp} — mỗi batch 1 folder riêng để nhiều
+    batch không trộn lẫn khi sort theo tên. KHÔNG tạo folder (đây là dry-run); skill tạo
+    lúc ghi bài.
+
+    Stamp không có giây nên 2 batch chạy trùng phút sẽ trỏ cùng folder và manifest ghi
+    đè lên nhau (mất batch trước) → folder đã tồn tại thì thêm -2, -3, cùng convention
+    trùng slug ở SKILL.md. Tên file bên trong giữ stamp trần (folder đã phân biệt).
+
+    GIỚI HẠN: đây chỉ là check-rồi-trả-path, script KHÔNG tạo folder (nó là dry-run) nên
+    chỉ chặn được batch có folder ĐÃ tồn tại lúc lập ma trận. Hai lệnh lập ma trận trùng
+    phút mà chưa lệnh nào ghi file thì cả hai nhận cùng path → vẫn đè nhau. Chốt cuối
+    nằm ở bước ghi: SKILL.md buộc tạo folder kiểu fail-nếu-đã-có rồi tự bump -2."""
+    base = downloads_dir() / "webnovel" / f"content-{type_}"
+    d = base / stamp
+    n = 2
+    while d.exists():
+        d = base / f"{stamp}-{n}"
+        n += 1
+    return d
 
 # Subtype hợp lệ theo type (SKILL.md bảng type/subtype: faq CHỈ pbn; forum không subtype).
 SUBTYPES = {
@@ -599,7 +623,9 @@ def main():
             f"{' slug=' + args.slug if args.slug else ''} "
             f"pool={pool_size} capacity={capacity} keyword={n_keywords} noun={noun}")
     print(head, file=sys.stderr)
-    print(f"[bulk-plan] OUT_DIR: {out_dir(args.type)}", file=sys.stderr)
+    stamp = batch_stamp()
+    print(f"[bulk-plan] STAMP: {stamp}", file=sys.stderr)
+    print(f"[bulk-plan] OUT_DIR: {out_dir(args.type, stamp)}", file=sys.stderr)
     if args.type == "pbn":
         used_sites = [r[10] for r in rows_out]
         nd = len({s for s in used_sites if s})

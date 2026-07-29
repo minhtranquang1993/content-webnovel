@@ -224,12 +224,19 @@ Cap tuyệt đối **29 bài**/lần chạy = số domain trong `data/pbn-domain
 
 ### File output
 
+**Mỗi batch 1 folder riêng** mang stamp thời gian, file bên trong cũng mang stamp:
+
 ```
-<Downloads>/webnovel/content-{pbn|blog20|forum}/{keyword-slug}__{YYYYMMDD-HHmmss}.txt
+<Downloads>/webnovel/content-{pbn|blog20|forum}/{YYYY-MM-DD_HHhMM}/{keyword-slug}__{YYYY-MM-DD_HHhMM}.txt
 ```
 
-- Lấy `OUT_DIR` từ dòng `[bulk-plan] OUT_DIR:` — **KHÔNG hardcode path**. Thiếu folder → tạo.
+Ví dụ thật: `content-pbn/2026-07-28_12h07/truyen-ngon-tinh-full__2026-07-28_12h07.txt`
+
+- Lấy `OUT_DIR` (đã gồm folder stamp) từ dòng `[bulk-plan] OUT_DIR:` và `STAMP` từ dòng `[bulk-plan] STAMP:` — **KHÔNG hardcode path, KHÔNG tự sinh stamp**. Thiếu folder → tạo.
+- **Cả batch dùng 1 stamp duy nhất** = giá trị `STAMP` script in ra (giờ lập ma trận), cho file bài lẫn manifest. KHÔNG lấy giờ hiện tại cho từng bài — 10 bài ghi rải 15 phút mà stamp khác nhau thì folder loãng, verify không gom được batch. Giờ thật của từng bài đã có ở header `tạo lúc`.
 - `keyword-slug` = keyword bỏ dấu → lowercase → non-alnum thành `-`. Trùng slug → thêm `-2`, `-3`.
+- Batch chạy trùng phút với batch trước → `OUT_DIR` script in ra đã tự thành `…_12h07-2`; **cứ dùng nguyên path đó**, tên file bên trong vẫn stamp trần.
+- **Tạo folder batch kiểu fail-nếu-đã-có, KHÔNG tạo kiểu bỏ-qua-nếu-có** (`mkdir(parents=True)` trần, KHÔNG `exist_ok=True`) — folder tồn tại nghĩa là có batch khác đã chiếm chỗ, ghi vào đó là **đè manifest, mất cả batch trước**. Đụng lỗi tồn tại → bump `-2`, `-3` cho tới khi tạo được, rồi ghi cả batch vào path đó (stamp trong TÊN FILE giữ nguyên, chỉ tên folder có suffix). Stamp không có giây nên `OUT_DIR` script in ra không đủ chốt: 2 lệnh lập ma trận trùng phút mà chưa lệnh nào ghi thì cả hai nhận **cùng** path — chốt thật là ở bước tạo folder này.
 - Nội dung file = **header metadata** + separator + **nội dung đăng**:
 
 ```
@@ -256,7 +263,7 @@ tạo lúc    : 2026-07-27 18:52:03
 
 ### Manifest
 
-`manifest-{YYYYMMDD-HHmmss}.tsv` cùng folder, cột:
+`manifest-{YYYY-MM-DD_HHhMM}.tsv` (cùng `STAMP` với file bài) nằm **trong cùng folder batch**, cột:
 
 ```
 idx  keyword  kw_source  subtype  archetype  title_idx  goc  verdict  site  url  slug  so_chu  filename  created_at
