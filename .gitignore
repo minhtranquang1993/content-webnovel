@@ -17,6 +17,11 @@ venv/
 *.bak-*
 data/*.bak-*
 
+# state rotation super-cate — runtime riêng từng máy. Commit vào thì mỗi lần pull
+# sẽ đè lượt dùng danh mục/domain của máy khác → rotation sai.
+data/super-cate-usage.json
+data/super-cate-usage.json.lock
+
 # python
 __pycache__/
 *.pyc

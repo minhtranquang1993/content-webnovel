@@ -3,8 +3,8 @@ name: content-webnovel
 description: >-
   Tạo content marketing tiếng Việt cho website đọc truyện Webnovel.vn (https://webnovel.vn/) từ URL bài truyện/danh mục/homepage.
   Live-scrape trang bằng curl (browser UA) để lấy dữ liệu thật (tên truyện, tác giả, thể loại, tóm tắt, tình trạng, list truyện), rồi sinh 4 nhóm content theo yêu cầu:
-  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/review-short/toplist/faq/genre/versus/guide, title xoay theo pool sáng tạo, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (3 post plain text hỏi đáp dài 500-1000 chữ, tiêu đề = câu hỏi hook + body + CTA URL trần), blog20 (HTML 1000-1500 chữ dạng review/review-short/toplist/genre/versus/guide, không cần domain, không URL/Slug hay self-link, ảnh host ImgBB). review-short = biến thể review đọc chương thật (fiction) để phân tích phân cảnh/nhân vật cụ thể. Hỗ trợ cả sách non-fiction (Phát triển bản thân, Tâm linh) với danh từ "sách" thay "truyện". Chống "một màu" bằng Archetype khung bài (4 hình hài + 4 persona + họ title, chọn deterministic theo hash) đổi trình tự section/block/giọng viết mà giữ nguyên contract SEO/backlink.
-  Trigger: "/content-webnovel", "content webnovel", "viết bio truyện webnovel", "viết pbn webnovel", "forum webnovel", "blog20 webnovel", "viết blog20", "bài hỏi đáp forum webnovel", "giải thích thể loại", "thể loại là gì", "so sánh 2 truyện", "truyện A hay truyện B", "cẩm nang đọc", "người mới nên đọc", "review ngắn", "review đọc chương", "đọc thử chương", "review sâu", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
+  bio (mô tả ngắn 120-150 ký tự, 10 biến thể, có hashtag), pbn (bài blog SEO/GEO/AEO 1000-1500 chữ dạng review/review-short/toplist/faq/genre/versus/guide, title xoay theo pool sáng tạo, xuất HTML thuần + URL/slug gợi ý, ảnh host ImgBB), forum (3 post plain text hỏi đáp dài 500-1000 chữ, tiêu đề = câu hỏi hook + body + CTA URL trần), blog20 (HTML 1000-1500 chữ dạng review/review-short/toplist/genre/versus/guide, không cần domain, không URL/Slug hay self-link, ảnh host ImgBB). super-cate (1 lệnh sinh 19 bài toplist trên 19 danh mục KHÁC NHAU: 10 pbn + 4 blog20 + 5 forum, tự xoay vòng danh mục/domain qua state file, ghi file .txt vào Downloads/webnovel/{ngày}/). review-short = biến thể review đọc chương thật (fiction) để phân tích phân cảnh/nhân vật cụ thể. Hỗ trợ cả sách non-fiction (Phát triển bản thân, Tâm linh) với danh từ "sách" thay "truyện". Chống "một màu" bằng Archetype khung bài (4 hình hài + 4 persona + họ title, chọn deterministic theo hash) đổi trình tự section/block/giọng viết mà giữ nguyên contract SEO/backlink.
+  Trigger: "/content-webnovel", "content webnovel", "super cate", "super-cate", "chạy 19 bài", "content hàng loạt theo ngày", "viết bio truyện webnovel", "viết pbn webnovel", "forum webnovel", "blog20 webnovel", "viết blog20", "bài hỏi đáp forum webnovel", "giải thích thể loại", "thể loại là gì", "so sánh 2 truyện", "truyện A hay truyện B", "cẩm nang đọc", "người mới nên đọc", "review ngắn", "review đọc chương", "đọc thử chương", "review sâu", hoặc khi user gửi URL webnovel.vn kèm yêu cầu tạo content.
 ---
 
 # Skill: content-webnovel
@@ -23,6 +23,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 
 ```
 /content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>[,<domain2>,…] | --site-pool] [--bulk N] [--dry-run]
+/content-webnovel super-cate [--dry-run]                # 19 bài toplist / 19 danh mục, không cần URL
 ```
 
 | type | subtype | input | output |
@@ -31,6 +32,7 @@ Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/con
 | `pbn` | `review` \| `review-short` \| `toplist` \| `faq` \| `genre` \| `versus` \| `guide` | review / review-short→1 URL truyện (review-short chỉ fiction, đọc chương thật); toplist→URL danh mục / tên thể loại / tên tác giả; faq→1 URL; genre→URL danh mục / tên thể loại; versus→2 URL truyện / 2 tên / URL danh mục; guide→URL danh mục / tên thể loại (+ optional keyword) | HTML thuần (không JSON-LD) + block URL/Slug, 1000-1500 chữ |
 | `forum` | (không có) | 1 URL (truyện hoặc danh mục) (+ optional keyword) | plain text, **3 post** biến thể; mỗi post = câu hỏi hook + body 500–1000 chữ + CTA URL trần |
 | `blog20` | `review` \| `review-short` \| `toplist` \| `genre` \| `versus` \| `guide` | như pbn tương ứng (KHÔNG có `faq`) | HTML thuần (không JSON-LD), **KHÔNG** block URL/Slug, **KHÔNG** self-link, 1000-1500 chữ |
+| `super-cate` | (không có — mọi bài đều `toplist`) | **không có input** (script tự chọn 19 danh mục từ `data/categories.tsv`) | **19 file .txt**: 10 pbn + 4 blog20 + 5 forum, mỗi bài 1 danh mục riêng. Xem **LOẠI super-cate** |
 
 **Tham số:**
 - `--site <domain>` — domain đăng bài PBN (1 trong `data/pbn-domains.txt`). Dùng ghép URL bài `https://{site}/{slug}/` + đối chiếu domain hợp lệ. **Thiếu ở mọi subtype pbn (review/review-short/toplist/faq/genre/versus/guide) → HỎI LẠI, KHÔNG đoán.** **`blog20` KHÔNG dùng `--site`** — không hỏi, không suy luận domain.
@@ -976,6 +978,142 @@ Cuối mỗi post có thể ghi `(~N chữ)` để user kiểm độ dài.
 
 ---
 
+## LOẠI super-cate — 1 lệnh → 19 bài toplist / 19 danh mục khác nhau
+
+Dạng chạy hàng loạt **theo NGÀY**: 1 lệnh sinh **10 pbn toplist + 4 blog20 toplist + 5 forum toplist**, mỗi bài 1 danh mục **KHÁC NHAU**, ghi ra file `.txt`. Số lượng **cố định 10/4/5** — không có cờ chỉnh.
+
+```
+/content-webnovel super-cate [--dry-run]
+```
+
+Không cần URL, không cần `--site`, không cần `--bulk`. Danh mục do script tự chọn từ `data/categories.tsv` theo rotation; domain tự rút từ `data/pbn-domains.txt` theo rotation.
+
+### Luồng 4 bước (BẮT BUỘC theo thứ tự)
+
+```
+1. plan        → super-cate.py plan          (ghi plan.tsv + sidecar plan/{idx}.json)
+2. sinh bài    → 19 file .txt + manifest.tsv (LLM viết, theo từng dòng plan.tsv)
+3. verify      → verify-bulk.py --plan --manifest   (PASS hết mới sang bước 4)
+4. commit      → super-cate.py commit-usage --plan  (CHỈ khi verify PASS)
+```
+
+**Bước 1 — lập ma trận:**
+
+```bash
+py -3 "~/.claude/skills/content-webnovel/scripts/super-cate.py" plan [--dry-run]
+```
+
+- In TSV 19 dòng (cột: `idx type subtype cate_name cate_url cate_slug pool n_display keyword kw_variants site archetype title_idx noun plan_file`) + announce `[super-cate]` ra stderr.
+- Lấy **`OUT_DIR`** từ dòng `[super-cate] OUT_DIR:` — **KHÔNG hardcode path**. Cấu trúc:
+  `<Downloads>/webnovel/{YYYY-MM-DD}/{pbn,blog20,forum}/` + `plan.tsv` + `manifest.tsv` + `plan/`
+- **`--dry-run`:** chỉ in stdout, **KHÔNG ghi file nào**, `plan_file` = `-` + cờ `DRY_RUN_ONLY` → không dùng để sinh bài/verify.
+- **Announce nguyên văn cho user** các dòng `LOẠI` (danh mục pool<2 bị loại) và `CẮT` (không đủ 19 danh mục hợp lệ). **CẤM pad** thêm bài bằng danh mục đã dùng.
+- Exit 3 = BLOCKED (không có danh mục nào pool≥2).
+
+**Bước 2 — sinh bài.** Mỗi dòng TSV = 1 bài; đọc slot rồi viết theo contract tương ứng:
+
+| `type` dòng | Viết theo | Khác biệt |
+|---|---|---|
+| `pbn` | **`pbn toplist`** (mục "LOẠI pbn → pbn toplist") | có `URL`/`Slug`/`site` header + self-link |
+| `blog20` | **`blog20 toplist`** | KHÔNG `URL`/`Slug`/`site`, KHÔNG self-link |
+| `forum` | **`forum toplist`** (mục riêng bên dưới) | plain text, N URL truyện trần + 1 URL danh mục cuối |
+
+- **Truyện lấy TỪ SIDECAR `plan/{idx}.json`**, KHÔNG tự tra `truyen-data.json`, KHÔNG thêm/bớt truyện. Sidecar có sẵn `tu_khoa` / `link_truyen` / `anh_imgbb` / `danh_muc` / `tac_gia`. Verify đối chiếu — URL ngoài sidecar = FAIL.
+- **N = cột `n_display`** của chính dòng đó (đã cắt theo pool + cap: pbn/blog20 tối đa 10, forum tối đa 7). KHÔNG tự đổi N.
+- **Keyword**: cột `keyword` = primary (H1/title/body). Cột `kw_variants` = biến thể rải nhẹ 1-2 lần, KHÔNG spam, KHÔNG dùng để lọc lại pool.
+- **Archetype / title_idx / noun**: dùng đúng slot script in ra, KHÔNG tự tính hash. (Script đã gọi `pick-variant.py --subtype toplist` sẵn cho mọi dòng, kể cả forum.)
+- **`site`** lấy từ cột `site` của **chính dòng đó**; rỗng ở dòng pbn → **DỪNG, hỏi user**.
+- Tên file: `{type}/{cate-slug}__{keyword-slug}.txt` — **path tương đối từ `OUT_DIR`, LUÔN có prefix type**. Ghi vào `manifest.tsv` đúng chuỗi đó.
+- **Chống ngập context:** xong 1 bài → ghi file + append 1 dòng manifest → **bỏ nội dung bài khỏi context** rồi sang dòng kế. Chỉ in dòng tiến độ ngắn `[i/19] <keyword> → <filename> (<số chữ> chữ)`.
+
+**`manifest.tsv` — generator là writer DUY NHẤT.** Trước bài đầu tiên tạo đúng **1 dòng version + 1 dòng header**, sau đó chỉ append dòng dữ liệu:
+
+```
+# super-cate-manifest v1 batch_id=<lấy từ dòng version của plan.tsv>
+idx	filename	url	slug	so_chu	created_at
+```
+
+> **KHÔNG sửa `plan.tsv`** — đó là allocation đóng băng, chỉ `plan` ghi. 2 file 2 writer riêng: ghi lẫn vào nhau sẽ ra dòng trùng và `commit-usage` đếm sai.
+
+**Bước 3 — verify:**
+
+```bash
+py -3 "~/.claude/skills/content-webnovel/scripts/verify-bulk.py" \
+  --plan "{OUT_DIR}/plan.tsv" --manifest "{OUT_DIR}/manifest.tsv"
+```
+
+Chế độ multi-type: đọc `type`/`subtype` **theo từng dòng**, join `plan.tsv` + `manifest.tsv` theo `idx`. Thiếu `idx` = bài chưa sinh → FAIL. **FAIL → sửa file đó rồi verify lại**, KHÔNG sang bước 4.
+
+**Bước 4 — commit rotation (CHỈ khi verify PASS):**
+
+```bash
+py -3 "~/.claude/skills/content-webnovel/scripts/super-cate.py" commit-usage \
+  --plan "{OUT_DIR}/plan.tsv"
+```
+
+Cộng lượt dùng cho 19 danh mục + 10 domain và **cuốn con trỏ pool**. Idempotent theo `batch_id` (chạy 2 lần không cộng đôi). **Verify FAIL / batch dở → KHÔNG chạy lệnh này** — không commit thì lần sau danh mục vẫn được ưu tiên cấp lại.
+
+### Chạy dở → resume, KHÔNG lập ma trận mới
+
+Hết context / bị ngắt ở bài thứ k: **`plan.tsv` cũ chính là nguồn phục hồi**. Sinh nốt các `idx` còn thiếu vào **đúng `OUT_DIR` đó**, append tiếp `manifest.tsv` (KHÔNG tạo lại dòng version/header), rồi verify + commit như thường.
+
+**Script tự chặn nhầm lẫn:** chạy `plan` khi folder ngày đã có `plan.tsv` → **DỪNG (exit 2)** + in số bài đã xong / `idx` còn thiếu + chỉ đường resume. Chạy `plan` lại sẽ re-random allocation nên **không dùng để phục hồi**. Cố ý muốn batch thứ 2 trong cùng ngày → `plan --new-batch` (bump `-2`).
+
+### State hỏng
+
+`super-cate-usage.json` không parse được → **cả `plan` lẫn `commit-usage` đều FAIL fast**, KHÔNG tự coi là rỗng (coi rỗng thì rotation cấp lại đúng danh mục/domain vừa dùng). Thoát hiểm: `plan --ignore-corrupt-state` (chấp nhận rotation sai lượt đó) hoặc `commit-usage --force-reset-state` (copy `.bak` trước khi ghi).
+
+### Không đủ domain cho 10 bài pbn
+
+Domain là dữ liệu **bắt buộc** của pbn (ghép URL bài + self-link). `pbn-domains.txt` có ít hơn 10 domain → **CẮT số bài pbn** xuống bằng số domain + announce, **KHÔNG** phát dòng pbn với `site` rỗng. Không đọc được domain nào → BLOCKED (exit 3).
+
+### Rotation — vì sao không bao giờ bắt đầu từ mục #1
+
+State chung: `data/super-cate-usage.json` (`cate` + `site` + `cursor` + ledger `batches`).
+
+- **Danh mục**: ưu tiên `used_count` nhỏ nhất, bằng nhau → **random**; trong cùng bậc thì pool lớn ưu tiên `pbn` (pbn đi domain riêng nên cần list dài), pool nhỏ dạt về `forum`.
+- **Domain**: cùng cơ chế — 10 domain ít dùng nhất, tie → random ⇒ đi hết 29 domain (~3 batch) mới lặp.
+- **Con trỏ pool (`cursor`)**: danh mục lặp lại ở batch sau thì lấy **truyện TIẾP THEO** trong pool, không lấy lại 10 truyện đầu. Pool 61 truyện = 6 batch list **rời nhau hoàn toàn**.
+- **Giới hạn thật:** 20 danh mục hợp lệ mà mỗi batch tiêu 19 ⇒ **2 batch KHÔNG THỂ rời nhau về danh mục** — danh mục sẽ lặp, nhưng con trỏ pool đảm bảo **list truyện rời nhau**. Muốn danh mục rời hẳn cần ≥38 danh mục hợp lệ (crawl thêm truyện cho danh mục pool nhỏ). Script tự announce điều này.
+
+### Nguồn danh mục — `data/categories.tsv`
+
+Cột: `cate_slug`, `cate_name`, `cate_url`, `keywords` (biến thể phân tách `|`). Nạp từ CSV export Google Sheet:
+
+```bash
+py -3 "~/.claude/skills/content-webnovel/scripts/import-cate.py" [--csv <path>] [--dry-run]
+```
+
+Không truyền `--csv` → tự tìm file `webnovel.vn*.csv` mới nhất trong Downloads. Nhiều dòng CSV trỏ **cùng URL** → gộp 1 danh mục, keyword thành list biến thể. User nói *"tôi vừa update sheet danh mục"* → **tự chạy lệnh này** rồi mới `plan`.
+
+### Danh mục bị loại (KHÔNG lọt vào batch)
+
+- `pool = 0`: slug không khớp `danh_muc` nào trong `truyen-data.json` → báo user crawl thêm.
+- `pool = 1`: không viết được toplist (SKILL.md auto-switch review) → loại, announce.
+
+---
+
+## LOẠI forum toplist — plain text, 1 post, N URL truyện + 1 URL danh mục
+
+**Chỉ dùng trong `super-cate`.** Khác `forum` thường (3 post, mỗi post đúng **1** URL): forum toplist là **1 post duy nhất**, dạng gợi ý danh sách, **mỗi truyện 1 URL trần** và **1 URL danh mục ở cuối bài**.
+
+**Contract (verify đếm lại từng mục):**
+
+1. **Dòng tiêu đề = câu hỏi hook** kiểu forum thật ("Có ai gợi ý giúp mình vài truyện [thể loại] đáng đọc năm 2026 không?"). Không khô kiểu SEO.
+2. **Body 500–1000 chữ**, plain text — **KHÔNG** thẻ HTML, **KHÔNG** hashtag, **KHÔNG** bảng.
+3. **N mục truyện** với N = `n_display` (tối đa 7):
+   - mỗi mục: tên truyện + 1-3 câu vì sao đáng đọc + **URL trần** `link_truyen`
+   - URL lấy từ **sidecar**, mỗi URL **đúng 1 lần**
+   - **KHÔNG bịa** cốt/spoiler kết/điểm số không có trong data
+4. **CTA cuối bài = 1 URL danh mục trần** (`cate_url`) — phải nằm ở **cuối**, vd *"Xem thêm truyện [thể loại] tại: https://webnovel.vn/…"*
+5. **Năm hiện tại (2026)** xuất hiện ≥1 lần.
+6. Tone: giọng sạch, đúng chính tả, thân thiện như người đọc forum thật — **KHÔNG** viết tắt kiểu seeding (`e`, `mn`, `k`…).
+7. Danh từ `[noun]` theo cột `noun` (fiction "truyện" / non-fiction "sách").
+
+> Tổng URL webnovel.vn trong bài = **N + 1**, tất cả dạng trần (không thẻ `<a>`), không URL nào lặp.
+
+---
+
 ## BƯỚC CUỐI (pbn/blog20) — Verify output BẮT BUỘC trước khi giao
 
 Sau khi viết xong HTML **mọi bài `pbn` / `blog20`** (mọi subtype), chạy verify để đếm lại contract cứng (backlink unique, self-link, JSON-LD, word count, năm, table/list) — KHÔNG tự tuyên bố "đã tuân thủ" mà không đếm:
@@ -1020,15 +1158,23 @@ python3 "~/.claude/skills/content-webnovel/scripts/verify-output.py" \
 - **Chọn biến thể qua script (BẮT BUỘC, thay tính hash tay):** với review/review-short/toplist/genre/guide/versus/forum, chạy `scripts/pick-variant.py` để lấy sẵn `ARCHETYPE / GÓC / TITLE_INDEX / VERDICT / CATEGORY_CLASS / NOUN`. LLM tính tổng code-point + chia lấy dư không đáng tin → **không phán đoán tay**, dùng đúng output script. Xem BƯỚC 2.5.
 - **Salt chống trùng across-domain (chỉ pbn):** truyền `--site` vào `pick-variant.py` → `h` cộng thêm hash domain nên cùng truyện đăng 2 domain PBN khác nhau ra archetype/góc/title khác → tránh duplicate-content. **blog20 KHÔNG có site → seed thuần** (giữ đúng spec gốc).
 - **Verify output (BẮT BUỘC pbn/blog20):** sau khi viết HTML, chạy `scripts/verify-output.py`; chỉ giao bài khi exit 0 (PASS). Xem "BƯỚC CUỐI — Verify output".
+- **`super-cate` (19 bài/ngày):** 1 lệnh = 10 pbn + 4 blog20 + 5 forum toplist, mỗi bài 1 danh mục KHÁC NHAU. Luồng CỨNG 4 bước: `plan` → sinh bài → `verify-bulk.py --plan --manifest` PASS → `commit-usage`. **Verify FAIL thì KHÔNG commit** (không commit = lần sau danh mục vẫn được ưu tiên cấp lại). Truyện lấy TỪ SIDECAR `plan/{idx}.json`, N = cột `n_display`, domain = cột `site` của chính dòng đó — KHÔNG tự tra JSON, KHÔNG tự đổi N/domain. Chạy dở → resume từ `plan.tsv` cũ, KHÔNG lập ma trận mới. Xem **LOẠI super-cate**.
+- **Rotation super-cate:** danh mục + domain + con trỏ pool đều lưu ở `data/super-cate-usage.json`; luôn ưu tiên phần tử ít dùng nhất (tie → random) nên KHÔNG bao giờ mặc định bắt đầu từ mục #1. Danh mục lặp ở batch sau vẫn ra **list truyện khác** nhờ con trỏ pool. Chỉ 20 danh mục hợp lệ / 19 bài mỗi batch ⇒ danh mục buộc phải lặp từ batch 2 — announce cho user, KHÔNG hứa "rời nhau hoàn toàn".
+- **`forum toplist`** (chỉ trong `super-cate`) khác `forum` thường: **1 post**, N URL truyện trần + **1 URL danh mục cuối bài** (tổng N+1 URL). `forum` không subtype giữ nguyên **3 post, mỗi post đúng 1 URL**.
 - Sau khi tạo content xong: hỏi user có muốn push skill lên repo không (nếu vừa sửa skill).
 
 ## Scripts & Data
 - `scripts/scrape.sh` — live-scrape webnovel.vn (curl browser-UA), auto-detect loại trang, in field dạng `KEY<TAB>value`. Fail rõ ràng rc 2/3/4/5.
 - `scripts/imgbb-upload.sh` — upload 1 ảnh lên ImgBB, stdout = direct URL. Key: `IMGBB_API_KEY` hoặc `~/.config/imgbb/api_key`. rc 2/3/4 khi lỗi.
 - `scripts/pick-variant.py` — tính sẵn (deterministic) archetype / góc chính+phụ / title index / verdict / category-class + noun cho 1 bài, thay việc tính hash tay. Truyền `--subtype` + `--slug`/`--target`/`--slug-a`+`--slug-b` + `--genres` + `--site` (pbn: salt chống trùng across-domain). In khối `KEY<TAB>value` + các dòng `ANNOUNCE_*` để dán ngoài HTML.
+- `scripts/verify-bulk.py` — verify cả batch. Chế độ cũ `--type X --manifest Y` (giữ nguyên). Chế độ `super-cate`: `--plan plan.tsv --manifest manifest.tsv` → multi-type, đọc type/subtype theo từng dòng, join theo `idx`, check URL truyện thuộc sidecar + nhánh `forum toplist` (N+1 URL trần).
 - `scripts/verify-output.py` — kiểm HTML pbn/blog20 trước khi giao: backlink unique, self-link, JSON-LD, word count 1000-1500, năm, table/list. `--type` + `--subtype` (+`--site` cho pbn), HTML qua stdin. Exit 0 PASS / 1 FAIL / 2 lỗi tham số.
 - `data/truyen-data.json` — pool truyện đã crawl (đồng bộ từ `/crawl-webnovel`). Có `anh_imgbb`; toàn bộ record được xét khi tra cứu/lọc.
-- `data/pbn-domains.txt` — domain PBN hợp lệ (đối chiếu `--site`). Dùng ghép URL bài, **không** host ảnh.
+- `scripts/super-cate.py` — orchestrator type `super-cate`. `plan` lập ma trận 19 dòng (ghi `plan.tsv` + sidecar `plan/{idx}.json`, `--dry-run` không ghi gì); `commit-usage --plan <file>` cộng rotation + cuốn con trỏ pool (idempotent theo `batch_id`, lock chống lost-update, state hỏng → FAIL fast). Exit 0/2/3.
+- `scripts/import-cate.py` — nạp `data/categories.tsv` từ CSV export Google Sheet (tự tìm trong Downloads, gộp keyword trùng URL). Chạy khi user update sheet danh mục.
+- `data/categories.tsv` — 23 danh mục: `cate_slug`/`cate_name`/`cate_url`/`keywords`. Nguồn chọn danh mục của `super-cate`.
+- `data/super-cate-usage.json` — state rotation `super-cate` (`cate` + `site` + `cursor` pool + ledger `batches`). 1 file duy nhất, ghi atomic. **Không sửa tay.**
+- `data/pbn-domains.txt` — domain PBN hợp lệ (đối chiếu `--site`). Dùng ghép URL bài, **không** host ảnh. Cũng là pool rút domain của `--site-pool` và `super-cate`.
 - `CHEATSHEET.md` — input cheat sheet (update cùng SKILL khi đổi Usage).
 
 ## Category

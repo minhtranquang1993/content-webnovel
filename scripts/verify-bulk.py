@@ -24,6 +24,7 @@
 import argparse
 import csv
 import datetime
+import json
 import re
 import subprocess
 import sys
@@ -135,6 +136,129 @@ def check_forum(body: str, year: int):
     return fails, oks
 
 
+def check_forum_toplist(body, year, n_display, sidecar_links, cate_url):
+    """Contract `forum toplist` (type super-cate) — KHÁC forum thường ở số URL.
+
+    forum thường: đúng 1 URL trần. forum toplist: n_display URL truyện trần
+    (mỗi truyện 1 link) + 1 URL danh mục ở CUỐI bài làm CTA. Vẫn plain text,
+    không thẻ HTML, 500-1000 chữ, có năm.
+
+    Mọi URL truyện phải nằm trong sidecar plan/{idx}.json — biến "không bịa" từ
+    lời hứa thành check máy được.
+    """
+    fails, oks = [], []
+    if re.search(r"<[a-zA-Z/][^>]*>", body):
+        tags = sorted(set(re.findall(r"<\s*(/?[a-zA-Z][a-zA-Z0-9]*)", body)))[:6]
+        fails.append(f"forum toplist phải plain text, thấy thẻ HTML: {', '.join(tags)}")
+    else:
+        oks.append("plain text (không thẻ HTML)")
+
+    urls = [u.rstrip(".,;") for u in bare_urls(body)]
+    wn = [u for u in urls if WEBNOVEL_HOST in u.lower()]
+    canon = lambda u: u.strip().rstrip("/").lower()
+    cate_c = canon(cate_url)
+    side_c = {canon(u) for u in sidecar_links}
+
+    story_urls = [u for u in wn if canon(u) != cate_c]
+    cate_hits = [u for u in wn if canon(u) == cate_c]
+
+    # URL unique
+    seen, dups = set(), []
+    for u in wn:
+        c = canon(u)
+        if c in seen:
+            dups.append(u)
+        seen.add(c)
+    if dups:
+        fails.append(f"URL webnovel.vn LẶP: {', '.join(sorted(set(dups))[:4])} "
+                     f"(mỗi URL chỉ 1 lần)")
+    else:
+        oks.append(f"{len(wn)} URL webnovel.vn, không lặp")
+
+    # đúng n_display URL truyện
+    if n_display and len(story_urls) != n_display:
+        fails.append(f"{len(story_urls)} URL truyện, cần đúng {n_display} "
+                     f"(= n_display trong plan.tsv)")
+    elif n_display:
+        oks.append(f"đúng {n_display} URL truyện trần")
+
+    # mọi URL truyện ∈ sidecar
+    if side_c:
+        outside = [u for u in story_urls if canon(u) not in side_c]
+        if outside:
+            fails.append(f"{len(outside)} URL truyện KHÔNG có trong sidecar "
+                         f"(bịa/lấy ngoài plan): {', '.join(outside[:3])}")
+        else:
+            oks.append("mọi URL truyện đều thuộc sidecar plan/")
+
+    # 1 URL danh mục ở cuối
+    if len(cate_hits) != 1:
+        fails.append(f"{len(cate_hits)} URL danh mục, cần đúng 1 ({cate_url})")
+    else:
+        tail = body.strip()[-400:]
+        if cate_url.rstrip("/") in tail or cate_url in tail:
+            oks.append("URL danh mục ở cuối bài (CTA)")
+        else:
+            fails.append("URL danh mục KHÔNG nằm ở cuối bài (phải là CTA chốt)")
+
+    wc = count_words(body)
+    if wc < FORUM_MIN_WORDS:
+        fails.append(f"body {wc} chữ < {FORUM_MIN_WORDS}")
+    elif wc > FORUM_MAX_WORDS:
+        fails.append(f"body {wc} chữ > {FORUM_MAX_WORDS}")
+    else:
+        oks.append(f"body {wc} chữ (trong {FORUM_MIN_WORDS}-{FORUM_MAX_WORDS})")
+
+    if re.search(r"\b%d\b" % year, body):
+        oks.append(f"năm {year} xuất hiện")
+    else:
+        fails.append(f"năm {year} KHÔNG xuất hiện (freshness fail)")
+    return fails, oks
+
+
+def read_plan(path: Path):
+    """Đọc plan.tsv của super-cate → (meta, {idx: row}).
+
+    FAIL fast, KHÔNG silent fallback: plan.tsv thiếu dòng version hoặc là output
+    --dry-run thì dừng ngay. Rơi về nhánh cũ ở đây rất nguy hiểm — forum toplist
+    cần n+1 URL mà nhánh forum cũ lại đòi đúng 1 URL → false PASS/FAIL.
+    """
+    if not path.is_file():
+        print(f"ERROR: không thấy plan {path}", file=sys.stderr)
+        raise SystemExit(2)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if not lines or not lines[0].startswith("# super-cate-plan v1"):
+        print(f"ERROR: {path.name} thiếu dòng version '# super-cate-plan v1' → "
+              f"không phải plan.tsv hợp lệ (hoặc đã bị sửa tay). KHÔNG đoán, dừng.",
+              file=sys.stderr)
+        raise SystemExit(2)
+    if "DRY_RUN_ONLY" in lines[0]:
+        print(f"ERROR: {path.name} là output --dry-run (DRY_RUN_ONLY) — không có "
+              f"sidecar nên KHÔNG verify được. Chạy 'super-cate.py plan' thật trước.",
+              file=sys.stderr)
+        raise SystemExit(2)
+    meta = {}
+    for tok in lines[0].split():
+        if "=" in tok:
+            k, v = tok.split("=", 1)
+            meta[k] = v
+    hdr = lines[1].split("\t") if len(lines) > 1 else []
+    rows = {}
+    for ln in lines[2:]:
+        if not ln.strip():
+            continue
+        r = dict(zip(hdr, ln.split("\t")))
+        rows[str(r.get("idx", "")).strip()] = r
+    if not rows:
+        print(f"ERROR: {path.name} không có dòng dữ liệu", file=sys.stderr)
+        raise SystemExit(2)
+    if any(r.get("plan_file", "-") == "-" for r in rows.values()):
+        print(f"ERROR: {path.name} có plan_file='-' (output dry-run) → không "
+              f"verify được.", file=sys.stderr)
+        raise SystemExit(2)
+    return meta, rows
+
+
 def check_header(header, body, type_, row):
     """Contract header/body theo type: pbn có URL+Slug ở header và KHÔNG lọt body;
     blog20 không được có URL/Slug ở đâu cả."""
@@ -179,8 +303,13 @@ def run_verify_one(body, type_, subtype, year, site):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--type", required=True, choices=["pbn", "blog20", "forum"])
-    ap.add_argument("--manifest", required=True, help="đường dẫn manifest-*.tsv")
+    ap.add_argument("--type", default="", choices=["", "pbn", "blog20", "forum"],
+                    help="chế độ CŨ (1 type/batch). Bỏ khi dùng --plan (super-cate "
+                         "đọc type theo từng dòng)")
+    ap.add_argument("--manifest", required=True, help="đường dẫn manifest .tsv")
+    ap.add_argument("--plan", default="",
+                    help="super-cate: plan.tsv của batch. Có cờ này → chế độ "
+                         "multi-type (type/subtype đọc theo từng dòng plan)")
     ap.add_argument("--site", default="",
                     help="domain PBN fallback cho dòng manifest KHÔNG có cột site. "
                          "Bulk 1-bài-1-domain thì khỏi truyền — đọc từ manifest")
@@ -189,22 +318,89 @@ def main():
                     help="số bài kỳ vọng (0 = lấy theo số dòng manifest)")
     args = ap.parse_args()
 
+    if not args.plan and not args.type:
+        print("ERROR: cần --type (chế độ cũ) hoặc --plan (super-cate).",
+              file=sys.stderr)
+        raise SystemExit(2)
+
     man = Path(args.manifest).expanduser()
     if not man.is_file():
         print(f"ERROR: không thấy manifest {man}", file=sys.stderr)
         raise SystemExit(2)
     folder = man.parent
 
+    # --- super-cate: join plan.tsv (allocation) + manifest.tsv (kết quả) ------
+    plan_rows, plan_meta = {}, {}
+    if args.plan:
+        plan_meta, plan_rows = read_plan(Path(args.plan).expanduser())
+
     try:
         with open(man, encoding="utf-8", newline="") as f:
-            rows = [r for r in csv.DictReader(f, delimiter="\t")]
+            raw = f.read()
     except Exception as e:
         print(f"ERROR: đọc manifest lỗi: {e}", file=sys.stderr)
         raise SystemExit(2)
 
-    if not rows:
-        print("ERROR: manifest rỗng (0 dòng).", file=sys.stderr)
+    man_lines = raw.splitlines()
+    if args.plan:
+        # manifest.tsv của super-cate: 1 dòng version + 1 header, sau đó chỉ append.
+        ver_lines = [l for l in man_lines if l.startswith("# super-cate-manifest")]
+        if not ver_lines:
+            print(f"ERROR: {man.name} thiếu dòng '# super-cate-manifest v1' "
+                  f"(generator phải tạo 1 lần trước bài đầu).", file=sys.stderr)
+            raise SystemExit(2)
+        if len(ver_lines) > 1:
+            print(f"ERROR: {man.name} có {len(ver_lines)} dòng version — dấu hiệu "
+                  f"generation bị ngắt rồi khởi tạo lại. Kiểm tay.", file=sys.stderr)
+            raise SystemExit(2)
+        mb = ""
+        for tok in ver_lines[0].split():
+            if tok.startswith("batch_id="):
+                mb = tok.split("=", 1)[1]
+        if mb and plan_meta.get("batch_id") and mb != plan_meta["batch_id"]:
+            print(f"ERROR: batch_id lệch — manifest={mb} vs plan="
+                  f"{plan_meta['batch_id']}. Ghép nhầm batch.", file=sys.stderr)
+            raise SystemExit(2)
+        body_lines = [l for l in man_lines if not l.startswith("#")]
+        if len(body_lines) > 1 and body_lines[0].split("\t")[0] == "idx":
+            hdr_count = sum(1 for l in body_lines if l.split("\t")[0] == "idx")
+            if hdr_count > 1:
+                print(f"ERROR: {man.name} có {hdr_count} dòng header — generation "
+                      f"bị khởi tạo lại giữa chừng.", file=sys.stderr)
+                raise SystemExit(2)
+        raw = "\n".join(body_lines)
+
+    try:
+        rows = [r for r in csv.DictReader(raw.splitlines(), delimiter="\t")]
+    except Exception as e:
+        print(f"ERROR: parse manifest lỗi: {e}", file=sys.stderr)
         raise SystemExit(2)
+
+    if not rows:
+        print("ERROR: manifest rỗng (0 dòng dữ liệu) — chưa sinh bài nào.",
+              file=sys.stderr)
+        raise SystemExit(2)
+
+    if args.plan:
+        # join: mỗi dòng manifest phải khớp 1 dòng plan; thiếu idx = bài chưa sinh
+        missing = [i for i in plan_rows if i not in {str(r.get("idx", "")).strip()
+                                                     for r in rows}]
+        if missing:
+            print(f"ERROR: thiếu {len(missing)} bài chưa sinh (idx: "
+                  f"{', '.join(missing[:10])}). Sinh nốt rồi verify lại.",
+                  file=sys.stderr)
+            raise SystemExit(1)
+        merged = []
+        for r in rows:
+            i = str(r.get("idx", "")).strip()
+            if i not in plan_rows:
+                print(f"ERROR: manifest có idx {i} KHÔNG có trong plan.tsv",
+                      file=sys.stderr)
+                raise SystemExit(2)
+            m = dict(plan_rows[i])
+            m.update({k: v for k, v in r.items() if v})
+            merged.append(m)
+        rows = merged
 
     batch_fails, batch_warns = [], []
     per_file = []          # (filename, subtype, [fail], [ok])
@@ -218,15 +414,29 @@ def main():
     for row in rows:
         fname = (row.get("filename") or "").strip()
         subtype = (row.get("subtype") or "").strip()
+        # type: chế độ cũ = 1 type toàn batch; super-cate = đọc theo từng dòng plan
+        row_type = (row.get("type") or "").strip() if args.plan else args.type
         # Site đọc THEO DÒNG: bulk pbn phân 1 domain/bài nên self-link mỗi file trỏ
         # domain riêng. --site chỉ là fallback cho manifest cũ (không có cột site).
         row_site = (row.get("site") or "").strip() or args.site
         fails, oks = [], []
+        # super-cate: filename là path tương đối từ OUT_DIR, LUÔN có prefix type
+        # ("pbn/x.txt"). Verify resolve OUT_DIR/filename, KHÔNG tự ghép type —
+        # tránh 2 cách hiểu giữa generator và verifier.
         path = folder / fname
 
         if not fname:
             batch_fails.append(f"manifest idx {row.get('idx')} thiếu cột filename")
             continue
+        if args.plan:
+            if "/" not in fname:
+                batch_fails.append(f"idx {row.get('idx')}: filename '{fname}' thiếu "
+                                   f"prefix type (cần dạng '{row_type}/ten-bai.txt')")
+                continue
+            if fname.split("/", 1)[0] != row_type:
+                batch_fails.append(f"idx {row.get('idx')}: filename prefix "
+                                   f"'{fname.split('/', 1)[0]}' ≠ type '{row_type}'")
+                continue
         if not path.is_file():
             batch_fails.append(f"manifest trỏ file KHÔNG tồn tại: {fname}")
             continue
@@ -237,20 +447,58 @@ def main():
         if not body.strip():
             fails.append("body rỗng sau separator")
 
-        fails += check_header(header, body, args.type, row)
+        fails += check_header(header, body, row_type, row)
 
-        if args.type == "forum":
-            f2, o2 = check_forum(body, args.year)
+        if row_type == "forum":
+            if args.plan and subtype == "toplist":
+                # nhánh MỚI: n_display URL truyện + 1 URL danh mục cuối bài
+                try:
+                    nd = int(row.get("n_display") or 0)
+                except ValueError:
+                    nd = 0
+                links = []
+                pf = (row.get("plan_file") or "").strip()
+                if pf and pf != "-":
+                    try:
+                        side = json.loads((folder / pf).read_text(encoding="utf-8"))
+                        links = [s.get("link_truyen") or "" for s in side]
+                    except Exception as e:
+                        fails.append(f"không đọc được sidecar {pf}: {e}")
+                f2, o2 = check_forum_toplist(body, args.year, nd, links,
+                                             (row.get("cate_url") or "").strip())
+            else:
+                # forum thường (3 post/1 URL) — KHÔNG đổi hành vi cũ
+                f2, o2 = check_forum(body, args.year)
             fails += f2
             oks += o2
         else:
-            ok1, out1 = run_verify_one(body, args.type, subtype, args.year, row_site)
+            ok1, out1 = run_verify_one(body, row_type, subtype, args.year, row_site)
             if ok1:
                 oks.append("verify-output.py PASS")
             else:
                 detail = [l.strip() for l in out1.splitlines() if "FAIL" in l]
                 fails.append("verify-output.py FAIL → " +
                              (" | ".join(detail) if detail else out1[:200]))
+
+        # super-cate pbn/blog20: mọi URL truyện phải thuộc sidecar (check "không bịa")
+        if args.plan and row_type in ("pbn", "blog20"):
+            pf = (row.get("plan_file") or "").strip()
+            if pf and pf != "-":
+                try:
+                    side = json.loads((folder / pf).read_text(encoding="utf-8"))
+                    allowed = {(s.get("link_truyen") or "").rstrip("/").lower()
+                               for s in side}
+                    cate_c = (row.get("cate_url") or "").rstrip("/").lower()
+                    used = {u.rstrip("/.,;").lower() for u in bare_urls(body)
+                            if WEBNOVEL_HOST in u.lower()}
+                    outside = [u for u in used if u not in allowed and u != cate_c]
+                    if outside:
+                        fails.append(f"{len(outside)} URL truyện NGOÀI sidecar "
+                                     f"(bịa/lấy ngoài plan): {', '.join(sorted(outside)[:3])}")
+                    else:
+                        oks.append("mọi URL truyện thuộc sidecar plan/")
+                except Exception as e:
+                    fails.append(f"không đọc được sidecar {pf}: {e}")
 
         # gom dữ liệu cấp-batch
         h1 = get_h1(body)
@@ -269,7 +517,7 @@ def main():
             else:
                 kw_map[kw] = fname
 
-        if args.type == "pbn":
+        if row_type == "pbn":
             sites_seen.append(row_site)
             if not row_site:
                 fails.append("thiếu domain (manifest không có cột site, cũng không "
@@ -312,7 +560,7 @@ def main():
     # Mục tiêu bulk pbn: N bài → N domain khác nhau. Trùng domain không phải lỗi cứng
     # (user có thể chủ ý, hoặc pool không đủ) nhưng phải báo để thấy footprint.
     n_sites = len({s for s in sites_seen if s})
-    if args.type == "pbn" and sites_seen:
+    if sites_seen:
         if n_sites and n_sites < len(sites_seen):
             dup = {}
             for s in sites_seen:
@@ -343,9 +591,15 @@ def main():
                                f"trong manifest: {', '.join(stray[:5])}")
 
     # ----- report -----
-    print(f"=== VERIFY BULK — {args.type} · {len(rows)} bài · {man.name} ===")
+    label = args.type or "super-cate (multi-type)"
+    print(f"=== VERIFY BULK — {label} · {len(rows)} bài · {man.name} ===")
     print(f"folder: {folder}")
-    if args.type == "pbn" and sites_seen:
+    if args.plan:
+        by_t = {}
+        for r in rows:
+            by_t[(r.get("type") or "?").strip()] = by_t.get((r.get("type") or "?").strip(), 0) + 1
+        print("type: " + ", ".join(f"{k} ×{v}" for k, v in sorted(by_t.items())))
+    if sites_seen:
         print(f"domain: {n_sites} domain phân biệt cho {len(sites_seen)} bài"
               f"{' (1 bài 1 domain)' if n_sites == len(sites_seen) else ''}")
     print()

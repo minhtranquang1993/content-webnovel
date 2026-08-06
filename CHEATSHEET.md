@@ -13,6 +13,7 @@ Cách input nhanh cho skill content marketing Webnovel.vn.
 
 ```
 /content-webnovel <type> [subtype] <url|tên> [keyword="<kw>"] [--site <domain>[,<domain2>,…] | --site-pool] [--bulk N] [--dry-run]
+/content-webnovel super-cate [--dry-run]        # 19 bài toplist / 19 danh mục — không cần URL
 ```
 
 Freeform cũng được: gửi URL + mô tả bằng lời → skill tự map.
@@ -252,6 +253,107 @@ Output chat: `### Post 1` … `### Post 3` (3 biến thể khác hook/góc viế
 - Pool `>= 2` → toplist; pool `== 1` → tự chuyển `blog20 review`; pool `== 0` → fallback thể loại / dừng với tác giả như PBN.
 - `blog20` chỉ là tên type. Số `20` **không** yêu cầu đủ 20 truyện; không padding hoặc bịa thêm truyện.
 - Auto-switch từ danh mục: link truyện đúng 1 lần tại CTA + link danh mục đúng 1 lần trong intro/đoạn thể loại; vẫn không có self-link.
+
+---
+
+## SUPER-CATE — 1 lệnh, 19 bài toplist / 19 danh mục khác nhau
+
+```
+/content-webnovel super-cate
+/content-webnovel super-cate --dry-run      # xem trước ma trận, không ghi gì
+```
+
+**Không cần URL, không cần `--site`, không cần `--bulk`.** Ra đúng **10 pbn + 4 blog20 + 5 forum**, tất cả subtype `toplist`, mỗi bài 1 danh mục riêng.
+
+### Luồng 4 bước (thứ tự CỨNG)
+
+```bash
+S=~/.claude/skills/content-webnovel/scripts
+
+# 1) lập ma trận → lấy OUT_DIR từ dòng [super-cate] OUT_DIR:
+py -3 "$S/super-cate.py" plan
+
+# 2) sinh 19 bài .txt + manifest.tsv  (LLM viết, theo từng dòng plan.tsv)
+
+# 3) verify — PASS hết mới sang bước 4
+py -3 "$S/verify-bulk.py" --plan "{OUT_DIR}/plan.tsv" --manifest "{OUT_DIR}/manifest.tsv"
+
+# 4) commit rotation — CHỈ khi verify PASS
+py -3 "$S/super-cate.py" commit-usage --plan "{OUT_DIR}/plan.tsv"
+```
+
+> **Verify FAIL → KHÔNG chạy bước 4.** Không commit thì lần sau danh mục vẫn được ưu tiên cấp lại.
+
+### Output
+
+```
+<Downloads>/webnovel/{YYYY-MM-DD}/
+├── plan.tsv          ← allocation đóng băng (chỉ script ghi)
+├── manifest.tsv      ← kết quả (chỉ generator ghi)
+├── plan/{idx}.json   ← sidecar: danh sách truyện cho từng bài
+├── pbn/*.txt         (10 file)
+├── blog20/*.txt      (4 file)
+└── forum/*.txt       (5 file)
+```
+
+Folder ngày đã tồn tại → tự bump `2026-08-06-2`, `-3`.
+
+### Cột trong `plan.tsv`
+
+| Cột | Dùng để |
+|---|---|
+| `type` | `pbn` / `blog20` / `forum` → viết theo contract tương ứng |
+| `cate_name` / `cate_url` / `cate_slug` | danh mục của bài đó |
+| `pool` / `n_display` | pool thật / **số truyện phải liệt kê** (pbn+blog20 ≤10, forum ≤7) |
+| `keyword` | primary keyword (H1/title/body) |
+| `kw_variants` | biến thể rải nhẹ 1-2 lần, KHÔNG lọc lại pool |
+| `site` | domain của **chính dòng đó** (chỉ pbn). Rỗng → DỪNG, hỏi user |
+| `archetype` / `title_idx` / `noun` | slot biến thể, dùng nguyên, không tự tính hash |
+| `plan_file` | sidecar chứa danh sách truyện |
+
+**Truyện lấy TỪ SIDECAR**, không tự tra `truyen-data.json`, không thêm/bớt. Verify đối chiếu — URL ngoài sidecar = FAIL.
+
+### Rotation (không bao giờ bắt đầu từ mục #1)
+
+State: `data/super-cate-usage.json` — danh mục + domain + con trỏ pool + ledger batch.
+
+- **Danh mục / domain:** ưu tiên ít dùng nhất, tie → random. Domain đi hết 29 (~3 batch) mới lặp.
+- **Con trỏ pool:** danh mục lặp ở batch sau vẫn ra **list truyện khác** (Tiên Hiệp pool 61 → 6 batch list rời hẳn).
+- **Giới hạn:** 20 danh mục hợp lệ / 19 bài mỗi batch ⇒ **từ batch 2 danh mục buộc phải lặp** (list truyện thì không). Muốn danh mục rời hẳn cần ≥38 danh mục hợp lệ.
+- Danh mục `pool ≤1` (Tổng Tài, Kiếm Hiệp, Võng Du) **luôn bị loại** — không viết được toplist.
+
+### Update danh mục
+
+```bash
+py -3 ~/.claude/skills/content-webnovel/scripts/import-cate.py            # tự tìm CSV trong Downloads
+py -3 ~/.claude/skills/content-webnovel/scripts/import-cate.py --dry-run  # xem trước
+```
+
+Nạp `data/categories.tsv` từ CSV export sheet. Nhiều dòng cùng URL → gộp 1 danh mục, keyword thành biến thể. **Vừa update sheet → chạy lệnh này trước khi `plan`.**
+
+### Chạy dở giữa đường
+
+`plan.tsv` cũ là nguồn phục hồi: sinh nốt `idx` còn thiếu vào **đúng folder đó**, append tiếp `manifest.tsv` (không tạo lại dòng version), rồi verify + commit.
+
+Chạy `plan` khi folder ngày đã có batch → script **DỪNG** + in `idx` còn thiếu + chỉ đường resume. Muốn batch thứ 2 cùng ngày: `plan --new-batch`.
+
+### Cờ thoát hiểm
+
+| Cờ | Khi nào |
+|---|---|
+| `plan --new-batch` | cố ý chạy batch thứ 2 trong cùng ngày |
+| `plan --ignore-corrupt-state` | state hỏng, chấp nhận rotation sai lượt này |
+| `commit-usage --force-reset-state` | state hỏng, ghi lại từ rỗng (copy `.bak` trước) |
+| `plan --seed N` | tái lập tie-break (chỉ đúng khi state+data chưa đổi) |
+
+### `forum toplist` khác `forum` thường
+
+| | `forum` (thường) | `forum toplist` (super-cate) |
+|---|---|---|
+| Số post | 3 post / lần | **1 post / file** |
+| URL | đúng **1** URL trần | **N URL truyện + 1 URL danh mục cuối** = N+1 |
+| Chữ | 500–1000 / post | 500–1000 |
+| Format | plain text | plain text |
 
 ---
 
