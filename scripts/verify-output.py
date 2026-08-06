@@ -23,7 +23,9 @@ import datetime
 
 # Console Windows mặc định cp1252 → in H1/keyword tiếng Việt trong report là
 # UnicodeEncodeError. Ép UTF-8 cho stdout/stderr.
-for _s in (sys.stdout, sys.stderr):
+# stdin cũng phải ép: đọc HTML tiếng Việt bằng cp1252 gây mojibake, sinh NBSP
+# giả → count_words_vi() tách từ sai và đếm phồng ~6% (FAIL "quá dài" oan).
+for _s in (sys.stdout, sys.stderr, sys.stdin):
     try:
         _s.reconfigure(encoding="utf-8")
     except (AttributeError, ValueError):
