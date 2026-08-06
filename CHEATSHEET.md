@@ -1,7 +1,7 @@
 # Cheat sheet — `/content-webnovel`
 
 Cách input nhanh cho skill content marketing Webnovel.vn.  
-**Skill active:** `~/.claude/skills/content-webnovel/` (git repo mirror: `~/.commandcode/skills/content-webnovel/`)  
+**Skill active:** `~/.claude/skills/content-webnovel/` — đây cũng chính là git repo (commit/push tại chỗ, không có bước copy)  
 **Repo:** https://github.com/minhtranquang1993/content-webnovel  
 **Chi tiết đầy đủ:** xem `SKILL.md`.
 

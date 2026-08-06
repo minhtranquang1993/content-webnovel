@@ -14,8 +14,10 @@ Tạo content marketing cho **Webnovel.vn** (website đọc truyện chữ có b
 ## Repo
 
 Skill đồng bộ với repo GitHub: **https://github.com/minhtranquang1993/content-webnovel** (branch `main`).
-- **Push:** commit + push ngay trong `~/.commandcode/skills/content-webnovel/` (đây là git repo). Bản đang chạy là `~/.claude/skills/content-webnovel/` — sau khi sửa ở `~/.claude` phải copy sang `~/.commandcode` rồi mới commit/push.
-- **Pull:** `git pull` tại `~/.commandcode/skills/content-webnovel/`, rồi copy về `~/.claude/skills/content-webnovel/`.
+- **`~/.claude/skills/content-webnovel/` VỪA là bản đang chạy VỪA là git repo** — sửa ở đâu commit ở đó, không có bước copy qua thư mục khác.
+- **Push:** `git add` + `git commit` + `git push origin main` ngay tại thư mục này.
+- **Pull:** `git pull` tại chính thư mục này.
+- **Repo public** — không commit credential (xem `.gitignore`). `data/super-cate-usage.json` cũng bị ignore: đó là state rotation riêng từng máy, commit vào thì mỗi lần pull sẽ đè lượt dùng danh mục/domain của máy khác.
 
 ## Usage
 
